@@ -24,8 +24,20 @@ const DB_EX={beg:{lg:['Bodyweight Squat','Goblet Squat','Leg Press','Step-Ups','
 const DB_DIET={brk:['بيض مسلوق+عيش بلدي+خضار','بيض أومليت بالخضار','شوفان باللبن والموز','توست أسمر بزبدة الفول السوداني','زبادي بالعسل والشوفان','جبنة قريش+طماطم وخيار'],lun:['صدور فراخ مشوية+رز+خضار','شيش طاووق+رز','فراخ بالصويا صوص+خضار','لحمة مكعبات+خضار','سمك مشوي+سلطة+رز','تونة+مكرونة+خضار','كشري (كمية محسوبة)'],din:['ساندوتش جبنة قريش وخضار','تونة+سلطة+عيش','زبادي+شوفان+فاكهة','ساندوتش فراخ مشوية','فول+بيض']};
 const POSTURES=[{id:'normal',img:'posture-normal.jpg',tAr:'1. normal - الطبيعي',dAr:'انحناءات طبيعية بدون مشاكل.',tEn:'1. Normal',dEn:'Natural curves.'},{id:'lordosis',img:'posture-lordosis.jpg',tAr:'2. Lordosis — تقعر قطني',dAr:'انحناء للداخل في أسفل الظهر.',tEn:'2. Lordosis',dEn:'Inward curvature.'},{id:'kyphosis',img:'posture-kyphosis.jpg',tAr:'3. Kyphosis — تحدب الظهر',dAr:'انحناء للخارج في منطقة الظهر العلوي.',tEn:'3. Kyphosis',dEn:'Outward curvature.'},{id:'scoliosis',img:'posture-scoliosis.jpg',tAr:'4. Scoliosis — الجنف',dAr:'انحناء جانبي للعمود الفقري.',tEn:'4. Scoliosis',dEn:'Sideways curvature.'}];
 const SHAPES=['Hourglass','Pear','Apple','Rectangle','Inverted Triangle','Diamond','Oblong','Triangle','Round','Lean'];
-// Adjusted coordinates based on new image
-const MEASURE_PTS=[{id:'neck',t:'18%',l:'50%',ar:'الرقبة',en:'Neck'},{id:'shoulders',t:'28%',l:'30%',ar:'الأكتاف',en:'Shoulders'},{id:'chest',t:'32%',l:'50%',ar:'الصدر',en:'Chest'},{id:'waist',t:'42%',l:'50%',ar:'الخصر',en:'Waist'},{id:'hips',t:'50%',l:'50%',ar:'الحوض',en:'Hips'},{id:'bicep',t:'40%',l:'25%',ar:'الذراع',en:'Bicep'},{id:'forearm',t:'52%',l:'22%',ar:'الساعد',en:'Forearm'},{id:'thighs',t:'65%',l:'42%',ar:'الفخذ',en:'Thighs'},{id:'calves',t:'85%',l:'44%',ar:'السمانة',en:'Calves'}];
+
+// New Adjusted Coordinates based on the new image you provided[span_1](start_span)[span_1](end_span)
+const MEASURE_PTS=[
+    {id:'neck', t:'27%', l:'50%', ar:'الرقبة', en:'Neck'},
+    {id:'shoulders', t:'34%', l:'34%', ar:'الأكتاف', en:'Shoulders'},
+    {id:'chest', t:'36%', l:'50%', ar:'الصدر', en:'Chest'},
+    {id:'waist', t:'42%', l:'50%', ar:'الخصر', en:'Waist'},
+    {id:'hips', t:'46%', l:'36%', ar:'الحوض', en:'Hips'},
+    {id:'bicep', t:'40%', l:'31%', ar:'الذراع', en:'Bicep'},
+    {id:'forearm', t:'46%', l:'29%', ar:'الساعد', en:'Forearm'},
+    {id:'thighs', t:'52%', l:'43%', ar:'الفخذ', en:'Thighs'},
+    {id:'calves', t:'64%', l:'44%', ar:'السمانة', en:'Calves'}
+];
+
 const t={
     ar:{dWs:["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],title:"Glow & Grit",sub:"By Coach Rawan",log:"دخول / تسجيل",n:"الاسم",ph:"رقم الموبايل",ag:"السن",w:"الوزن",h:"الطول",nx:"التالي",bk:"رجوع",med:"التاريخ الطبي والإصابات",q1:"أمراض مزمنة؟",q2:"حامل أو ولادة قيصرية؟",q3:"مشاكل في الظهر، الركبة، الرقبة؟",q4:"عمليات سابقة؟",q5:"تدخين/كحوليات؟",inj:"الإصابات (أكثر من اختيار):",y:"نعم",no:"لا",rsn:"التفاصيل...",pq:"وضعية العمود الفقري؟",fit:"اختبار اللياقة (1 دقيقة)",psh:"الضغط (Pushup)",crn:"البطن (Crunches)",sqt:"السكوات (Squat)",msr:"المقاسات (اضغطي على الدوائر)",shp:"شكل الجسم",dy:"أيام التمرين أسبوعياً؟",alrg:"حساسية طعام؟",inb:"رفع InBody (اختياري)",subBtn:"إنهاء التسجيل",suc:"تم الإرسال بنجاح!",adm:"Glow & Grit Admin",cli:"العملاء",dash:"لوحة التحكم",tdy:"تمرين اليوم",mis:"الإبلاغ عن عدم التمرين",noP:"يوم راحة 🌿",iW:"الوزن المثالي",ed:"إدارة",del:"حذف",sv:"حفظ التعديلات",can:"إغلاق",chl:"تحدي 30 يوم 🔥",pend:"طلبك قيد المراجعة من الكابتن ⏳",wapp:"تواصل مع الكابتن",gAnn:"إعلان عام للعملاء:"},
     en:{dWs:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],title:"Glow & Grit",sub:"By Coach Rawan",log:"Login / Register",n:"Name",ph:"Phone",ag:"Age",w:"Weight",h:"Height",nx:"Next",bk:"Back",med:"Medical & Injuries",q1:"Chronic diseases?",q2:"Pregnant/C-section?",q3:"Back, knee, neck issues?",q4:"Previous surgeries?",q5:"Smoking/alcohol?",inj:"Injuries (Select multiple):",y:"Yes",no:"No",rsn:"Details...",pq:"Spinal posture?",fit:"Fitness Test (1 min)",psh:"Pushup",crn:"Crunches",sqt:"Squat",msr:"Measurements (Click dots)",shp:"Body Shape",dy:"Training days/week?",alrg:"Food allergies?",inb:"Upload InBody (Optional)",subBtn:"Complete Registration",suc:"Submitted Successfully!",adm:"Glow & Grit Admin",cli:"Clients",dash:"Dashboard",tdy:"Today's Plan",mis:"Missed workout",noP:"Rest Day 🌿",iW:"Ideal Weight",ed:"Manage",del:"Delete",sv:"Save",can:"Close",chl:"30-Day Challenge 🔥",pend:"Your request is pending coach approval ⏳",wapp:"Contact Coach",gAnn:"Global Announcement:"}
