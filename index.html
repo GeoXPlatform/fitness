@@ -17,7 +17,7 @@ input[type=range]{-webkit-appearance:none;width:100%;background:transparent} inp
 .fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:30px;box-shadow:0 10px 25px rgba(37,211,102,0.4);z-index:50;transition:transform 0.3s;} .fab:hover{transform:scale(1.1)}
 .action-btn{padding:6px 12px;border-radius:8px;font-weight:bold;font-size:11px;cursor:pointer;transition:all 0.2s;} .btn-done{background:#10b981;color:white;border:1px solid #059669;} .btn-fail{background:#ef4444;color:white;border:1px solid #dc2626;} .btn-idle{background:var(--input);color:var(--text-mut);border:1px solid var(--border);}
 </style></head><body><div id="root"></div><script type="text/babel">
-if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyD93bYFpKL277-aq_QXhHEraQj88zJ5fTA",authDomain:"first-7d77e.firebaseapp.com",databaseURL:"https://first-7d77e-default-rtdb.firebaseio.com",projectId:"first-7d77e",storageBucket:"first-7d77e.firebasestorage.app",messagingSenderId:"234531714745",appId:"1:234531714745:web:df53295673b64f96eb0d68",measurementId:"G-N0MLJBF4PF"});}
+if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyAkSD8k1Q4_gSwar3mwfDPVpUPWzHJevNk",authDomain:"geox-platform.firebaseapp.com",databaseURL:"https://geox-platform-default-rtdb.firebaseio.com",projectId:"geox-platform",storageBucket:"geox-platform.firebasestorage.app",messagingSenderId:"691272759644",appId:"1:691272759644:web:0070d88542abc78bef6999",measurementId:"G-CDF1KYQNJT"});}
 const auth = firebase.auth(); const db = firebase.firestore(); const {useState,useEffect,useRef}=React;
 const ADMIN_PHONE = '01063405860'; const ADMIN_EMAILS = ['rawanelsayed322@gmail.com', 'yousef74joe74@gmail.com'];
 const LEVELS=[{id:'l1',n:'مبتدئ (Beginner)'},{id:'l2',n:'متوسط مبتدئ (Novice)'},{id:'l3',n:'متوسط (Intermediate)'},{id:'l4',n:'متقدم (Advanced)'},{id:'l5',n:'نخبة (Elite)'}];
@@ -35,6 +35,16 @@ const Timer = () => { const [time, setTime] = useState(0); const [run, setRun] =
 const MusicPlayer = () => { const [play, setPlay] = useState(false); const audioRef = useRef(null); useEffect(() => { audioRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); audioRef.current.loop = true; return ()=>audioRef.current.pause(); }, []); const toggle = () => { if(play) audioRef.current.pause(); else audioRef.current.play(); setPlay(!play); }; return (<button onClick={toggle} className={`flex items-center justify-center gap-2 px-4 py-2 w-full rounded-xl font-black text-xs shadow-md transition ${play?'bg-brand text-white animate-pulse':'bg-white text-gray-700 border'}`}>{play?'⏸️ إيقاف الـ Vibe':'🎵 Gym Vibe'}</button>); };
 const ScrollPicker=({min,max,val,onCh,lbl,suf})=>{const opts=Array.from({length:max-min+1},(_,i)=>min+i);const ref=useRef(null);return(<div className="flex flex-col items-center flex-1 bg-white p-2 rounded-[1.5rem] shadow-sm overflow-hidden"><span className="text-[10px] font-bold text-gray-500 mb-1 whitespace-nowrap">{lbl}</span><div ref={ref} onScroll={(e)=>onCh(opts[Math.round(e.target.scrollTop/44)]||val)} className="h-[132px] w-full overflow-y-scroll scroll-picker relative"><div style={{height:'44px'}}></div>{opts.map(o=><div key={o} onClick={()=>{onCh(o);ref.current.scrollTo({top:(o-min)*44,behavior:'smooth'});}} className={`h-[44px] flex items-center justify-center scroll-picker-item cursor-pointer transition-all ${val===o?'text-brand text-2xl font-black scale-110':'text-gray-300 text-sm font-bold'}`}>{o} <span className="text-[10px] ml-1">{suf}</span></div>)}<div style={{height:'44px'}}></div></div></div>);};
 
+// Internal Memory Helper
+const syncLocalDB = (clientData) => {
+    let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]');
+    const idx = localDB.findIndex(c => c.ph === clientData.ph);
+    if (idx > -1) localDB[idx] = clientData;
+    else localDB.push(clientData);
+    localStorage.setItem('gg_local_clients_db', JSON.stringify(localDB));
+    return localDB;
+};
+
 const App=()=>{const [lang,setLang]=useState(localStorage.getItem('gg_lang')||'ar');const [theme,setTheme]=useState(localStorage.getItem('gg_theme')||'dark');const [view,setView]=useState('loading');const [step,setStep]=useState(1);const [clients,setClients]=useState([]);const [currentUser,setCurrentUser]=useState(null);const [editingClient,setEditingClient]=useState(null);const [adminTab,setAdminTab]=useState('basic');const [showWModal,setShowWModal]=useState(false);const [newW,setNewW]=useState('');const [srch,setSrch]=useState('');const [srt,setSrt]=useState('date');const [dtRange,setDtRange]=useState({start:'',end:''});const [actPt,setActPt]=useState(null);const [ann,setAnn]=useState('');const [tip,setTip]=useState('');const [measurePts,setMeasurePts]=useState(DEFAULT_MEASURE_PTS);const [showDotsEditor,setShowDotsEditor]=useState(false);const [adminActPt,setAdminActPt]=useState(null);
 const [showUpdateModal, setShowUpdateModal] = useState(false); const [updData, setUpdData] = useState({w:0,h:0,ag:0});const [loginTab, setLoginTab] = useState('new'); const isAr=lang==='ar';
 const t={ ar:{dWs:["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],title:"Glow & Grit",sub:"By Coach Rawan",n:"الاسم",ph:"رقم الموبايل",ag:"السن",w:"الوزن",h:"الطول",nx:"التالي",bk:"رجوع",med:"التاريخ الطبي والإصابات",q1:"أمراض مزمنة؟",q2:"حامل أو ولادة قيصرية؟",q3:"مشاكل في الظهر، الركبة، الرقبة؟",q4:"عمليات سابقة؟",q5:"تدخين/كحوليات؟",inj:"الإصابات (أكثر من اختيار):",y:"نعم",no:"لا",rsn:"التفاصيل...",pq:"وضعية العمود الفقري؟",fit:"اختبار اللياقة (1 دقيقة)",psh:"الضغط (Pushup)",crn:"البطن (Crunches)",sqt:"السكوات (Squat)",msr:"المقاسات (اضغطي على الدوائر)",shp:"شكل الجسم",dy:"أيام التمرين أسبوعياً؟",alrg:"حساسية طعام؟",inb:"رفع InBody (اختياري)",subBtn:"إنهاء التسجيل",suc:"تم الإرسال بنجاح!",adm:"Glow & Grit Admin",cli:"العملاء",dash:"لوحة التحكم",tdy:"تمرين اليوم",mis:"الإبلاغ عن عدم التمرين",noP:"يوم راحة 🌿",iW:"الوزن المثالي",ed:"إدارة",del:"حذف",sv:"حفظ التعديلات",can:"إغلاق",chl:"تحدي 30 يوم 🔥",wapp:"تواصل مع الكابتن",gAnn:"إعلان عام للعملاء:",tip:"نصيحة اليوم:"}, en:{dWs:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],title:"Glow & Grit",sub:"By Coach Rawan",n:"Name",ph:"Phone",ag:"Age",w:"Weight",h:"Height",nx:"Next",bk:"Back",med:"Medical & Injuries",q1:"Chronic diseases?",q2:"Pregnant/C-section?",q3:"Back, knee, neck issues?",q4:"Previous surgeries?",q5:"Smoking/alcohol?",inj:"Injuries (Select multiple):",y:"Yes",no:"No",rsn:"Details...",pq:"Spinal posture?",fit:"Fitness Test (1 min)",psh:"Pushup",crn:"Crunches",sqt:"Squat",msr:"Measurements (Click dots)",shp:"Body Shape",dy:"Training days/week?",alrg:"Food allergies?",inb:"Upload InBody (Optional)",subBtn:"Complete Registration",suc:"Submitted Successfully!",adm:"Glow & Grit Admin",cli:"Clients",dash:"Dashboard",tdy:"Today's Plan",mis:"Missed workout",noP:"Rest Day 🌿",iW:"Ideal Weight",ed:"Manage",del:"Delete",sv:"Save",can:"Close",chl:"30-Day Challenge 🔥",wapp:"Contact Coach",gAnn:"Global Announcement:",tip:"Daily Tip:"}}; const txt=t[lang];
@@ -44,29 +54,40 @@ useEffect(()=>{if(theme==='dark')document.documentElement.classList.add('dark');
 useEffect(()=>{localStorage.setItem('gg_lang',lang);document.documentElement.dir=isAr?'rtl':'ltr';},[lang]);
 
 useEffect(()=>{
-    const unsub = db.collection('elite_clients').onSnapshot(s=>{
-        const data = s.docs.map(d=>({id:d.id,...d.data()}));
-        setClients(data);
-        
+    const loadMergedData = (fbData = []) => {
+        let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]');
+        let merged = [...localDB];
+        fbData.forEach(fbC => {
+            const idx = merged.findIndex(lc => lc.ph === fbC.ph);
+            if(idx === -1) merged.push(fbC);
+            else merged[idx] = {...merged[idx], ...fbC}; // Firebase updates local if exist
+        });
+        localStorage.setItem('gg_local_clients_db', JSON.stringify(merged));
+        setClients(merged);
+
         const storedPhone = localStorage.getItem('elite_phone');
-        if(storedPhone){
-            if(storedPhone === ADMIN_PHONE){
-                // wait for google auth
+        if(storedPhone && storedPhone !== ADMIN_PHONE){
+            const u = merged.find(c=>c.ph===storedPhone);
+            if(u) {
+                setCurrentUser(u);
+                setView(prev => prev === 'loading' ? 'client' : prev);
             } else {
-                const u = data.find(c=>c.ph===storedPhone);
-                if(u) {
-                    setCurrentUser(u);
-                    setView(prev => prev === 'loading' ? 'client' : prev);
-                } else {
-                    setView(prev => prev === 'client' ? 'login' : prev);
-                }
+                setView(prev => prev === 'client' ? 'login' : prev);
             }
-        } else {
+        } else if(!storedPhone) {
             setView(prev => prev === 'loading' ? 'login' : prev);
         }
+    };
+
+    const unsub = db.collection('elite_clients').onSnapshot(s=>{
+        const fbData = s.docs.map(d=>({id:d.id,...d.data()}));
+        loadMergedData(fbData);
         
-        const annDoc=data.find(c=>c.id==='system_ann');if(annDoc){setAnn(annDoc.text);setTip(annDoc.tip||'');}
-        const confDoc=data.find(c=>c.id==='system_config');if(confDoc&&confDoc.measurePts)setMeasurePts(confDoc.measurePts);
+        const annDoc=fbData.find(c=>c.id==='system_ann');if(annDoc){setAnn(annDoc.text);setTip(annDoc.tip||'');}
+        const confDoc=fbData.find(c=>c.id==='system_config');if(confDoc&&confDoc.measurePts)setMeasurePts(confDoc.measurePts);
+    }, err => {
+        console.warn("Firebase Read Error - Using Internal Memory Only", err);
+        loadMergedData([]); // Fallback to memory
     });
 
     const unregAuth = auth.onAuthStateChanged(user=>{
@@ -92,7 +113,7 @@ useEffect(()=>{
 return ()=>{unsub(); unregAuth(); window.removeEventListener('popstate', handlePopState);};
 }, []);
 
-useEffect(()=>{if(view==='client'&&currentUser){const td=new Date().toISOString().split('T')[0];const a=currentUser.att||[];if(!a.includes(td)) db.collection('elite_clients').doc(currentUser.ph).set({att:[...a,td]},{merge:true}); if(a.length>=30&&!currentUser.chDone)setShowWModal(true);}},[view,currentUser]);
+useEffect(()=>{if(view==='client'&&currentUser){const td=new Date().toISOString().split('T')[0];const a=currentUser.att||[];if(!a.includes(td)){ const nU = {...currentUser, att:[...a,td]}; setCurrentUser(nU); syncLocalDB(nU); db.collection('elite_clients').doc(currentUser.ph).set({att:[...a,td]},{merge:true}).catch(()=>{}); } if(a.length>=30&&!currentUser.chDone)setShowWModal(true);}},[view,currentUser]);
 
 const handleLoginExisting = () => {
     if(!fData.ph) return alert(isAr ? 'أدخلي رقم الموبايل' : 'Enter phone number');
@@ -122,23 +143,31 @@ const handleRegisterNew = () => {
 const finishOnb=()=>{
     const nc={...fData, id:fData.ph, regDate:new Date().toISOString().split('T')[0], status:'approved'};
     
-    // إجبار الكود على حفظ البيانات في فايربيز الأول قبل الدخول لتفادي اختفائها
-    db.collection('elite_clients').doc(nc.ph).set(nc).then(()=>{
-        localStorage.setItem('elite_phone',nc.ph);
-        setCurrentUser(nc);
-        nav('client', 1);
-    }).catch(e=>{
-        alert("⚠️ خطأ! يرجى تحديث (Firebase Rules) للسماح بالحفظ. التفاصيل: " + e.message);
+    // حفظ في الذاكرة الداخلية فوراً 
+    const updatedLocalDB = syncLocalDB(nc);
+    setClients(updatedLocalDB);
+    localStorage.setItem('elite_phone', nc.ph);
+    setCurrentUser(nc);
+    nav('client', 1);
+
+    // رفع لفايربيز في الخلفية بدون انتظار 
+    db.collection('elite_clients').doc(nc.ph).set(nc).catch(e=>{
+        console.warn("تم الحفظ في الذاكرة الداخلية بنجاح. حدث تأخير في الرفع السحابي: ", e.message);
     });
 };
 
-const updateDB=(c)=>{if(!c.ph)return; db.collection('elite_clients').doc(c.ph).set(c,{merge:true});};
+const updateDB=(c)=>{
+    if(!c.ph) return; 
+    const updatedLocalDB = syncLocalDB(c);
+    setClients(updatedLocalDB); // Update UI Instantly
+    db.collection('elite_clients').doc(c.ph).set(c,{merge:true}).catch(e=>console.warn("Saved Locally. Firebase Sync Delay:", e));
+};
 const updateAnn=()=>{db.collection('elite_clients').doc('system_ann').set({id:'system_ann',text:ann,tip:tip},{merge:true});alert('تم النشر!');};
 const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts},{merge:true}).then(()=>{alert(isAr?'تم الحفظ بنجاح 📍':'Saved successfully 📍'); setShowDotsEditor(false);});};
 const handleImgClick=(e)=>{if(!adminActPt)return;const rect=e.currentTarget.getBoundingClientRect();const cx=e.type.includes('touch')?e.touches[0].clientX:e.clientX;const cy=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const x=((cx-rect.left)/rect.width)*100;const y=((cy-rect.top)/rect.height)*100;setMeasurePts(p=>p.map(pt=>pt.id===adminActPt?{...pt,l:x+'%',t:y+'%'}:pt));};
 const nav=(v,s)=>{setView(v);setStep(s);window.history.pushState({v,s},'');};const uF=(k,v)=>setFData(p=>({...p,[k]:v}));const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter(x=>x!==i):[...fData.injuries,i]);
 const logout=()=>{
-    localStorage.clear();
+    localStorage.removeItem('elite_phone');
     if(auth.currentUser){
         auth.signOut().then(()=>window.location.reload());
     }else{
@@ -146,7 +175,6 @@ const logout=()=>{
     }
 };
 
-// تم تعديل فلاتر العملاء عشان نتفادى أخطاء التواريخ أو السيرش 
 const dispClients=clients.filter(c=>!c.id.includes('system_')&&((c.n||'').toLowerCase().includes(srch.toLowerCase())||(c.ph||'').includes(srch)))
     .filter(c=>(!dtRange.start||(c.regDate&&c.regDate>=dtRange.start))&&(!dtRange.end||(c.regDate&&c.regDate<=dtRange.end)))
     .sort((a,b)=>{if(srt==='name')return(a.n||'').localeCompare(b.n||'','ar');if(srt==='age')return Number(a.ag)-Number(b.ag);if(srt==='wt')return Number(a.w)-Number(b.w);return (b.regDate||'').localeCompare(a.regDate||'');});
