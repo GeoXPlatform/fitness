@@ -51,12 +51,11 @@ useEffect(()=>{
         const storedPhone = localStorage.getItem('elite_phone');
         if(storedPhone){
             if(storedPhone === ADMIN_PHONE){
-                // wait for google auth to confirm admin
+                // wait for google auth
             } else {
                 const u = data.find(c=>c.ph===storedPhone);
                 if(u) {
                     setCurrentUser(u);
-                    // التوجيه للداشبورد فقط لو إحنا في شاشة التحميل الأولية، عشان ميطردش العميل أثناء التسجيل
                     setView(prev => prev === 'loading' ? 'client' : prev);
                 } else {
                     setView(prev => prev === 'client' ? 'login' : prev);
@@ -82,7 +81,6 @@ useEffect(()=>{
         }
     });
 
-    // تفعيل زر الرجوع في المتصفح والموبايل
     const handlePopState = (event) => {
         if (event.state) {
             setView(event.state.v || 'login');
@@ -123,14 +121,14 @@ const handleRegisterNew = () => {
 
 const finishOnb=()=>{
     const nc={...fData, id:fData.ph, regDate:new Date().toISOString().split('T')[0], status:'approved'};
-    // التوجيه الفوري للداشبورد وحفظ الـ state محلياً عشان الـ snapshot ميطردش العميلة
-    localStorage.setItem('elite_phone',nc.ph);
-    setCurrentUser(nc);
-    nav('client', 1);
-
-    // رفع البيانات في الخلفية
-    db.collection('elite_clients').doc(nc.ph).set(nc).catch(e=>{
-        alert("حدث خطأ في حفظ البيانات: " + e.message);
+    
+    // إجبار الكود على حفظ البيانات في فايربيز الأول قبل الدخول لتفادي اختفائها
+    db.collection('elite_clients').doc(nc.ph).set(nc).then(()=>{
+        localStorage.setItem('elite_phone',nc.ph);
+        setCurrentUser(nc);
+        nav('client', 1);
+    }).catch(e=>{
+        alert("⚠️ خطأ! يرجى تحديث (Firebase Rules) للسماح بالحفظ. التفاصيل: " + e.message);
     });
 };
 
@@ -147,7 +145,12 @@ const logout=()=>{
         window.location.reload();
     }
 };
-const dispClients=clients.filter(c=>!c.id.includes('system_')&&((c.n||'').toLowerCase().includes(srch.toLowerCase())||(c.ph||'').includes(srch))).filter(c=>(!dtRange.start||c.regDate>=dtRange.start)&&(!dtRange.end||c.regDate<=dtRange.end)).sort((a,b)=>{if(srt==='name')return(a.n||'').localeCompare(b.n||'','ar');if(srt==='age')return Number(a.ag)-Number(b.ag);if(srt==='wt')return Number(a.w)-Number(b.w);return Number(b.id)-Number(a.id);});
+
+// تم تعديل فلاتر العملاء عشان نتفادى أخطاء التواريخ أو السيرش 
+const dispClients=clients.filter(c=>!c.id.includes('system_')&&((c.n||'').toLowerCase().includes(srch.toLowerCase())||(c.ph||'').includes(srch)))
+    .filter(c=>(!dtRange.start||(c.regDate&&c.regDate>=dtRange.start))&&(!dtRange.end||(c.regDate&&c.regDate<=dtRange.end)))
+    .sort((a,b)=>{if(srt==='name')return(a.n||'').localeCompare(b.n||'','ar');if(srt==='age')return Number(a.ag)-Number(b.ag);if(srt==='wt')return Number(a.w)-Number(b.w);return (b.regDate||'').localeCompare(a.regDate||'');});
+
 const toggleT=()=>setTheme(t=>t==='dark'?'light':'dark');const toggleL=()=>setLang(l=>l==='ar'?'en':'ar');
 const genSmartPlan=()=>{const lvlKey=editingClient.lvl.includes('مبتدئ')||editingClient.lvl.includes('Beg')?'beg':editingClient.lvl.includes('متوسط')||editingClient.lvl.includes('Int')?'int':'adv';const eDB=DB_EX[lvlKey];let wIdx=0,dIdx=0;let s=editingClient.sch.map(day=>{if(day.active){const lg=eDB.lg[Math.floor(Math.random()*eDB.lg.length)];const up=eDB.up[Math.floor(Math.random()*eDB.up.length)];const cr=eDB.cr[Math.floor(Math.random()*eDB.cr.length)];const cf=eDB.cf?eDB.cf[Math.floor(Math.random()*eDB.cf.length)]:'';const wTxt=`- ${lg}\n- ${up}\n- ${cr}${cf?'\n- '+cf:''}`;const b=DB_DIET.brk[dIdx%DB_DIET.brk.length];const l=DB_DIET.lun[dIdx%DB_DIET.lun.length];const d=DB_DIET.din[dIdx%DB_DIET.din.length];dIdx++;return{...day,workout:wTxt,diet:`• إفطار: ${b}\n• غداء: ${l}\n• عشاء: ${d}`};}else return{...day,workout:txt.noP,diet:isAr?'يوم مرن / راحة':'Flex Day / Rest'};});setEditingClient(p=>({...p,sch:s}));alert(isAr?'تم توليد التمارين والدايت الذكي بنجاح!':'Smart plan generated successfully!');};
 
