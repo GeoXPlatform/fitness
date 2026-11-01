@@ -15,7 +15,7 @@ input,select,textarea{background-color:var(--input)!important;color:var(--text)!
 input[type=range]{-webkit-appearance:none;width:100%;background:transparent} input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:26px;width:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));cursor:pointer;margin-top:-9px;box-shadow:0 4px 10px rgba(255,0,127,0.4);border:2px solid #fff} input[type=range]::-webkit-slider-runnable-track{width:100%;height:8px;cursor:pointer;background:var(--border);border-radius:4px}
 .admin-tab{cursor:pointer;padding:.75rem .5rem;text-align:center;font-weight:900;font-size:.75rem;border-bottom:3px solid transparent;transition:all .3s;color:var(--text-mut);white-space:nowrap} .admin-tab.active{color:var(--brand-1);border-bottom-color:var(--brand-2)}
 .action-btn{padding:6px 12px;border-radius:8px;font-weight:bold;font-size:11px;cursor:pointer;transition:all 0.2s;} .btn-done{background:#10b981;color:white;border:1px solid #059669;} .btn-fail{background:#ef4444;color:white;border:1px solid #dc2626;} .btn-idle{background:var(--input);color:var(--text-mut);border:1px solid var(--border);}
-.dark .task-card { background: rgba(30, 41, 59, 0.95) !important; color: #f8fafc; }
+.dark .task-card { background: rgba(30, 41, 59, 0.95) !important; border: 1px solid rgba(0, 229, 255, 0.2) !important; color: #f8fafc; }
 .dark .task-card input { background: #0f172a !important; border-color: #334155 !important; color: white !important;}
 .nav-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:10px; font-weight:900; color:var(--text-mut); transition:all 0.3s; flex:1; padding:8px 0; }
 .nav-btn.active { color:var(--brand-1); transform:translateY(-2px); }
@@ -27,7 +27,7 @@ input[type=range]{-webkit-appearance:none;width:100%;background:transparent} inp
 .custom-scroll::-webkit-scrollbar { width: 6px; } .custom-scroll::-webkit-scrollbar-track { background: transparent; } .custom-scroll::-webkit-scrollbar-thumb { background: var(--brand-1); border-radius: 10px; }
 </style></head><body><div id="root"></div><script type="text/babel">
 if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyAkSD8k1Q4_gSwar3mwfDPVpUPWzHJevNk",authDomain:"geox-platform.firebaseapp.com",databaseURL:"https://geox-platform-default-rtdb.firebaseio.com",projectId:"geox-platform",storageBucket:"geox-platform.firebasestorage.app",messagingSenderId:"691272759644",appId:"1:691272759644:web:0070d88542abc78bef6999",measurementId:"G-CDF1KYQNJT"});}
-const auth = firebase.auth(); const db = firebase.firestore(); const {useState,useEffect,useRef, useCallback}=React;
+const auth = firebase.auth(); const db = firebase.firestore(); const {useState,useEffect,useRef}=React;
 const ADMIN_PHONE = '01063405860'; const ADMIN_EMAILS = ['rawanelsayed322@gmail.com', 'yousef74joe74@gmail.com'];
 const LEVELS=[{id:'l1',n:'مبتدئ (Beginner)'},{id:'l2',n:'متوسط مبتدئ (Novice)'},{id:'l3',n:'متوسط (Intermediate)'},{id:'l4',n:'متقدم (Advanced)'},{id:'l5',n:'نخبة (Elite)'}];
 const INJURIES_LIST=['الكتف','الركبة','أسفل الظهر','الرقبة','الحوض','تمزق عضلي','أخرى'];
@@ -141,11 +141,9 @@ const [sysConf, setSysConf] = useState({
     mealDeadlines: {brk:'11:00', lun:'17:00', din:'23:00'}
 });
 const audioRef = useRef(new Audio());
-const swipeAreaRef = useRef(null);
 const [touchStart, setTouchStart] = useState(null); const [touchEnd, setTouchEnd] = useState(null);
 
 const minSwipeDistance = 50;
-
 const onTouchStart = (e) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX); };
 const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
 const onTouchEnd = () => {
@@ -159,7 +157,6 @@ const onTouchEnd = () => {
   if (isLeftSwipe && currentIndex < tabs.length - 1) { setClientTab(tabs[currentIndex + 1]); }
   if (isRightSwipe && currentIndex > 0) { setClientTab(tabs[currentIndex - 1]); }
 };
-
 
 const isAr=lang==='ar';
 
@@ -376,6 +373,7 @@ if(view==='client'&&currentUser){
         let wkItems = (tdPlan.workout||'').split('\n').filter(i=>i.trim()&&i!=='-');
         let dtItems = (tdPlan.diet||'').split('\n').filter(i=>i.trim()&&i!=='-');
         total += wkItems.length + dtItems.length;
+        if (total === 2 && wkItems.length === 0 && dtItems.length === 0) return 0; // Don't show misleading progress on empty days
         wkItems.forEach((_, idx) => { if(cLog[`workout_${idx}`]?.state === 'done') done++; });
         dtItems.forEach((_, idx) => { if(cLog[`diet_${idx}`]?.state === 'done') done++; });
         return total > 0 ? Math.round((done/total)*100) : 0;
