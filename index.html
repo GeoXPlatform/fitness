@@ -145,8 +145,7 @@ useEffect(()=>{if(theme==='dark')document.documentElement.classList.add('dark');
 useEffect(()=>{localStorage.setItem('gg_lang',lang);document.documentElement.dir=isAr?'rtl':'ltr';},[lang]);
 
 useEffect(()=>{
-    const storedPhone = localStorage.getItem('elite_phone');
-    // Load local first for instant startup
+    const storedPhone = sessionStorage.getItem('elite_phone');
     let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]');
     setClients(localDB);
     if(storedPhone && storedPhone !== ADMIN_PHONE) {
@@ -175,7 +174,7 @@ useEffect(()=>{
 
     const unregAuth = auth.onAuthStateChanged(user=>{
         if(user){
-            if(ADMIN_EMAILS.includes(user.email)){ localStorage.setItem('elite_phone', ADMIN_PHONE); setView('admin'); }
+            if(ADMIN_EMAILS.includes(user.email)){ sessionStorage.setItem('elite_phone', ADMIN_PHONE); setView('admin'); }
             else{ auth.signOut(); alert(isAr?'غير مصرح لكِ.':'Not authorized.'); }
         }
     });
@@ -185,7 +184,6 @@ useEffect(()=>{
     return ()=>{unsub(); unregAuth(); window.removeEventListener('popstate', handlePopState); audioRef.current.pause();};
 }, []);
 
-// Remove Autoplay, let client interact first to avoid console warnings. 
 useEffect(()=>{
     if(view==='client' && currentUser){
         const td=new Date().toISOString().split('T')[0];const a=currentUser.att||[];
@@ -198,7 +196,7 @@ const handleLoginExisting = () => {
     if(!fData.ph) return alert(txt.errReq);
     if(fData.ph === ADMIN_PHONE) { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(err=>alert(err.message)); return; }
     const ex = clients.find(c => c.ph === fData.ph);
-    if(ex) { localStorage.setItem('elite_phone', ex.ph); setCurrentUser(ex); setView('client'); setClientTab('home'); } 
+    if(ex) { sessionStorage.setItem('elite_phone', ex.ph); setCurrentUser(ex); setView('client'); setClientTab('home'); } 
     else alert(txt.err);
 };
 const handleRegisterNew = () => {
@@ -208,7 +206,7 @@ const handleRegisterNew = () => {
 };
 const finishOnb=()=>{
     const nc={...fData, id:fData.ph, regDate:new Date().toISOString().split('T')[0], status:'approved'};
-    const updatedLocalDB = syncLocalDB(nc); setClients(updatedLocalDB); localStorage.setItem('elite_phone', nc.ph); setCurrentUser(nc); nav('client', 1); setClientTab('home');
+    const updatedLocalDB = syncLocalDB(nc); setClients(updatedLocalDB); sessionStorage.setItem('elite_phone', nc.ph); setCurrentUser(nc); nav('client', 1); setClientTab('home');
     db.collection('elite_clients').doc(nc.ph).set(nc).catch(e=>{});
 };
 
@@ -217,7 +215,7 @@ const updateAnn=()=>{db.collection('elite_clients').doc('system_ann').set({id:'s
 const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts,sysConf},{merge:true}).then(()=>{alert(isAr?'تم الحفظ':'Saved'); setShowDotsEditor(false);});};
 const handleImgClick=(e)=>{if(!adminActPt)return;const rect=e.currentTarget.getBoundingClientRect();const cx=e.type.includes('touch')?e.touches[0].clientX:e.clientX;const cy=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const x=((cx-rect.left)/rect.width)*100;const y=((cy-rect.top)/rect.height)*100;setMeasurePts(p=>p.map(pt=>pt.id===adminActPt?{...pt,l:x+'%',t:y+'%'}:pt));};
 const nav=(v,s)=>{setView(v);setStep(s);window.history.pushState({v,s},'');};const uF=(k,v)=>setFData(p=>({...p,[k]:v}));const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter(x=>x!==i):[...fData.injuries,i]);
-const logout=()=>{ localStorage.removeItem('elite_phone'); if(auth.currentUser) auth.signOut().then(()=>window.location.reload()); else window.location.reload(); };
+const logout=()=>{ sessionStorage.removeItem('elite_phone'); if(auth.currentUser) auth.signOut().then(()=>window.location.reload()); else window.location.reload(); };
 
 const dispClients=clients.filter(c=>!c.id.includes('system_')&&((c.n||'').toLowerCase().includes(srch.toLowerCase())||(c.ph||'').includes(srch))).filter(c=>(!dtRange.start||(c.regDate&&c.regDate>=dtRange.start))&&(!dtRange.end||(c.regDate&&c.regDate<=dtRange.end))).sort((a,b)=>{if(srt==='name')return(a.n||'').localeCompare(b.n||'','ar');if(srt==='age')return calcAge(a.dob)-calcAge(b.dob);if(srt==='wt')return Number(a.w)-Number(b.w);return (b.regDate||'').localeCompare(a.regDate||'');});
 const toggleT=()=>setTheme(t=>t==='dark'?'light':'dark');const toggleL=()=>setLang(l=>l==='ar'?'en':'ar');
@@ -439,6 +437,11 @@ if(view==='client'&&currentUser){
                 {clientTab === 'settings' && (
                     <div className="animate-slide-up space-y-4">
                         <h3 className="font-black text-2xl text-brand mb-4">{txt.tSet} ⚙️</h3>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                            <button onClick={toggleT} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'وضع الشاشة':'Theme'} {theme==='dark'?'☀️':'🌙'}</button>
+                            <button onClick={toggleL} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'اللغة':'Language'} {lang==='ar'?'EN':'AR'}</button>
+                        </div>
                         
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700">
                             <h4 className="font-bold text-sm mb-3 text-gray-500">{isAr?'اختر صورتك (Avatar)':'Choose Avatar'}</h4>
@@ -457,10 +460,6 @@ if(view==='client'&&currentUser){
                             <button onClick={()=>{updateDB(currentUser);alert(isAr?'تم حفظ البيانات بنجاح!':'Saved Successfully!');}} className="w-full bg-brand text-white py-3 rounded-xl font-black shadow-md mt-2">{isAr?'حفظ التعديلات 💾':'Save 💾'}</button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                            <button onClick={toggleT} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'وضع الشاشة':'Theme'} {theme==='dark'?'☀️':'🌙'}</button>
-                            <button onClick={toggleL} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'اللغة':'Language'} {lang==='ar'?'EN':'AR'}</button>
-                        </div>
                         <button onClick={logout} className="w-full text-center py-4 font-bold text-red-500">{isAr?'تسجيل الخروج':'Logout'}</button>
                     </div>
                 )}
