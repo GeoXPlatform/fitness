@@ -1,212 +1,19 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Glow & Grit - By Coach Rawan</title><script src="https://cdn.tailwindcss.com"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Montserrat:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"><script>tailwind.config={darkMode:'class',theme:{extend:{colors:{brand:{light:'#fce7f3',DEFAULT:'#ff007f',dark:'#00e5ff',gold:'#fbbf24'},darkbg:'#0f172a',darkcard:'#1e293b'},fontFamily:{arabic:['Cairo','sans-serif'],english:['Montserrat','sans-serif']},animation:{'slide-up':'slideUp 0.4s ease-out forwards','zoom-in':'zoomIn 0.3s ease-out forwards','pulse-slow':'pulse 2.5s infinite'},keyframes:{slideUp:{'0%':{opacity:'0',transform:'translateY(20px)'},'100%':{opacity:'1',transform:'translateY(0)'}},zoomIn:{'0%':{opacity:'0',transform:'scale(0.95)'},'100%':{opacity:'1',transform:'scale(1)'}}}}}}</script><style>
-:root{--bg:linear-gradient(135deg,#fdf2f8 0%,#e0f2fe 100%);--glass:rgba(255,255,255,0.92);--card:#ffffff;--text:#1f2937;--text-mut:#6b7280;--input:#f9fafb;--border:rgba(255,0,127,0.15);--brand-1:#ff007f;--brand-2:#00e5ff;}
-.dark{--bg:linear-gradient(135deg,#0a0f1d 0%,#1a1025 100%);--glass:rgba(15,23,42,0.85);--card:#1e293b;--text:#f3f4f6;--text-mut:#9ca3af;--input:#334155;--border:rgba(0,229,255,0.2);}
-body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;scroll-behavior:smooth;transition:background 0.3s ease; -webkit-tap-highlight-color: transparent;}
-.glass,.glass-card{background:var(--glass)!important;border:1px solid var(--border)!important;box-shadow:0 10px 40px rgba(0,0,0,0.1);}
-.bg-white,.bg-gray-50{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important;}
-.text-gray-800,.text-brand-dark{color:var(--text)!important;} .text-gray-500,.text-gray-600{color:var(--text-mut)!important;}
-input,select,textarea{background-color:var(--input)!important;color:var(--text)!important;border-color:var(--border)!important;}
-.bg-brand,.bg-gradient-to-r{background:linear-gradient(90deg,var(--brand-1),var(--brand-2))!important;color:#fff!important;box-shadow:0 4px 15px rgba(255,0,127,0.4)!important;}
-.text-brand{color:var(--brand-1)!important;} .border-brand{border-color:var(--brand-1)!important;}
-.btn-toggle{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-weight:900;transition:all 0.2s;box-shadow:0 2px 5px rgba(0,0,0,0.05);} .btn-toggle:hover{transform:scale(1.05);border-color:var(--brand-1);}
-.btn-yesno{flex:1;padding:8px;border-radius:12px;font-weight:900;transition:all 0.2s;border:1px solid var(--border);background:var(--input);color:var(--text-mut);} .btn-yesno.active{background:linear-gradient(90deg,var(--brand-1),var(--brand-2));color:#fff;border-color:transparent;}
-.hide-scrollbar::-webkit-scrollbar{display:none} .scroll-picker{scroll-snap-type:y mandatory;scrollbar-width:none} .scroll-picker-item{scroll-snap-align:center}
-.dot{position:absolute;width:24px;height:24px;background:var(--brand-1);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;cursor:pointer;border:2px solid #fff;box-shadow:0 0 10px rgba(255,0,127,0.8);transform:translate(-50%,-50%);transition:all 0.3s;z-index:20;pointer-events:auto;} .dot:hover{transform:translate(-50%,-50%) scale(1.3)} .dot.filled{background:var(--brand-2);box-shadow:0 0 10px rgba(0,229,255,0.8)}
-input[type=range]{-webkit-appearance:none;width:100%;background:transparent} input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:26px;width:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));cursor:pointer;margin-top:-9px;box-shadow:0 4px 10px rgba(255,0,127,0.4);border:2px solid #fff} input[type=range]::-webkit-slider-runnable-track{width:100%;height:8px;cursor:pointer;background:var(--border);border-radius:4px}
-.admin-tab{cursor:pointer;padding:.75rem .5rem;text-align:center;font-weight:900;font-size:.75rem;border-bottom:3px solid transparent;transition:all .3s;color:var(--text-mut);white-space:nowrap} .admin-tab.active{color:var(--brand-1);border-bottom-color:var(--brand-2)}
-.action-btn{padding:6px 12px;border-radius:8px;font-weight:bold;font-size:11px;cursor:pointer;transition:all 0.2s;} .btn-done{background:#10b981;color:white;border:1px solid #059669;} .btn-fail{background:#ef4444;color:white;border:1px solid #dc2626;} .btn-idle{background:var(--input);color:var(--text-mut);border:1px solid var(--border);}
-.dark .task-card { background: rgba(30, 41, 59, 0.95) !important; color: #f8fafc; border-color: rgba(0,229,255,0.2) !important; }
-.dark .task-card input { background: #0f172a !important; border-color: #334155 !important; color: white !important;}
-.nav-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:9px; font-weight:900; color:var(--text-mut); transition:all 0.3s; flex:1; padding:6px 0; }
-.nav-btn.active { color:var(--brand-1); transform:translateY(-2px); }
-.nav-btn.active span.icon { background:var(--brand-1); color:white; border-radius:10px; padding:4px 10px; box-shadow:0 4px 10px rgba(255,0,127,0.3); }
-.nav-btn span.icon { font-size:16px; transition:all 0.3s; padding:4px 10px; }
-.fab{position:fixed;bottom:100px;right:20px;width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:32px;box-shadow:0 10px 25px rgba(37,211,102,0.4);z-index:50;transition:transform 0.3s; border:3px solid white;} .fab:hover{transform:scale(1.1)}
-.watch-circle { width: 180px; height: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 6px solid var(--brand-1); box-shadow: 0 0 20px rgba(255,0,127,0.3), inset 0 0 15px rgba(0,0,0,0.1); background: var(--input); margin: 0 auto; position: relative; }
-.dark .watch-circle { background: #0f172a; border-color: var(--brand-2); box-shadow: 0 0 20px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,0,0,0.5); }
-.custom-scroll::-webkit-scrollbar { width: 4px; } .custom-scroll::-webkit-scrollbar-track { background: transparent; } .custom-scroll::-webkit-scrollbar-thumb { background: var(--brand-1); border-radius: 10px; }
-.swipe-area { touch-action: pan-y; }
-</style></head><body><div id="root"></div><script type="text/babel">
-if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyAkSD8k1Q4_gSwar3mwfDPVpUPWzHJevNk",authDomain:"geox-platform.firebaseapp.com",databaseURL:"https://geox-platform-default-rtdb.firebaseio.com",projectId:"geox-platform",storageBucket:"geox-platform.firebasestorage.app",messagingSenderId:"691272759644",appId:"1:691272759644:web:0070d88542abc78bef6999",measurementId:"G-CDF1KYQNJT"});}
-const auth = firebase.auth(); const db = firebase.firestore(); const storage = firebase.storage(); const {useState,useEffect,useRef}=React;
-const ADMIN_PHONE = '01063405860'; const ADMIN_EMAILS = ['rawanelsayed322@gmail.com', 'yousef74joe74@gmail.com'];
-const LEVELS=[{id:'l1',n:'مبتدئ (Beginner)'},{id:'l2',n:'متوسط مبتدئ (Novice)'},{id:'l3',n:'متوسط (Intermediate)'},{id:'l4',n:'متقدم (Advanced)'},{id:'l5',n:'نخبة (Elite)'}];
-const INJURIES_LIST=['الكتف','الركبة','أسفل الظهر','الرقبة','الحوض','تمزق عضلي','أخرى'];
-const DB_EX={beg:{lg:['Bodyweight Squat','Goblet Squat','Leg Press','Step-Ups','Wall Sit','Glute Bridge','Donkey Kicks'],up:['Lat Pulldown','Seated Cable Row','Wall Push-Up','Dumbbell Bench Press','Dumbbell Shoulder Press','Dumbbell Biceps Curl','Triceps Pushdown'],cr:['Dead Bug','Bird Dog','Knee Plank','Heel Taps','Crunch'],cf:['Kettlebell Deadlift','Box Step-Ups','Medicine Ball Slams - Light','Plank Hold']},int:{lg:['Barbell Back Squat','Bulgarian Split Squat','Walking Lunges','Barbell Hip Thrust','Romanian Deadlift','Leg Curl'],up:['Barbell Bent-Over Row','Assisted Pull-Up','Barbell Bench Press','Incline Dumbbell Press','Arnold Press','Face Pull','Skull Crusher'],cr:['Hanging Knee Raise','Cable Crunch','Russian Twist','Mountain Climbers'],cf:['Burpees','Kettlebell Swings','Box Jumps','Assault Bike Intervals']},adv:{lg:['Front Squat','Pause Back Squat','Single-Leg Hip Thrust','Deficit RDL','Pistol Squats'],up:['Weighted Pull-Up','Pendlay Row','Weighted Push-Up','Handstand Push-Up','Barbell Thrusters'],cr:['Toes-to-Bar','Dragon Flag','Ab Wheel Rollout','L-Sit Hold'],cf:['Power Clean','Snatch','Muscle-Ups','Heavy Sled Push']}};
-const DB_DIET={brk:['بيض مسلوق+عيش بلدي+خضار','بيض أومليت بالخضار','شوفان باللبن والموز','توست أسمر بزبدة الفول السوداني','زبادي بالعسل والشوفان','جبنة قريش+طماطم وخيار'],lun:['صدور فراخ مشوية+رز+خضار','شيش طاووق+رز','فراخ بالصويا صوص+خضار','لحمة مكعبات+خضار','سمك مشوي+سلطة+رز','تونة+مكرونة+خضار','كشري (كمية محسوبة)'],din:['ساندوتش جبنة قريش وخضار','تونة+سلطة+عيش','زبادي+شوفان+فاكهة','ساندوتش فراخ مشوية','فول+بيض']};
-
-const POSTURES=[{id:'normal',img:'posture-normal.jpg',tAr:'1. normal - الطبيعي',dAr:'انحناءات طبيعية بدون مشاكل.',tEn:'1. Normal',dEn:'Natural curves.'},{id:'lordosis',img:'posture-lordosis.jpg',tAr:'2. Lordosis — تقعر قطني',dAr:'انحناء للداخل في أسفل الظهر.',tEn:'2. Lordosis',dEn:'Inward curvature.'},{id:'kyphosis',img:'posture-kyphosis.jpg',tAr:'3. Kyphosis — تحدب الظهر',dAr:'انحناء للخارج في منطقة الظهر العلوي.',tEn:'3. Kyphosis',dEn:'Outward curvature.'},{id:'scoliosis',img:'posture-scoliosis.jpg',tAr:'4. Scoliosis — الجنف',dAr:'انحناء جانبي للعمود الفقري.',tEn:'4. Scoliosis',dEn:'Sideways curvature.'}];
-const SHAPES_NEW=[{id:'ectomorph',img:'shape-ectomorph.jpg',ar:'نحيف (Ectomorph)',en:'Ectomorph'},{id:'mesomorph',img:'shape-mesomorph.jpg',ar:'عضلي (Mesomorph)',en:'Mesomorph'},{id:'endomorph',img:'shape-endomorph.jpg',ar:'ممتلئ (Endomorph)',en:'Endomorph'}];
-const DEFAULT_MEASURE_PTS=[{id:'neck',t:'27%',l:'50%',ar:'الرقبة',en:'Neck'},{id:'shoulders',t:'34%',l:'34%',ar:'الأكتاف',en:'Shoulders'},{id:'chest',t:'36%',l:'50%',ar:'الصدر',en:'Chest'},{id:'waist',t:'42%',l:'50%',ar:'الخصر',en:'Waist'},{id:'hips',t:'46%',l:'36%',ar:'الحوض',en:'Hips'},{id:'bicep',t:'40%',l:'31%',ar:'الذراع',en:'Bicep'},{id:'thighs',t:'52%',l:'43%',ar:'الفخذ',en:'Thighs'},{id:'calves',t:'64%',l:'44%',ar:'السمانة',en:'Calves'}];
-
-const FOOD_DB = {
-    fruits: { labelAr: '🍏 فواكه', labelEn: 'Fruits', items: [{nAr:'تفاح (متوسطة)',nEn:'Apple (Medium)',c:95},{nAr:'موز (متوسطة)',nEn:'Banana (Medium)',c:105},{nAr:'برتقال (متوسطة)',nEn:'Orange (Medium)',c:62},{nAr:'مانجو (100 جرام)',nEn:'Mango (100g)',c:60},{nAr:'فراولة (100 جرام)',nEn:'Strawberry (100g)',c:32},{nAr:'بطيخ (100 جرام)',nEn:'Watermelon (100g)',c:30},{nAr:'عنب (100 جرام)',nEn:'Grapes (100g)',c:69},{nAr:'خوخ (متوسطة)',nEn:'Peach (Medium)',c:59},{nAr:'تمر (واحدة)',nEn:'Date (One)',c:20}] },
-    veg: { labelAr: '🥦 خضراوات', labelEn: 'Vegetables', items: [{nAr:'طماطم (متوسطة)',nEn:'Tomato (Medium)',c:22},{nAr:'خيار (متوسطة)',nEn:'Cucumber (Medium)',c:16},{nAr:'جزر (متوسطة)',nEn:'Carrot (Medium)',c:25},{nAr:'خس (100 جرام)',nEn:'Lettuce (100g)',c:15},{nAr:'بروكلي مسلوق (100 جرام)',nEn:'Boiled Broccoli (100g)',c:35},{nAr:'فلفل رومي (متوسطة)',nEn:'Bell Pepper (Medium)',c:24},{nAr:'بصل (متوسطة)',nEn:'Onion (Medium)',c:44}] },
-    carbs: { labelAr: '🍞 نشويات ومخبوزات', labelEn: 'Carbs & Bakery', items: [{nAr:'أرز أبيض (100 جرام مطبوخ)',nEn:'White Rice (100g cooked)',c:130},{nAr:'أرز بني (100 جرام مطبوخ)',nEn:'Brown Rice (100g cooked)',c:111},{nAr:'مكرونة مسلوقة (100 جرام)',nEn:'Boiled Pasta (100g)',c:158},{nAr:'رغيف عيش بلدي',nEn:'Baladi Bread (Loaf)',c:300},{nAr:'رغيف عيش أسمر/سن',nEn:'Brown Bread (Loaf)',c:240},{nAr:'عيش فينو (رغيف متوسط)',nEn:'Fino Bread (Loaf)',c:200},{nAr:'شوفان (100 جرام جاف)',nEn:'Oats (100g dry)',c:389},{nAr:'بطاطس مسلوقة (متوسطة)',nEn:'Boiled Potato (Medium)',c:130},{nAr:'بطاطا حلوة مشوية (متوسطة)',nEn:'Sweet Potato (Medium)',c:103}] },
-    protein: { labelAr: '🍗 لحوم وبروتينات', labelEn: 'Proteins & Meat', items: [{nAr:'صدر دجاج مشوي (100 جرام)',nEn:'Grilled Chicken Breast (100g)',c:165},{nAr:'فخذ دجاج (100 جرام)',nEn:'Chicken Thigh (100g)',c:209},{nAr:'لحم بقري خالي الدهون (100 جرام)',nEn:'Lean Beef (100g)',c:250},{nAr:'سمك بلطي مشوي (100 جرام)',nEn:'Grilled Tilapia (100g)',c:128},{nAr:'سلمون مشوي (100 جرام)',nEn:'Grilled Salmon (100g)',c:206},{nAr:'بيضة مسلوقة (كبيرة)',nEn:'Boiled Egg (Large)',c:78},{nAr:'تونة مصفاة من الزيت (علبة)',nEn:'Tuna (Drained can)',c:190},{nAr:'جبنة قريش (100 جرام)',nEn:'Cottage Cheese (100g)',c:98},{nAr:'عدس مطبوخ (100 جرام)',nEn:'Cooked Lentils (100g)',c:116}] },
-    egyptian: { labelAr: '🥘 أكلات مصرية', labelEn: 'Egyptian Food', items: [{nAr:'كشري (طبق متوسط)',nEn:'Koshary (Medium Plate)',c:450},{nAr:'محشي كرنب (5 أصابع)',nEn:'Stuffed Cabbage (5 pcs)',c:250},{nAr:'محشي ورق عنب (5 أصابع)',nEn:'Stuffed Vine Leaves (5 pcs)',c:200},{nAr:'ملوخية (طبق صغير بدون طشة)',nEn:'Molokhia (Small Plate)',c:80},{nAr:'مكرونة بشاميل (قطعة متوسطة)',nEn:'Macarona Béchamel (Medium)',c:400},{nAr:'حواوشي (رغيف بلدي)',nEn:'Hawawshi (Baladi Loaf)',c:500},{nAr:'سجق إسكندراني (100 جرام)',nEn:'Alexandrian Sausage (100g)',c:320},{nAr:'كبدة إسكندراني (100 جرام)',nEn:'Alexandrian Liver (100g)',c:220},{nAr:'فول مدمس (معلقتين)',nEn:'Fava Beans (2 tbsp)',c:110},{nAr:'طعمية (قرص مقلي)',nEn:'Falafel (1 piece)',c:60},{nAr:'فطير مشلتت (شريحة)',nEn:'Fiteer Meshaltet (Slice)',c:350}] },
-    fastfood: { labelAr: '🍔 وجبات سريعة', labelEn: 'Fast Food', items: [{nAr:'برجر لحم بالجبنة',nEn:'Cheeseburger',c:300},{nAr:'شريحة بيتزا (متوسطة)',nEn:'Pizza Slice (Medium)',c:250},{nAr:'بطاطس مقلية (حجم متوسط)',nEn:'French Fries (Medium)',c:365},{nAr:'دجاج مقلي بروستد (قطعة)',nEn:'Fried Chicken (Piece)',c:320},{nAr:'شاورما لحم (ساندوتش)',nEn:'Meat Shawarma (Sandwich)',c:450},{nAr:'شاورما دجاج (ساندوتش)',nEn:'Chicken Shawarma (Sandwich)',c:400},{nAr:'هوت دوج (ساندوتش)',nEn:'Hot Dog (Sandwich)',c:350},{nAr:'كريب دجاج بانيه',nEn:'Chicken Crepe',c:600}] },
-    sweets: { labelAr: '🍰 حلويات ومشروبات', labelEn: 'Sweets & Drinks', items: [{nAr:'بيبسي/كوكاكولا (كانز)',nEn:'Pepsi/Coke (Can)',c:140},{nAr:'عصير برتقال فريش (كوب)',nEn:'Fresh Orange Juice (Cup)',c:112},{nAr:'قطعة بسبوسة',nEn:'Basbousa (Piece)',c:350},{nAr:'قطعة كنافة',nEn:'Kunafa (Piece)',c:400},{nAr:'قطائف بالمكسرات (واحدة)',nEn:'Qatayef (One)',c:150},{nAr:'كيك فانيليا (شريحة)',nEn:'Vanilla Cake (Slice)',c:250},{nAr:'شوكولاتة سنيكرز (بار)',nEn:'Snickers (Bar)',c:250},{nAr:'شوكولاتة داكنة 70% (مربع)',nEn:'Dark Choc 70% (Square)',c:50},{nAr:'آيس كريم (بولة)',nEn:'Ice Cream (Scoop)',c:140}] }
-};
-
-const formatTime12h = (time24) => {
-    if(!time24) return '';
-    let [h, m] = time24.split(':').map(Number);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12; h = h ? h : 12;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} ${ampm}`;
-};
-const formatTime12hAr = (time24) => {
-    if(!time24) return '';
-    let [h, m] = time24.split(':').map(Number);
-    const ampm = h >= 12 ? 'م' : 'ص';
-    h = h % 12; h = h ? h : 12;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} ${ampm}`;
-};
-
-const formatCoachHours = (str, isAr) => {
-    if(!str || str === 'إجازة' || !str.includes(' - ')) return str || (isAr?'إجازة':'Off');
-    const [from, to] = str.split(' - ');
-    return `${isAr ? formatTime12hAr(from) : formatTime12h(from)} - ${isAr ? formatTime12hAr(to) : formatTime12h(to)}`;
-};
-
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Glow & Grit - By Coach Rawan</title><script src="https://cdn.tailwindcss.com"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Montserrat:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"><script>tailwind.config={darkMode:'class',theme:{extend:{colors:{brand:{light:'#fce7f3',DEFAULT:'#ff007f',dark:'#00e5ff',gold:'#fbbf24'},darkbg:'#0f172a',darkcard:'#1e293b'},fontFamily:{arabic:['Cairo','sans-serif'],english:['Montserrat','sans-serif']},animation:{'slide-up':'slideUp 0.4s ease-out forwards','zoom-in':'zoomIn 0.3s ease-out forwards','pulse-slow':'pulse 2.5s infinite'},keyframes:{slideUp:{'0%':{opacity:'0',transform:'translateY(20px)'},'100%':{opacity:'1',transform:'translateY(0)'}},zoomIn:{'0%':{opacity:'0',transform:'scale(0.95)'},'100%':{opacity:'1',transform:'scale(1)'}}}}}}</script><style>:root{--bg:linear-gradient(135deg,#fdf2f8 0%,#e0f2fe 100%);--glass:rgba(255,255,255,0.92);--card:#ffffff;--text:#1f2937;--text-mut:#6b7280;--input:#f9fafb;--border:rgba(255,0,127,0.15);--brand-1:#ff007f;--brand-2:#00e5ff;}.dark{--bg:linear-gradient(135deg,#0a0f1d 0%,#1a1025 100%);--glass:rgba(15,23,42,0.85);--card:#1e293b;--text:#f3f4f6;--text-mut:#9ca3af;--input:#334155;--border:rgba(0,229,255,0.2);}body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;scroll-behavior:smooth;transition:background 0.3s ease; -webkit-tap-highlight-color: transparent;}.glass,.glass-card{background:var(--glass)!important;border:1px solid var(--border)!important;box-shadow:0 10px 40px rgba(0,0,0,0.1);}.bg-white,.bg-gray-50{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important;}.text-gray-800,.text-brand-dark{color:var(--text)!important;} .text-gray-500,.text-gray-600{color:var(--text-mut)!important;}input,select,textarea{background-color:var(--input)!important;color:var(--text)!important;border-color:var(--border)!important;}.bg-brand,.bg-gradient-to-r{background:linear-gradient(90deg,var(--brand-1),var(--brand-2))!important;color:#fff!important;box-shadow:0 4px 15px rgba(255,0,127,0.4)!important;}.text-brand{color:var(--brand-1)!important;} .border-brand{border-color:var(--brand-1)!important;}.btn-toggle{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-weight:900;transition:all 0.2s;box-shadow:0 2px 5px rgba(0,0,0,0.05);} .btn-toggle:hover{transform:scale(1.05);border-color:var(--brand-1);}.btn-yesno{flex:1;padding:8px;border-radius:12px;font-weight:900;transition:all 0.2s;border:1px solid var(--border);background:var(--input);color:var(--text-mut);} .btn-yesno.active{background:linear-gradient(90deg,var(--brand-1),var(--brand-2));color:#fff;border-color:transparent;}.hide-scrollbar::-webkit-scrollbar{display:none} .scroll-picker{scroll-snap-type:y mandatory;scrollbar-width:none} .scroll-picker-item{scroll-snap-align:center}.dot{position:absolute;width:24px;height:24px;background:var(--brand-1);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;cursor:pointer;border:2px solid #fff;box-shadow:0 0 10px rgba(255,0,127,0.8);transform:translate(-50%,-50%);transition:all 0.3s;z-index:20;pointer-events:auto;} .dot:hover{transform:translate(-50%,-50%) scale(1.3)} .dot.filled{background:var(--brand-2);box-shadow:0 0 10px rgba(0,229,255,0.8)}input[type=range]{-webkit-appearance:none;width:100%;background:transparent} input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:26px;width:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));cursor:pointer;margin-top:-9px;box-shadow:0 4px 10px rgba(255,0,127,0.4);border:2px solid #fff} input[type=range]::-webkit-slider-runnable-track{width:100%;height:8px;cursor:pointer;background:var(--border);border-radius:4px}.admin-tab{cursor:pointer;padding:.75rem .5rem;text-align:center;font-weight:900;font-size:.75rem;border-bottom:3px solid transparent;transition:all .3s;color:var(--text-mut);white-space:nowrap} .admin-tab.active{color:var(--brand-1);border-bottom-color:var(--brand-2)}.action-btn{padding:6px 12px;border-radius:8px;font-weight:bold;font-size:11px;cursor:pointer;transition:all 0.2s;} .btn-done{background:#10b981;color:white;border:1px solid #059669;} .btn-fail{background:#ef4444;color:white;border:1px solid #dc2626;} .btn-idle{background:var(--input);color:var(--text-mut);border:1px solid var(--border);}.dark .task-card { background: rgba(30, 41, 59, 0.95) !important; color: #f8fafc; border-color: rgba(0,229,255,0.2) !important; }.dark .task-card input { background: #0f172a !important; border-color: #334155 !important; color: white !important;}.nav-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:9px; font-weight:900; color:var(--text-mut); transition:all 0.3s; flex:1; padding:6px 0; }.nav-btn.active { color:var(--brand-1); transform:translateY(-2px); }.nav-btn.active span.icon { background:var(--brand-1); color:white; border-radius:10px; padding:4px 10px; box-shadow:0 4px 10px rgba(255,0,127,0.3); }.nav-btn span.icon { font-size:16px; transition:all 0.3s; padding:4px 10px; }.fab{position:fixed;bottom:100px;right:20px;width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:32px;box-shadow:0 10px 25px rgba(37,211,102,0.4);z-index:50;transition:transform 0.3s; border:3px solid white;} .fab:hover{transform:scale(1.1)}.watch-circle { width: 180px; height: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 6px solid var(--brand-1); box-shadow: 0 0 20px rgba(255,0,127,0.3), inset 0 0 15px rgba(0,0,0,0.1); background: var(--input); margin: 0 auto; position: relative; }.dark .watch-circle { background: #0f172a; border-color: var(--brand-2); box-shadow: 0 0 20px rgba(0,229,255,0.2), inset 0 0 15px rgba(0,0,0,0.5); }.custom-scroll::-webkit-scrollbar { width: 4px; } .custom-scroll::-webkit-scrollbar-track { background: transparent; } .custom-scroll::-webkit-scrollbar-thumb { background: var(--brand-1); border-radius: 10px; }.swipe-area { touch-action: pan-y; } select { padding-right: 25px !important; }</style></head><body><div id="root"></div><script type="text/babel">if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyAkSD8k1Q4_gSwar3mwfDPVpUPWzHJevNk",authDomain:"geox-platform.firebaseapp.com",databaseURL:"https://geox-platform-default-rtdb.firebaseio.com",projectId:"geox-platform",storageBucket:"geox-platform.firebasestorage.app",messagingSenderId:"691272759644",appId:"1:691272759644:web:0070d88542abc78bef6999",measurementId:"G-CDF1KYQNJT"});}const auth = firebase.auth(); const db = firebase.firestore(); const storage = firebase.storage(); const {useState,useEffect,useRef}=React;const ADMIN_PHONE = '01063405860'; const ADMIN_EMAILS = ['rawanelsayed322@gmail.com', 'yousef74joe74@gmail.com'];const LEVELS=[{id:'l1',n:'مبتدئ (Beginner)'},{id:'l2',n:'متوسط مبتدئ (Novice)'},{id:'l3',n:'متوسط (Intermediate)'},{id:'l4',n:'متقدم (Advanced)'},{id:'l5',n:'نخبة (Elite)'}];const INJURIES_LIST=['الكتف','الركبة','أسفل الظهر','الرقبة','الحوض','تمزق عضلي','أخرى'];const DB_EX={beg:{lg:['Bodyweight Squat','Goblet Squat','Leg Press','Step-Ups','Wall Sit','Glute Bridge','Donkey Kicks'],up:['Lat Pulldown','Seated Cable Row','Wall Push-Up','Dumbbell Bench Press','Dumbbell Shoulder Press','Dumbbell Biceps Curl','Triceps Pushdown'],cr:['Dead Bug','Bird Dog','Knee Plank','Heel Taps','Crunch'],cf:['Kettlebell Deadlift','Box Step-Ups','Medicine Ball Slams - Light','Plank Hold']},int:{lg:['Barbell Back Squat','Bulgarian Split Squat','Walking Lunges','Barbell Hip Thrust','Romanian Deadlift','Leg Curl'],up:['Barbell Bent-Over Row','Assisted Pull-Up','Barbell Bench Press','Incline Dumbbell Press','Arnold Press','Face Pull','Skull Crusher'],cr:['Hanging Knee Raise','Cable Crunch','Russian Twist','Mountain Climbers'],cf:['Burpees','Kettlebell Swings','Box Jumps','Assault Bike Intervals']},adv:{lg:['Front Squat','Pause Back Squat','Single-Leg Hip Thrust','Deficit RDL','Pistol Squats'],up:['Weighted Pull-Up','Pendlay Row','Weighted Push-Up','Handstand Push-Up','Barbell Thrusters'],cr:['Toes-to-Bar','Dragon Flag','Ab Wheel Rollout','L-Sit Hold'],cf:['Power Clean','Snatch','Muscle-Ups','Heavy Sled Push']}};const POSTURES=[{id:'normal',img:'posture-normal.jpg',tAr:'الطبيعي',dAr:'انحناءات طبيعية.',tEn:'Normal',dEn:'Natural curves.'},{id:'lordosis',img:'posture-lordosis.jpg',tAr:'تقعر قطني',dAr:'انحناء للداخل.',tEn:'Lordosis',dEn:'Inward curvature.'},{id:'kyphosis',img:'posture-kyphosis.jpg',tAr:'تحدب الظهر',dAr:'انحناء للخارج.',tEn:'Kyphosis',dEn:'Outward curvature.'},{id:'scoliosis',img:'posture-scoliosis.jpg',tAr:'الجنف',dAr:'انحناء جانبي.',tEn:'Scoliosis',dEn:'Sideways curvature.'}];const SHAPES_NEW=[{id:'ectomorph',img:'shape-ectomorph.jpg',ar:'نحيف (Ectomorph)',en:'Ectomorph'},{id:'mesomorph',img:'shape-mesomorph.jpg',ar:'عضلي (Mesomorph)',en:'Mesomorph'},{id:'endomorph',img:'shape-endomorph.jpg',ar:'ممتلئ (Endomorph)',en:'Endomorph'}];const DEFAULT_MEASURE_PTS=[{id:'neck',t:'27%',l:'50%',ar:'الرقبة',en:'Neck'},{id:'shoulders',t:'34%',l:'34%',ar:'الأكتاف',en:'Shoulders'},{id:'chest',t:'36%',l:'50%',ar:'الصدر',en:'Chest'},{id:'waist',t:'42%',l:'50%',ar:'الخصر',en:'Waist'},{id:'hips',t:'46%',l:'36%',ar:'الحوض',en:'Hips'},{id:'bicep',t:'40%',l:'31%',ar:'الذراع',en:'Bicep'},{id:'thighs',t:'52%',l:'43%',ar:'الفخذ',en:'Thighs'},{id:'calves',t:'64%',l:'44%',ar:'السمانة',en:'Calves'}];const FOOD_DB = { fruits: { labelAr: '🍏 فواكه', labelEn: 'Fruits', items: [{nAr:'تفاح (متوسطة)',nEn:'Apple (Medium)',c:95},{nAr:'موز (متوسطة)',nEn:'Banana (Medium)',c:105},{nAr:'برتقال (متوسطة)',nEn:'Orange (Medium)',c:62},{nAr:'مانجو (100 جرام)',nEn:'Mango (100g)',c:60},{nAr:'فراولة (100 جرام)',nEn:'Strawberry (100g)',c:32},{nAr:'بطيخ (100 جرام)',nEn:'Watermelon (100g)',c:30},{nAr:'عنب (100 جرام)',nEn:'Grapes (100g)',c:69},{nAr:'خوخ (متوسطة)',nEn:'Peach (Medium)',c:59},{nAr:'تمر (واحدة)',nEn:'Date (One)',c:20}] }, veg: { labelAr: '🥦 خضراوات', labelEn: 'Vegetables', items: [{nAr:'طماطم (متوسطة)',nEn:'Tomato (Medium)',c:22},{nAr:'خيار (متوسطة)',nEn:'Cucumber (Medium)',c:16},{nAr:'جزر (متوسطة)',nEn:'Carrot (Medium)',c:25},{nAr:'خس (100 جرام)',nEn:'Lettuce (100g)',c:15},{nAr:'بروكلي مسلوق (100 جرام)',nEn:'Boiled Broccoli (100g)',c:35},{nAr:'فلفل رومي (متوسطة)',nEn:'Bell Pepper (Medium)',c:24},{nAr:'بصل (متوسطة)',nEn:'Onion (Medium)',c:44}] }, carbs: { labelAr: '🍞 نشويات ومخبوزات', labelEn: 'Carbs & Bakery', items: [{nAr:'أرز أبيض (100 جرام مطبوخ)',nEn:'White Rice (100g cooked)',c:130},{nAr:'أرز بني (100 جرام مطبوخ)',nEn:'Brown Rice (100g cooked)',c:111},{nAr:'مكرونة مسلوقة (100 جرام)',nEn:'Boiled Pasta (100g)',c:158},{nAr:'رغيف عيش بلدي',nEn:'Baladi Bread (Loaf)',c:300},{nAr:'رغيف عيش أسمر/سن',nEn:'Brown Bread (Loaf)',c:240},{nAr:'عيش فينو (رغيف متوسط)',nEn:'Fino Bread (Loaf)',c:200},{nAr:'شوفان (100 جرام جاف)',nEn:'Oats (100g dry)',c:389},{nAr:'بطاطس مسلوقة (متوسطة)',nEn:'Boiled Potato (Medium)',c:130},{nAr:'بطاطا حلوة مشوية (متوسطة)',nEn:'Sweet Potato (Medium)',c:103}] }, protein: { labelAr: '🍗 لحوم وبروتينات', labelEn: 'Proteins & Meat', items: [{nAr:'صدر دجاج مشوي (100 جرام)',nEn:'Grilled Chicken Breast (100g)',c:165},{nAr:'فخذ دجاج (100 جرام)',nEn:'Chicken Thigh (100g)',c:209},{nAr:'لحم بقري خالي الدهون (100 جرام)',nEn:'Lean Beef (100g)',c:250},{nAr:'سمك بلطي مشوي (100 جرام)',nEn:'Grilled Tilapia (100g)',c:128},{nAr:'سلمون مشوي (100 جرام)',nEn:'Grilled Salmon (100g)',c:206},{nAr:'بيضة مسلوقة (كبيرة)',nEn:'Boiled Egg (Large)',c:78},{nAr:'تونة مصفاة من الزيت (علبة)',nEn:'Tuna (Drained can)',c:190},{nAr:'جبنة قريش (100 جرام)',nEn:'Cottage Cheese (100g)',c:98},{nAr:'عدس مطبوخ (100 جرام)',nEn:'Cooked Lentils (100g)',c:116}] }, egyptian: { labelAr: '🥘 أكلات مصرية', labelEn: 'Egyptian Food', items: [{nAr:'كشري (طبق متوسط)',nEn:'Koshary (Medium Plate)',c:450},{nAr:'محشي كرنب (5 أصابع)',nEn:'Stuffed Cabbage (5 pcs)',c:250},{nAr:'محشي ورق عنب (5 أصابع)',nEn:'Stuffed Vine Leaves (5 pcs)',c:200},{nAr:'ملوخية (طبق صغير بدون طشة)',nEn:'Molokhia (Small Plate)',c:80},{nAr:'مكرونة بشاميل (قطعة متوسطة)',nEn:'Macarona Béchamel (Medium)',c:400},{nAr:'حواوشي (رغيف بلدي)',nEn:'Hawawshi (Baladi Loaf)',c:500},{nAr:'سجق إسكندراني (100 جرام)',nEn:'Alexandrian Sausage (100g)',c:320},{nAr:'كبدة إسكندراني (100 جرام)',nEn:'Alexandrian Liver (100g)',c:220},{nAr:'فول مدمس (معلقتين)',nEn:'Fava Beans (2 tbsp)',c:110},{nAr:'طعمية (قرص مقلي)',nEn:'Falafel (1 piece)',c:60},{nAr:'فطير مشلتت (شريحة)',nEn:'Fiteer Meshaltet (Slice)',c:350}] }, fastfood: { labelAr: '🍔 وجبات سريعة', labelEn: 'Fast Food', items: [{nAr:'برجر لحم بالجبنة',nEn:'Cheeseburger',c:300},{nAr:'شريحة بيتزا (متوسطة)',nEn:'Pizza Slice (Medium)',c:250},{nAr:'بطاطس مقلية (حجم متوسط)',nEn:'French Fries (Medium)',c:365},{nAr:'دجاج مقلي بروستد (قطعة)',nEn:'Fried Chicken (Piece)',c:320},{nAr:'شاورما لحم (ساندوتش)',nEn:'Meat Shawarma (Sandwich)',c:450},{nAr:'شاورما دجاج (ساندوتش)',nEn:'Chicken Shawarma (Sandwich)',c:400},{nAr:'هوت دوج (ساندوتش)',nEn:'Hot Dog (Sandwich)',c:350},{nAr:'كريب دجاج بانيه',nEn:'Chicken Crepe',c:600}] }, sweets: { labelAr: '🍰 حلويات ومشروبات', labelEn: 'Sweets & Drinks', items: [{nAr:'بيبسي/كوكاكولا (كانز)',nEn:'Pepsi/Coke (Can)',c:140},{nAr:'عصير برتقال فريش (كوب)',nEn:'Fresh Orange Juice (Cup)',c:112},{nAr:'قطعة بسبوسة',nEn:'Basbousa (Piece)',c:350},{nAr:'قطعة كنافة',nEn:'Kunafa (Piece)',c:400},{nAr:'قطائف بالمكسرات (واحدة)',nEn:'Qatayef (One)',c:150},{nAr:'كيك فانيليا (شريحة)',nEn:'Vanilla Cake (Slice)',c:250},{nAr:'شوكولاتة سنيكرز (بار)',nEn:'Snickers (Bar)',c:250},{nAr:'شوكولاتة داكنة 70% (مربع)',nEn:'Dark Choc 70% (Square)',c:50},{nAr:'آيس كريم (بولة)',nEn:'Ice Cream (Scoop)',c:140}] } };
+const formatTime12h = (time24) => { if(!time24) return ''; let [h, m] = time24.split(':').map(Number); const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12; h = h ? h : 12; return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} ${ampm}`; };
+const formatTime12hAr = (time24) => { if(!time24) return ''; let [h, m] = time24.split(':').map(Number); const ampm = h >= 12 ? 'م' : 'ص'; h = h % 12; h = h ? h : 12; return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')} ${ampm}`; };
+const formatCoachHours = (str, isAr) => { if(!str || str === 'إجازة' || !str.includes(' - ')) return str || (isAr?'إجازة':'Off'); const [from, to] = str.split(' - '); return `${isAr ? formatTime12hAr(from) : formatTime12h(from)} - ${isAr ? formatTime12hAr(to) : formatTime12h(to)}`; };
 const addEmojisToDiet = (text) => { if (!text) return text; return text.replace(/بيض/g, '🍳 بيض').replace(/فراخ|دجاج/g, '🍗 فراخ').replace(/سمك|تونة/g, '🐟 سمك').replace(/لحم/g, '🥩 لحم').replace(/شوفان/g, '🥣 شوفان').replace(/رز|أرز/g, '🍚 رز').replace(/مكرونة/g, '🍝 مكرونة').replace(/خضار|سلطة/g, '🥗 سلطة').replace(/فاكهة|تفاح|موز/g, '🍎 فاكهة').replace(/زبادي/g, '🥛 زبادي').replace(/عيش|توست/g, '🍞 عيش').replace(/جبن/g, '🧀 جبن'); };
 const calcAge = (dob) => { if(!dob) return 25; const diff = Date.now() - new Date(dob).getTime(); return Math.abs(new Date(diff).getUTCFullYear() - 1970); };
-
-// Safe Array Helper
 const safeSch = (arr) => (Array.isArray(arr) && arr.length === 7) ? arr : [{},{},{},{},{},{},{}];
+const getMacs = (u) => { if(u.customMacs && u.customMacs.c) return u.customMacs; let a = calcAge(u.dob); let w = u.w, h = u.h; let bmi = w / ((h/100)*(h/100)); let pbf = (1.20 * bmi) + (0.23 * a) - 5.4; let bmr = (10*w) + (6.25*h) - (5*a) - 161; let act = (u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.3:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.55:1.75; let tdee = bmr * act; let state = bmi < 18.5 ? "نحافة" : bmi < 25 ? "وزن مثالي" : bmi < 30 ? "وزن زائد" : "سمنة"; let cal=tdee; let g = u.goal||'loss'; if(g==='loss') cal=tdee-500; else if(g==='gain') cal=tdee+400; return {bmi:bmi.toFixed(1), pbf:pbf.toFixed(1), bmr:Math.round(bmr), tdee:Math.round(tdee), c:Math.round(cal), p:Math.round(w*(g==='loss'?2.2:g==='gain'?2.4:2)), cr:Math.round((cal*(g==='loss'?0.35:g==='gain'?0.5:0.4))/4), f:Math.round((cal*0.25)/9), state }; };
 
-const getMacs = (u) => {
-    if(u.customMacs && u.customMacs.c) return u.customMacs;
-    let a = calcAge(u.dob); let w = u.w, h = u.h;
-    let bmi = w / ((h/100)*(h/100)); let pbf = (1.20 * bmi) + (0.23 * a) - 5.4; let bmr = (10*w) + (6.25*h) - (5*a) - 161; 
-    let act = (u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.3:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.55:1.75; 
-    let tdee = bmr * act; let state = bmi < 18.5 ? "نحافة" : bmi < 25 ? "وزن مثالي" : bmi < 30 ? "وزن زائد" : "سمنة"; 
-    let cal=tdee; let g = u.goal||'loss';
-    if(g==='loss') cal=tdee-500; else if(g==='gain') cal=tdee+400; 
-    return {bmi:bmi.toFixed(1), pbf:pbf.toFixed(1), bmr:Math.round(bmr), tdee:Math.round(tdee), c:Math.round(cal), p:Math.round(w*(g==='loss'?2.2:g==='gain'?2.4:2)), cr:Math.round((cal*(g==='loss'?0.35:g==='gain'?0.5:0.4))/4), f:Math.round((cal*0.25)/9), state };
-};
-
-const TimerModal = ({isOpen, onClose, isAr}) => {
-    const [min, setMin] = useState(''); const [sec, setSec] = useState('');
-    const [time, setTime] = useState(0); const [run, setRun] = useState(false);
-    const alarmRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
-
-    useEffect(() => {
-        let int;
-        if(run && time>0) { int = setInterval(()=>setTime(t=>t-1),1000); } 
-        else if (run && time===0) { setRun(false); alarmRef.current.play().catch(e=>{}); }
-        return ()=>clearInterval(int);
-    }, [run, time]);
-
-    if(!isOpen) return null;
-    const format = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-    
-    return (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-zoom-in p-4">
-            <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border border-brand/20 shadow-2xl">
-                <button onClick={onClose} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
-                <h3 className="font-black text-xl mb-6 text-brand">⏳ {isAr?'مؤقت التمارين والراحة':'Timer'}</h3>
-                
-                <div className="watch-circle mb-6"><span className="font-black text-5xl font-english tracking-widest">{format(time)}</span></div>
-
-                {!run && time===0 && (
-                    <div className="flex gap-2 justify-center mb-6" dir="ltr">
-                        <input type="number" placeholder="MM" className="w-16 p-3 text-center rounded-xl bg-input border font-bold text-lg outline-none" value={min} onChange={e=>setMin(e.target.value)} />
-                        <span className="text-2xl font-black">:</span>
-                        <input type="number" placeholder="SS" className="w-16 p-3 text-center rounded-xl bg-input border font-bold text-lg outline-none" value={sec} onChange={e=>setSec(e.target.value)} />
-                    </div>
-                )}
-
-                <div className="flex justify-center gap-3 mb-6">
-                    <button onClick={()=>{
-                        if(!run && time===0 && (min||sec)){ const t=(Number(min||0)*60)+Number(sec||0); setTime(t); setRun(true); } 
-                        else setRun(!run); 
-                    }} disabled={time===0 && !min && !sec} className="bg-brand text-white px-8 py-3 rounded-xl font-black text-sm disabled:opacity-50 transition hover:scale-105">
-                        {run ? (isAr?'إيقاف مؤقت':'Pause') : (time>0 ? (isAr?'استكمال':'Resume') : (isAr?'بدء':'Start'))}
-                    </button>
-                    {(time>0 || min || sec) && !run && (
-                        <button onClick={()=>{setRun(false);setTime(0);setMin('');setSec('');}} className="bg-gray-200 dark:bg-slate-700 px-6 py-3 rounded-xl font-black text-sm text-gray-700 dark:text-gray-300 transition hover:scale-105">
-                            {isAr?'إلغاء':'Reset'}
-                        </button>
-                    )}
-                </div>
-
-                {!run && time===0 && (
-                    <div className="grid grid-cols-3 gap-2 border-t dark:border-slate-700 pt-4">
-                        <button onClick={()=>{setTime(30);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">30s {isAr?'راحة':'Rest'}</button>
-                        <button onClick={()=>{setTime(60);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">1m {isAr?'راحة':'Rest'}</button>
-                        <button onClick={()=>{setTime(90);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">1.5m {isAr?'راحة':'Rest'}</button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
-const StopwatchModal = ({isOpen, onClose, isAr}) => {
-    const [time, setTime] = useState(0); const [run, setRun] = useState(false);
-    useEffect(() => { let int; if(run) int = setInterval(()=>setTime(t=>t+1),1000); return ()=>clearInterval(int); }, [run]);
-    if(!isOpen) return null;
-    const format = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-    return (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-zoom-in p-4">
-            <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border border-brand-dark/20 shadow-2xl">
-                <button onClick={onClose} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
-                <h3 className="font-black text-xl mb-6 text-brand-dark">⏱️ {isAr?'ساعة إيقاف':'Stopwatch'}</h3>
-                
-                <div className="watch-circle mb-8 border-brand-dark"><span className="font-black text-5xl font-english tracking-widest text-brand-dark">{format(time)}</span></div>
-
-                <div className="flex justify-center gap-3">
-                    <button onClick={()=>setRun(!run)} className="bg-brand-dark text-white px-8 py-3 rounded-xl font-black text-sm transition hover:scale-105">
-                        {run ? (isAr?'إيقاف مؤقت':'Pause') : (time>0?(isAr?'استكمال':'Resume'):(isAr?'بدء':'Start'))}
-                    </button>
-                    {time>0 && !run && (
-                        <button onClick={()=>{setRun(false);setTime(0);}} className="bg-gray-200 dark:bg-slate-700 px-6 py-3 rounded-xl font-black text-sm text-gray-700 dark:text-gray-300 transition hover:scale-105">
-                            {isAr?'تصفير':'Reset'}
-                        </button>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
-
+const TimerModal = ({isOpen, onClose, isAr}) => { const [min, setMin] = useState(''); const [sec, setSec] = useState(''); const [time, setTime] = useState(0); const [run, setRun] = useState(false); const alarmRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')); useEffect(() => { let int; if(run && time>0) { int = setInterval(()=>setTime(t=>t-1),1000); } else if (run && time===0) { setRun(false); alarmRef.current.play().catch(e=>{}); } return ()=>clearInterval(int); }, [run, time]); if(!isOpen) return null; const format = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; return ( <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-zoom-in p-4"> <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border border-brand/20 shadow-2xl"> <button onClick={onClose} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button> <h3 className="font-black text-xl mb-6 text-brand">⏳ {isAr?'مؤقت التمارين والراحة':'Timer'}</h3> <div className="watch-circle mb-6"><span className="font-black text-5xl font-english tracking-widest">{format(time)}</span></div> {!run && time===0 && ( <div className="flex gap-2 justify-center mb-6" dir="ltr"> <input type="number" placeholder="MM" className="w-16 p-3 text-center rounded-xl bg-input border font-bold text-lg outline-none" value={min} onChange={e=>setMin(e.target.value)} /> <span className="text-2xl font-black">:</span> <input type="number" placeholder="SS" className="w-16 p-3 text-center rounded-xl bg-input border font-bold text-lg outline-none" value={sec} onChange={e=>setSec(e.target.value)} /> </div> )} <div className="flex justify-center gap-3 mb-6"> <button onClick={()=>{ if(!run && time===0 && (min||sec)){ const t=(Number(min||0)*60)+Number(sec||0); setTime(t); setRun(true); } else setRun(!run); }} disabled={time===0 && !min && !sec} className="bg-brand text-white px-8 py-3 rounded-xl font-black text-sm disabled:opacity-50 transition hover:scale-105"> {run ? (isAr?'إيقاف مؤقت':'Pause') : (time>0 ? (isAr?'استكمال':'Resume') : (isAr?'بدء':'Start'))} </button> {(time>0 || min || sec) && !run && ( <button onClick={()=>{setRun(false);setTime(0);setMin('');setSec('');}} className="bg-gray-200 dark:bg-slate-700 px-6 py-3 rounded-xl font-black text-sm text-gray-700 dark:text-gray-300 transition hover:scale-105"> {isAr?'إلغاء':'Reset'} </button> )} </div> {!run && time===0 && ( <div className="grid grid-cols-3 gap-2 border-t dark:border-slate-700 pt-4"> <button onClick={()=>{setTime(30);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">30s {isAr?'راحة':'Rest'}</button> <button onClick={()=>{setTime(60);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">1m {isAr?'راحة':'Rest'}</button> <button onClick={()=>{setTime(90);setRun(true);}} className="bg-brand/10 text-brand py-2 rounded-lg font-bold text-xs hover:bg-brand/20 transition">1.5m {isAr?'راحة':'Rest'}</button> </div> )} </div> </div> ); };
+const StopwatchModal = ({isOpen, onClose, isAr}) => { const [time, setTime] = useState(0); const [run, setRun] = useState(false); useEffect(() => { let int; if(run) int = setInterval(()=>setTime(t=>t+1),1000); return ()=>clearInterval(int); }, [run]); if(!isOpen) return null; const format = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; return ( <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-zoom-in p-4"> <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border border-brand-dark/20 shadow-2xl"> <button onClick={onClose} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button> <h3 className="font-black text-xl mb-6 text-brand-dark">⏱️ {isAr?'ساعة إيقاف':'Stopwatch'}</h3> <div className="watch-circle mb-8 border-brand-dark"><span className="font-black text-5xl font-english tracking-widest text-brand-dark">{format(time)}</span></div> <div className="flex justify-center gap-3"> <button onClick={()=>setRun(!run)} className="bg-brand-dark text-white px-8 py-3 rounded-xl font-black text-sm transition hover:scale-105"> {run ? (isAr?'إيقاف مؤقت':'Pause') : (time>0?(isAr?'استكمال':'Resume'):(isAr?'بدء':'Start'))} </button> {time>0 && !run && ( <button onClick={()=>{setRun(false);setTime(0);}} className="bg-gray-200 dark:bg-slate-700 px-6 py-3 rounded-xl font-black text-sm text-gray-700 dark:text-gray-300 transition hover:scale-105"> {isAr?'تصفير':'Reset'} </button> )} </div> </div> </div> ); };
 const ScrollPicker=({min,max,val,onCh,lbl,suf})=>{const opts=Array.from({length:max-min+1},(_,i)=>min+i);const ref=useRef(null);return(<div className="flex flex-col items-center flex-1 bg-white p-2 rounded-[1.5rem] shadow-sm overflow-hidden"><span className="text-[10px] font-bold text-gray-500 mb-1 whitespace-nowrap">{lbl}</span><div ref={ref} onScroll={(e)=>onCh(opts[Math.round(e.target.scrollTop/44)]||val)} className="h-[132px] w-full overflow-y-scroll scroll-picker relative"><div style={{height:'44px'}}></div>{opts.map(o=><div key={o} onClick={()=>{onCh(o);ref.current.scrollTo({top:(o-min)*44,behavior:'smooth'});}} className={`h-[44px] flex items-center justify-center scroll-picker-item cursor-pointer transition-all ${val===o?'text-brand text-2xl font-black scale-110':'text-gray-300 text-sm font-bold'}`}>{o} <span className="text-[10px] ml-1">{suf}</span></div>)}<div style={{height:'44px'}}></div></div></div>);};
-
 const syncLocalDB = (clientData) => { let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]'); const idx = localDB.findIndex(c => c.ph === clientData.ph); if (idx > -1) localDB[idx] = clientData; else localDB.push(clientData); localStorage.setItem('gg_local_clients_db', JSON.stringify(localDB)); return localDB; };
 const EMOJIS = ['👧','👩','👱‍♀️','👩‍🦰','👩‍🦱','👸','🧚‍♀️','🏃‍♀️','🧘‍♀️','🏋️‍♀️','💃','👑','🎀','💖','🌟'];
 
-const App=()=>{const [lang,setLang]=useState(localStorage.getItem('gg_lang')||'ar');const [theme,setTheme]=useState(localStorage.getItem('gg_theme')||'dark');const [view,setView]=useState('loading');const [step,setStep]=useState(1);const [clients,setClients]=useState([]);const [currentUser,setCurrentUser]=useState(null);const [editingClient,setEditingClient]=useState(null);const [adminTab,setAdminTab]=useState('basic');const [showWModal,setShowWModal]=useState(false);const [newW,setNewW]=useState('');const [srch,setSrch]=useState('');const [srt,setSrt]=useState('date');const [dtRange,setDtRange]=useState({start:'',end:''});const [actPt,setActPt]=useState(null);const [ann,setAnn]=useState('');const [tip,setTip]=useState('');const [measurePts,setMeasurePts]=useState(DEFAULT_MEASURE_PTS);const [showDotsEditor,setShowDotsEditor]=useState(false);const [adminActPt,setAdminActPt]=useState(null);
-const [loginTab, setLoginTab] = useState('new'); const [clientTab, setClientTab] = useState('home'); const [musicModal, setMusicModal] = useState(false); const [actMusic, setActMusic] = useState(null); 
-const [showTimer, setShowTimer] = useState(false); const [showStopwatch, setShowStopwatch] = useState(false);
-const [showHoursModal, setShowHoursModal] = useState(false);
-const [showProfileModal, setShowProfileModal] = useState(false);
-const [showCoachModal, setShowCoachModal] = useState(false);
-const [showUpdateModal, setShowUpdateModal] = useState(false);
-const [touchStart, setTouchStart] = useState(null);
-const [calcCat, setCalcCat] = useState('fruits');
-const [showCalc, setShowCalc] = useState(false);
-
-const [sysConf, setSysConf] = useState({
-    coachHours: ['10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','إجازة','10:00 - 20:00'],
-    wake: '07:00', sleep:'23:00', water: 3, vits: 'Omega 3, Vit C',
-    mealDeadlines: {brk:'11:00', lun:'17:00', din:'23:00'}
-});
-const audioRef = useRef(new Audio());
-const isAr=lang==='ar';
-
-const calcSleep = (tgtWake, tgtSleep, isArLocal) => { 
-    if(!tgtWake || !tgtSleep) return {h:0, m:0, msg:isArLocal?'غير محدد':'Not Set'}; 
-    const [wH, wM] = tgtWake.split(':').map(Number);
-    const [sH, sM] = tgtSleep.split(':').map(Number);
-    let diff = (wH*60 + wM) - (sH*60 + sM);
-    if(diff < 0) diff += 24*60;
-    const h = Math.floor(diff/60); const m = diff%60; 
-    let msg = h>=7?(isArLocal?'ممتاز 😴':'Great 😴'):h>=5?(isArLocal?'مقبول 🥱':'Okay 🥱'):(isArLocal?'قليل جداً ⚠️':'Too Short ⚠️'); 
-    return {h, m, msg}; 
-};
-
+const App=()=>{const [lang,setLang]=useState(localStorage.getItem('gg_lang')||'ar');const [theme,setTheme]=useState(localStorage.getItem('gg_theme')||'dark');const [view,setView]=useState('loading');const [step,setStep]=useState(1);const [clients,setClients]=useState([]);const [currentUser,setCurrentUser]=useState(null);const [editingClient,setEditingClient]=useState(null);const [adminTab,setAdminTab]=useState('basic');const [showWModal,setShowWModal]=useState(false);const [newW,setNewW]=useState('');const [srch,setSrch]=useState('');const [srt,setSrt]=useState('date');const [dtRange,setDtRange]=useState({start:'',end:''});const [actPt,setActPt]=useState(null);const [ann,setAnn]=useState('');const [tip,setTip]=useState('');const [measurePts,setMeasurePts]=useState(DEFAULT_MEASURE_PTS);const [showDotsEditor,setShowDotsEditor]=useState(false);const [adminActPt,setAdminActPt]=useState(null);const [loginTab, setLoginTab] = useState('new'); const [clientTab, setClientTab] = useState('home'); const [musicModal, setMusicModal] = useState(false); const [actMusic, setActMusic] = useState(null); const [showTimer, setShowTimer] = useState(false); const [showStopwatch, setShowStopwatch] = useState(false);const [showHoursModal, setShowHoursModal] = useState(false);const [showProfileModal, setShowProfileModal] = useState(false);const [showCoachModal, setShowCoachModal] = useState(false);const [showUpdateModal, setShowUpdateModal] = useState(false);const [touchStart, setTouchStart] = useState(null);const [calcCat, setCalcCat] = useState('fruits');const [showCalc, setShowCalc] = useState(false);const [sysConf, setSysConf] = useState({ coachHours: ['10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','إجازة','10:00 - 20:00'], wake: '07:00', sleep:'23:00', water: 3, vits: 'Omega 3, Vit C', mealDeadlines: {brk:'11:00', lun:'17:00', din:'23:00'} });const audioRef = useRef(new Audio());const isAr=lang==='ar';
 const t={ ar:{dWs:["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],n:"الاسم الثلاثي",ph:"الموبايل",dob:"تاريخ الميلاد",bType:"فصيلة الدم",emPh:"رقم الطوارئ",job:"الوظيفة",w:"الوزن",h:"الطول",nx:"التالي",bk:"رجوع",med:"التاريخ الطبي",q1:"أمراض مزمنة؟",q2:"حامل أو ولادة قيصرية؟",q3:"مشاكل ظهر ركبة؟",q4:"عمليات سابقة؟",q5:"تدخين/كحوليات؟",q6:"أمراض وراثية؟",inj:"الإصابات:",y:"نعم",no:"لا",rsn:"التفاصيل",pq:"العمود الفقري",fit:"اللياقة",psh:"الضغط",crn:"البطن",sqt:"السكوات",msr:"المقاسات",shp:"شكل الجسم",dy:"أيام التمرين",alrg:"حساسية",inb:"InBody",subBtn:"إنهاء",suc:"تم الإرسال بنجاح!",chl:"تحدي",tdy:"تمرين اليوم",tEx:"التمارين",tDt:"الدايت",tSet:"إعدادات",tHm:"الرئيسية",err:"الرقم غير مسجل!",errReq:"أكملي البيانات المطلوبة", errEx:"هذا الرقم مسجل مسبقاً!"}, en:{dWs:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],n:"Full Name",ph:"Phone",dob:"Birthday",bType:"Blood Type",emPh:"Emergency Num",job:"Job",w:"Weight",h:"Height",nx:"Next",bk:"Back",med:"Medical History",q1:"Chronic Diseases?",q2:"Pregnant/C-section?",q3:"Joint Issues?",q4:"Surgeries?",q5:"Smoking/Alcohol?",q6:"Genetic Diseases?",inj:"Injuries:",y:"Yes",no:"No",rsn:"Details",pq:"Posture",fit:"Fitness",psh:"Pushup",crn:"Crunches",sqt:"Squat",msr:"Measurements",shp:"Body Shape",dy:"Days/week",alrg:"Allergies",inb:"InBody",subBtn:"Submit",suc:"Done Successfully!",chl:"Challenge",tdy:"Today's Plan",tEx:"Workout",tDt:"Diet",tSet:"Settings",tHm:"Home",err:"Number not found!",errReq:"Fill required fields", errEx:"Number already exists!"}}; const txt=t[lang];
 const [fData,setFData]=useState({n:'',ph:'',dob:'',bType:'',emPh:'',job:'',w:65,h:160,m1:'no',m1r:'',m2:'no',m2r:'',m3:'no',m3r:'',m4:'no',m4r:'',m5:'no',m5r:'',m6:'no',m6r:'',injuries:[],injR:'',pos:'normal',psh:'',crn:'',sqt:'',msr:{},shp:'',days:4,alg:'',lvl:LEVELS[0].n,sch:[{},{},{},{},{},{},{}],att:[],chDone:false,goal:'loss',tgtWake:'',tgtSleep:'',water:'',vits:'',gymT:['','','','','','',''],dailyLog:{},inbodyUrl:'', avatar:'👑', inbodyNotes:'', iW:0, customMacs:null});
 
@@ -217,37 +24,17 @@ useEffect(()=>{
     const storedPhone = sessionStorage.getItem('elite_phone'); 
     let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]');
     setClients(localDB);
-    if(storedPhone && storedPhone !== ADMIN_PHONE) {
-        const u = localDB.find(c=>c.ph===storedPhone);
-        if(u) { setCurrentUser(u); setView('client'); } 
-    } else if (!storedPhone) { setView('login'); }
-
+    if(storedPhone && storedPhone !== ADMIN_PHONE) { const u = localDB.find(c=>c.ph===storedPhone); if(u) { setCurrentUser(u); setView('client'); } } 
+    else if (!storedPhone) { setView('login'); }
     const unsub = db.collection('elite_clients').onSnapshot(s=>{
-        const fbData = s.docs.map(d=>({id:d.id,...d.data()})); 
-        let merged = [...localDB];
+        const fbData = s.docs.map(d=>({id:d.id,...d.data()})); let merged = [...localDB];
         fbData.forEach(fbC => { const idx = merged.findIndex(lc => lc.ph === fbC.ph); if(idx === -1) merged.push(fbC); else merged[idx] = {...merged[idx], ...fbC}; });
-        localStorage.setItem('gg_local_clients_db', JSON.stringify(merged)); 
-        setClients(merged);
-        
-        if(storedPhone && storedPhone !== ADMIN_PHONE) {
-            const u = merged.find(c=>c.ph===storedPhone); if(u) setCurrentUser(u);
-        }
-
+        localStorage.setItem('gg_local_clients_db', JSON.stringify(merged)); setClients(merged);
+        if(storedPhone && storedPhone !== ADMIN_PHONE) { const u = merged.find(c=>c.ph===storedPhone); if(u) setCurrentUser(u); }
         const annDoc=fbData.find(c=>c.id==='system_ann');if(annDoc){setAnn(annDoc.text);setTip(annDoc.tip||'');}
-        const confDoc=fbData.find(c=>c.id==='system_config');
-        if(confDoc){
-            if(confDoc.measurePts) setMeasurePts(confDoc.measurePts);
-            if(confDoc.sysConf) setSysConf({...sysConf, ...confDoc.sysConf});
-        }
+        const confDoc=fbData.find(c=>c.id==='system_config'); if(confDoc){ if(confDoc.measurePts) setMeasurePts(confDoc.measurePts); if(confDoc.sysConf) setSysConf({...sysConf, ...confDoc.sysConf}); }
     }, err => { console.warn('Firebase error, relying on local DB'); });
-
-    const unregAuth = auth.onAuthStateChanged(user=>{
-        if(user){
-            if(ADMIN_EMAILS.includes(user.email)){ sessionStorage.setItem('elite_phone', ADMIN_PHONE); setView('admin'); }
-            else{ auth.signOut(); alert(isAr?'غير مصرح لكِ.':'Not authorized.'); }
-        }
-    });
-
+    const unregAuth = auth.onAuthStateChanged(user=>{ if(user){ if(ADMIN_EMAILS.includes(user.email)){ sessionStorage.setItem('elite_phone', ADMIN_PHONE); setView('admin'); } else{ auth.signOut(); alert(isAr?'غير مصرح لكِ.':'Not authorized.'); } } });
     const handlePopState = (event) => { if (event.state) { setView(event.state.v || 'login'); setStep(event.state.s || 1); } };
     window.addEventListener('popstate', handlePopState);
     return ()=>{unsub(); unregAuth(); window.removeEventListener('popstate', handlePopState); audioRef.current.pause();};
@@ -263,62 +50,30 @@ useEffect(()=>{
 
 const handleFileUp = (e, cb) => {
     const file = e.target.files[0]; if(!file) return;
-    alert(isAr ? 'جاري رفع الـ InBody... برجاء الانتظار' : 'Uploading InBody...');
+    alert(isAr ? 'جاري رفع الـ InBody... برجاء الانتظار قليلاً' : 'Uploading InBody...');
     const ref = storage.ref(`inbody/${Date.now()}_${file.name}`);
     ref.put(file).then(snap => snap.ref.getDownloadURL()).then(url => { cb(url); alert(isAr ? 'تم الرفع بنجاح!' : 'Uploaded successfully!'); }).catch(err => alert(err.message));
 };
 
-const handleLoginExisting = () => {
-    if(!fData.ph) return alert(txt.errReq);
-    if(fData.ph === ADMIN_PHONE) { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(err=>alert(err.message)); return; }
-    const ex = clients.find(c => c.ph === fData.ph);
-    if(ex) { sessionStorage.setItem('elite_phone', ex.ph); setCurrentUser(ex); setView('client'); setClientTab('home'); } 
-    else alert(txt.err);
-};
-const handleRegisterNew = () => {
-    if(!fData.n || !fData.ph || !fData.dob) return alert(txt.errReq);
-    if(clients.find(c => c.ph === fData.ph)) return alert(txt.errEx);
-    nav('onboarding', 2);
-};
-const finishOnb=()=>{
-    let defIW = fData.h > 105 ? fData.h - 105 : fData.h;
-    const nc={...fData, id:fData.ph, regDate:new Date().toISOString().split('T')[0], status:'approved', iW: defIW};
-    const updatedLocalDB = syncLocalDB(nc); setClients(updatedLocalDB); sessionStorage.setItem('elite_phone', nc.ph); setCurrentUser(nc); nav('client', 1); setClientTab('home');
-    db.collection('elite_clients').doc(nc.ph).set(nc).catch(e=>{});
-};
-
+const handleLoginExisting = () => { if(!fData.ph) return alert(txt.errReq); if(fData.ph === ADMIN_PHONE) { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(err=>alert(err.message)); return; } const ex = clients.find(c => c.ph === fData.ph); if(ex) { sessionStorage.setItem('elite_phone', ex.ph); setCurrentUser(ex); setView('client'); setClientTab('home'); } else alert(txt.err); };
+const handleRegisterNew = () => { if(!fData.n || !fData.ph || !fData.dob) return alert(txt.errReq); if(clients.find(c => c.ph === fData.ph)) return alert(txt.errEx); nav('onboarding', 2); };
+const finishOnb=()=>{ let defIW = fData.h > 105 ? fData.h - 105 : fData.h; const nc={...fData, id:fData.ph, regDate:new Date().toISOString().split('T')[0], status:'approved', iW: defIW}; const updatedLocalDB = syncLocalDB(nc); setClients(updatedLocalDB); sessionStorage.setItem('elite_phone', nc.ph); setCurrentUser(nc); nav('client', 1); setClientTab('home'); db.collection('elite_clients').doc(nc.ph).set(nc).catch(e=>{}); };
 const updateDB=(c)=>{if(!c.ph) return; const updatedLocalDB = syncLocalDB(c); setClients(updatedLocalDB); setCurrentUser(c); db.collection('elite_clients').doc(c.ph).set(c,{merge:true}).catch(e=>{}); };
 const updateAnn=()=>{db.collection('elite_clients').doc('system_ann').set({id:'system_ann',text:ann,tip:tip},{merge:true});alert(isAr?'تم النشر!':'Published!');};
 const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts,sysConf},{merge:true}).then(()=>{alert(isAr?'تم الحفظ':'Saved'); setShowDotsEditor(false); setShowHoursModal(false);});};
 const handleImgClick=(e)=>{if(!adminActPt)return;const rect=e.currentTarget.getBoundingClientRect();const cx=e.type.includes('touch')?e.touches[0].clientX:e.clientX;const cy=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const x=((cx-rect.left)/rect.width)*100;const y=((cy-rect.top)/rect.height)*100;setMeasurePts(p=>p.map(pt=>pt.id===adminActPt?{...pt,l:x+'%',t:y+'%'}:pt));};
 const nav=(v,s)=>{setView(v);setStep(s);window.history.pushState({v,s},'');};const uF=(k,v)=>setFData(p=>({...p,[k]:v}));const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter(x=>x!==i):[...fData.injuries,i]);
 const logout=()=>{ sessionStorage.removeItem('elite_phone'); if(auth.currentUser) auth.signOut().then(()=>window.location.reload()); else window.location.reload(); };
-
-const deleteClient = (ph) => {
-    if(window.confirm(isAr ? 'هل أنت متأكد من حذف هذه العميلة نهائياً؟' : 'Are you sure you want to delete this client?')) {
-        db.collection('elite_clients').doc(ph).delete().catch(e=>{});
-        let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]');
-        localDB = localDB.filter(c => c.ph !== ph);
-        localStorage.setItem('gg_local_clients_db', JSON.stringify(localDB));
-        setClients(localDB);
-        if (editingClient && editingClient.ph === ph) { setEditingClient(null); window.history.back(); }
-    }
-};
+const deleteClient = (ph) => { if(window.confirm(isAr ? 'هل أنت متأكد من حذف هذه العميلة نهائياً؟' : 'Are you sure you want to delete this client?')) { db.collection('elite_clients').doc(ph).delete().catch(e=>{}); let localDB = JSON.parse(localStorage.getItem('gg_local_clients_db') || '[]'); localDB = localDB.filter(c => c.ph !== ph); localStorage.setItem('gg_local_clients_db', JSON.stringify(localDB)); setClients(localDB); if (editingClient && editingClient.ph === ph) { setEditingClient(null); window.history.back(); } } };
 
 const genSmartPlan=()=>{
     const lvlKey=(editingClient.lvl||'').includes('مبتدئ')||(editingClient.lvl||'').includes('Beg')?'beg':(editingClient.lvl||'').includes('متوسط')||(editingClient.lvl||'').includes('Int')?'int':'adv';
-    const eDB=DB_EX[lvlKey];let wIdx=0,dIdx=0;
+    const eDB=DB_EX[lvlKey];let dIdx=0;
     let s=safeSch(editingClient.sch).map(day=>{
         if(day.active){
-            const lg=eDB.lg[Math.floor(Math.random()*eDB.lg.length)];
-            const up=eDB.up[Math.floor(Math.random()*eDB.up.length)];
-            const cr=eDB.cr[Math.floor(Math.random()*eDB.cr.length)];
-            const cf=eDB.cf?eDB.cf[Math.floor(Math.random()*eDB.cf.length)]:'';
+            const lg=eDB.lg[Math.floor(Math.random()*eDB.lg.length)]; const up=eDB.up[Math.floor(Math.random()*eDB.up.length)]; const cr=eDB.cr[Math.floor(Math.random()*eDB.cr.length)]; const cf=eDB.cf?eDB.cf[Math.floor(Math.random()*eDB.cf.length)]:'';
             const wTxt=`- ${lg}\n- ${up}\n- ${cr}${cf?'\n- '+cf:''}`;
-            const b=DB_DIET.brk[dIdx%DB_DIET.brk.length];
-            const l=DB_DIET.lun[dIdx%DB_DIET.lun.length];
-            const d=DB_DIET.din[dIdx%DB_DIET.din.length];
-            dIdx++;
+            const b=DB_DIET.brk[dIdx%DB_DIET.brk.length]; const l=DB_DIET.lun[dIdx%DB_DIET.lun.length]; const d=DB_DIET.din[dIdx%DB_DIET.din.length]; dIdx++;
             return{...day,workout:wTxt,diet:`• إفطار: ${b}\n• غداء: ${l}\n• عشاء: ${d}`};
         } else return{...day,workout:isAr?'يوم راحة':'Rest Day',diet:isAr?'يوم مرن / راحة':'Flex Day / Rest'};
     });
@@ -327,9 +82,7 @@ const genSmartPlan=()=>{
 
 const dispClients=clients.filter(c=>!c.id.includes('system_')&&((c.n||'').toLowerCase().includes(srch.toLowerCase())||(c.ph||'').includes(srch))).filter(c=>(!dtRange.start||(c.regDate&&c.regDate>=dtRange.start))&&(!dtRange.end||(c.regDate&&c.regDate<=dtRange.end))).sort((a,b)=>{if(srt==='name')return(a.n||'').localeCompare(b.n||'','ar');if(srt==='age')return calcAge(a.dob)-calcAge(b.dob);if(srt==='wt')return Number(a.w)-Number(b.w);return (b.regDate||'').localeCompare(a.regDate||'');});
 const toggleT=()=>setTheme(t=>t==='dark'?'light':'dark');const toggleL=()=>setLang(l=>l==='ar'?'en':'ar');
-
 const playMusic = (url) => { if(actMusic===url){ audioRef.current.pause(); setActMusic(null); } else { audioRef.current.src = url; audioRef.current.play(); setActMusic(url); } };
-
 const getMins = (tStr) => { if(!tStr) return 9999; const [h,m] = tStr.split(':').map(Number); return h*60+m; };
 
 const renderChecklist = (text, type, tdStr, u, activeMealStr='', onProgressChange) => {
@@ -366,13 +119,8 @@ const handleCheckIn = (type, tdStr, wakeTgt, isArLocal) => {
     const now = new Date(); const timeStr = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
     const log = currentUser.dailyLog?.[tdStr] || {};
     if(type==='wake'){ 
-        const nowMins = now.getHours()*60 + now.getMinutes();
-        const tgtMins = getMins(wakeTgt||'07:00');
-        const diff = nowMins - tgtMins;
-        let status = '';
-        if(diff < -30) status = isArLocal?'بدري 🌟':'Early 🌟';
-        else if(diff <= 30) status = isArLocal?'في الموعد 🎯':'On Time 🎯';
-        else status = isArLocal?'متأخر ⏰':'Late ⏰';
+        const nowMins = now.getHours()*60 + now.getMinutes(); const tgtMins = getMins(wakeTgt||'07:00'); const diff = nowMins - tgtMins;
+        let status = ''; if(diff < -30) status = isArLocal?'بدري 🌟':'Early 🌟'; else if(diff <= 30) status = isArLocal?'في الموعد 🎯':'On Time 🎯'; else status = isArLocal?'متأخر ⏰':'Late ⏰';
         updateDB({...currentUser, dailyLog:{...currentUser.dailyLog, [tdStr]:{...log, wakeTime: isArLocal?formatTime12hAr(timeStr):formatTime12h(timeStr), wakeStatus: status}}});
     } else if(type==='gym'){ updateDB({...currentUser, dailyLog:{...currentUser.dailyLog, [tdStr]:{...log, gymTime: isArLocal?formatTime12hAr(timeStr):formatTime12h(timeStr)}}}); }
 };
@@ -422,58 +170,23 @@ if(view==='admin'){return(<div className="min-h-screen p-4 font-arabic" dir="rtl
         </div>
     </div>
 )}
-</div>):(<div className="max-w-4xl mx-auto animate-zoom-in pt-16 pb-10"><div className="glass p-4 rounded-3xl"><div className="flex justify-between items-center mb-4"><h2 className="text-xl font-black text-brand">ملف: {editingClient.n}</h2><div className="flex gap-2"><button onClick={()=>deleteClient(editingClient.ph)} className="bg-red-500 text-white p-2 rounded-xl">🗑️</button><button onClick={()=>window.history.back()} className="bg-white p-2 rounded-xl shadow-sm text-gray-800">✕</button></div></div><div className="flex border-b mb-4 overflow-x-auto hide-scrollbar"><div onClick={()=>setAdminTab('basic')} className={`admin-tab ${adminTab==='basic'?'active':''}`}>بيانات</div><div onClick={()=>setAdminTab('cals')} className={`admin-tab ${adminTab==='cals'?'active':''}`}>دايت</div><div onClick={()=>setAdminTab('work')} className={`admin-tab ${adminTab==='work'?'active':''}`}>تمارين</div><div onClick={()=>setAdminTab('habits')} className={`admin-tab ${adminTab==='habits'?'active':''}`}>عادات وإعدادات</div><div onClick={()=>setAdminTab('history')} className={`admin-tab ${adminTab==='history'?'active':''}`}>سجل الأيام</div></div><div className="bg-white rounded-2xl p-4 min-h-[350px] shadow-inner">{adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800"><div className="grid grid-cols-2 md:grid-cols-4 gap-3"><div><label className="text-[10px] font-bold">الوزن</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.w} onChange={e=>setEditingClient(p=>({...p,w:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الوزن المثالي (للمتابعة)</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-green-50 text-green-700" value={editingClient.iW} onChange={e=>setEditingClient(p=>({...p,iW:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الطول</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.h} onChange={e=>setEditingClient(p=>({...p,h:e.target.value}))}/></div><div><label className="text-[10px] font-bold">تاريخ الميلاد</label><input type="date" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.dob} onChange={e=>setEditingClient(p=>({...p,dob:e.target.value}))}/></div><div className="col-span-2 flex gap-2 items-end"><div className="flex-1"><label className="text-[10px] font-bold">الموبايل</label><input type="tel" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.ph} onChange={e=>setEditingClient(p=>({...p,ph:e.target.value}))}/></div><a href={`https://wa.me/2${editingClient.ph}`} target="_blank" className="bg-[#25D366] text-white p-2 rounded-lg flex items-center justify-center shadow-md hover:scale-105 transition" title="WhatsApp"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.227 5.227 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a></div><div><label className="text-[10px] font-bold">طوارئ</label><input type="tel" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.emPh||''} onChange={e=>setEditingClient(p=>({...p,emPh:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الوظيفة</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.job||''} onChange={e=>setEditingClient(p=>({...p,job:e.target.value}))}/></div><div><label className="text-[10px] font-bold">فصيلة الدم</label><select className="w-full p-2 rounded-lg border font-bold text-xs bg-white text-red-500" value={editingClient.bType} onChange={e=>setEditingClient(p=>({...p,bType:e.target.value}))}><option value="">-</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div><div className="col-span-2"><label className="text-[10px] font-bold">شكل الجسم / الظهر</label><div className="flex gap-2"><select className="w-1/2 p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.shp} onChange={e=>setEditingClient(p=>({...p,shp:e.target.value}))}>{SHAPES_NEW.map(s=><option key={s.id} value={s.id}>{s.ar}</option>)}</select><select className="w-1/2 p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.pos} onChange={e=>setEditingClient(p=>({...p,pos:e.target.value}))}>{POSTURES.map(p=><option key={p.id} value={p.id}>{p.tAr}</option>)}</select></div></div><div className="col-span-4"><label className="text-[10px] font-bold text-red-500">إصابات وأمراض وراثية</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-red-50 text-red-700" value={editingClient.injR||(editingClient.injuries||[]).join('، ')} onChange={e=>setEditingClient(p=>({...p,injR:e.target.value}))}/></div></div><div className="grid grid-cols-3 gap-2 mt-4 border-t pt-4"><div className="col-span-3 text-xs font-bold mb-1">المقاسات (cm):</div>{measurePts.map(pt=>(<div key={pt.id} className="p-2 rounded-lg border text-center"><label className="text-[9px] font-bold block mb-1">{pt.ar}</label><input type="number" className="w-full p-1 rounded border text-center font-bold text-xs bg-white" value={editingClient.msr?.[pt.id]||''} onChange={e=>setEditingClient(p=>({...p,msr:{...(p.msr||{}),[pt.id]:e.target.value}}))}/></div>))}</div></div>)}{adminTab==='cals'&&(<div className="animate-slide-up text-gray-800">{(()=>{const cData=getMacs(editingClient);return(<div className="bg-gradient-to-r text-white p-5 rounded-2xl mb-5 shadow-lg border border-white/20"><h3 className="text-sm font-black mb-3">📊 تحليل ومقاسات {editingClient.customMacs?.c?'(مخصص)':''}</h3><div className="grid grid-cols-4 gap-2 mb-4 text-center"><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">BMI</span><span className="font-bold">{cData.bmi||'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">PBF</span><span className="font-bold">{cData.pbf?'~'+cData.pbf+'%':'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">BMR</span><span className="font-bold">{cData.bmr||'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">TDEE</span><span className="font-bold">{cData.tdee||'-'}</span></div></div><div className="border-t border-white/20 pt-2 flex justify-around"><div className="text-center"><span className="block text-[10px]">سعرات</span><span className="font-black text-brand-gold">{cData.c}</span></div><div className="text-center"><span className="block text-[10px]">P</span><span className="font-bold">{cData.p}g</span></div><div className="text-center"><span className="block text-[10px]">C</span><span className="font-bold">{cData.cr}g</span></div><div className="text-center"><span className="block text-[10px]">F</span><span className="font-bold">{cData.f}g</span></div></div></div>);})()}<div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 flex flex-col"><div className="bg-gray-50 p-4 rounded-xl border"><h4 className="font-bold text-xs mb-2">تعديل السعرات والماكروز يدوياً (اختياري)</h4><div className="grid grid-cols-4 gap-2"><input placeholder="Cal" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.c||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),c:Number(e.target.value)}}))} /><input placeholder="Pro" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.p||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),p:Number(e.target.value)}}))} /><input placeholder="Carb" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.cr||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),cr:Number(e.target.value)}}))} /><input placeholder="Fat" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.f||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),f:Number(e.target.value)}}))} /></div></div><div className="mb-2 flex items-center justify-between"><label className="font-bold text-xs mb-1 block">📝 قراءة InBody وملاحظات الكابتن:</label>{editingClient.inbodyUrl && <a href={editingClient.inbodyUrl} target="_blank" className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">عرض InBody 📄</a>}</div><textarea placeholder="اكتب ملاحظاتك عن الحرق أو النصائح هنا..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-blue-50 text-blue-900 mb-2" rows="3" value={editingClient.inbodyNotes||''} onChange={e=>setEditingClient(p=>({...p,inbodyNotes:e.target.value}))}/><div><span className="block text-[10px] font-bold mb-1">تحديث الـ InBody للعميلة (اختياري)</span><input type="file" accept="image/*" className="w-full p-2 rounded-xl border outline-none font-semibold text-xs bg-white text-gray-800" onChange={e=>handleFileUp(e, url=>{setEditingClient(p=>({...p,inbodyUrl:url}));})} /></div>{safeSch(editingClient.sch).map((d,i)=>(<div key={i} className={`p-4 rounded-xl border ${d?.active?'border-brand':'border-gray-100'}`}><span className="font-black text-xs block mb-3">{txt.dWs[i]}</span><textarea placeholder="الوجبات (كل وجبة في سطر)..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-white" rows="3" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], diet:e.target.value}; setEditingClient(p=>({...p,sch:s}));}}/></div>))}</div></div>)}{adminTab==='work'&&(<div className="animate-slide-up text-gray-800"><div className="p-4 rounded-xl border mb-4 bg-input"><div className="flex flex-wrap gap-2 mb-4">{txt.dWs.map((d,i)=>(<label key={i} className={`flex items-center gap-1 text-[10px] px-3 py-2 rounded-lg border cursor-pointer font-bold transition ${safeSch(editingClient.sch)[i]?.active?'bg-brand text-white':'bg-white'}`}><input type="checkbox" className="hidden" checked={safeSch(editingClient.sch)[i]?.active||false} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i],active:e.target.checked}; setEditingClient(p=>({...p,sch:s}));}}/>{d}</label>))}</div><button onClick={genSmartPlan} className="w-full bg-gradient-to-r text-white p-3 rounded-xl text-xs font-black shadow-md">توليد جدول ذكي ⚡</button></div><div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 flex flex-col">{safeSch(editingClient.sch).map((d,i)=>(<div key={i} className={`p-4 rounded-xl border ${d?.active?'border-brand':'border-gray-100'}`}><span className="font-black text-xs block mb-3">{txt.dWs[i]} {d?.active?'💪':'🌿'}</span><textarea placeholder="التمارين (كل تمرين في سطر)..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-white" rows="4" value={d?.workout||''} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], workout:e.target.value}; setEditingClient(p=>({...p,sch:s}));}}/></div>))}</div></div>)}{adminTab==='habits'&&(<div className="space-y-4 animate-slide-up text-gray-800"><div className="p-4 rounded-xl border bg-gray-50"><h3 className="font-bold text-sm mb-3">عادات وإعدادات خاصة (تجاوز الإعداد العام)</h3><p className="text-[10px] text-gray-500 mb-3">اترك الحقول فارغة ليتم تطبيق الإعدادات العامة (التي تظهر لجميع العملاء).</p><div className="grid grid-cols-2 gap-3 mb-3"><div><label className="text-[10px] font-bold">وقت الاستيقاظ المخصص</label><input type="time" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.tgtWake||''} onChange={e=>setEditingClient(p=>({...p,tgtWake:e.target.value}))}/></div><div><label className="text-[10px] font-bold">وقت النوم المخصص</label><input type="time" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.tgtSleep||''} onChange={e=>setEditingClient(p=>({...p,tgtSleep:e.target.value}))}/></div><div><label className="text-[10px] font-bold">مياه (L) مخصص</label><input type="number" step="0.5" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.water||''} onChange={e=>setEditingClient(p=>({...p,water:e.target.value}))}/></div><div className="col-span-2"><label className="text-[10px] font-bold">فيتامينات مخصصة</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.vits||''} onChange={e=>setEditingClient(p=>({...p,vits:e.target.value}))}/></div></div></div></div>)}{adminTab==='history'&&(<div className="space-y-4 animate-slide-up text-gray-800"><h3 className="font-bold text-sm mb-3">سجل المتابعة اليومي</h3><div className="max-h-[400px] overflow-y-auto space-y-2 pr-1">{Object.keys(editingClient.dailyLog||{}).sort().reverse().map(date=>{ const log = editingClient.dailyLog[date]; const doneCnt = Object.values(log).filter(x=>x.state==='done').length; const failItems = Object.values(log).filter(x=>x.state==='fail'); return (<div key={date} className="bg-white p-3 rounded-xl border shadow-sm"><strong className="text-xs text-brand block mb-2">{date}</strong><div className="grid grid-cols-2 gap-2 text-[10px] mb-2"><div>صحيان: {log.wakeTime||'--'} {log.wakeStatus?`(${log.wakeStatus})`:''}</div><div>جيم: {log.gymTime||'--'}</div><div className="col-span-2">تم إنجاز {doneCnt} مهام ✔️</div></div>{failItems.length>0 && <div className="text-[9px] text-red-600 bg-red-50 p-2 rounded mt-1">أعذار: {failItems.map(f=>f.reason).join('، ')}</div>}</div>); })} {Object.keys(editingClient.dailyLog||{}).length===0 && <p className="text-xs text-gray-500 text-center py-4">لا يوجد سجل حتى الآن.</p>}</div></div>)}</div><button onClick={()=>{updateDB(editingClient);window.history.back();}} className="w-full mt-4 bg-gradient-to-r text-white py-3 rounded-xl font-black text-lg shadow-lg">💾 حفظ كل تعديلات العميل</button></div></div>)}</div>);}
+</div>):(<div className="max-w-4xl mx-auto animate-zoom-in pt-16 pb-10"><div className="glass p-4 rounded-3xl"><div className="flex justify-between items-center mb-4"><h2 className="text-xl font-black text-brand">ملف: {editingClient.n}</h2><div className="flex gap-2"><button onClick={()=>deleteClient(editingClient.ph)} className="bg-red-500 text-white p-2 rounded-xl">🗑️</button><button onClick={()=>window.history.back()} className="bg-white p-2 rounded-xl shadow-sm text-gray-800">✕</button></div></div><div className="flex border-b mb-4 overflow-x-auto hide-scrollbar"><div onClick={()=>setAdminTab('basic')} className={`admin-tab ${adminTab==='basic'?'active':''}`}>بيانات</div><div onClick={()=>setAdminTab('cals')} className={`admin-tab ${adminTab==='cals'?'active':''}`}>دايت</div><div onClick={()=>setAdminTab('work')} className={`admin-tab ${adminTab==='work'?'active':''}`}>تمارين</div><div onClick={()=>setAdminTab('habits')} className={`admin-tab ${adminTab==='habits'?'active':''}`}>عادات وإعدادات</div><div onClick={()=>setAdminTab('history')} className={`admin-tab ${adminTab==='history'?'active':''}`}>سجل الأيام</div></div><div className="bg-white rounded-2xl p-4 min-h-[350px] shadow-inner">{adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800">{editingClient.inbodyFile && !editingClient.inbodyRead && (<div className="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center shadow-sm"><h3 className="font-black text-blue-800 text-sm mb-2">📊 InBody جديد!</h3><button onClick={()=>{setEditingClient(p=>({...p,inbodyRead:true}))}} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">تم الاطلاع</button></div>)}<div className="grid grid-cols-2 md:grid-cols-4 gap-3"><div><label className="text-[10px] font-bold">الوزن</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.w} onChange={e=>setEditingClient(p=>({...p,w:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الوزن المثالي (للمتابعة)</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-green-50 text-green-700" value={editingClient.iW} onChange={e=>setEditingClient(p=>({...p,iW:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الطول</label><input type="number" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.h} onChange={e=>setEditingClient(p=>({...p,h:e.target.value}))}/></div><div><label className="text-[10px] font-bold">تاريخ الميلاد</label><input type="date" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.dob} onChange={e=>setEditingClient(p=>({...p,dob:e.target.value}))}/></div><div className="col-span-2 flex gap-2 items-end"><div className="flex-1"><label className="text-[10px] font-bold">الموبايل</label><input type="tel" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.ph} onChange={e=>setEditingClient(p=>({...p,ph:e.target.value}))}/></div><a href={`https://wa.me/2${editingClient.ph}`} target="_blank" className="bg-[#25D366] text-white p-2 rounded-lg flex items-center justify-center shadow-md hover:scale-105 transition" title="WhatsApp"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.227 5.227 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a></div><div><label className="text-[10px] font-bold">طوارئ</label><input type="tel" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.emPh||''} onChange={e=>setEditingClient(p=>({...p,emPh:e.target.value}))}/></div><div><label className="text-[10px] font-bold">الوظيفة</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.job||''} onChange={e=>setEditingClient(p=>({...p,job:e.target.value}))}/></div><div><label className="text-[10px] font-bold">فصيلة الدم</label><select className="w-full p-2 rounded-lg border font-bold text-xs bg-white text-red-500" value={editingClient.bType} onChange={e=>setEditingClient(p=>({...p,bType:e.target.value}))}><option value="">-</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div><div className="col-span-2"><label className="text-[10px] font-bold">شكل الجسم / الظهر</label><div className="flex gap-2"><select className="w-1/2 p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.shp} onChange={e=>setEditingClient(p=>({...p,shp:e.target.value}))}>{SHAPES_NEW.map(s=><option key={s.id} value={s.id}>{s.ar}</option>)}</select><select className="w-1/2 p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.pos} onChange={e=>setEditingClient(p=>({...p,pos:e.target.value}))}>{POSTURES.map(p=><option key={p.id} value={p.id}>{p.tAr}</option>)}</select></div></div><div className="col-span-4"><label className="text-[10px] font-bold text-red-500">إصابات وأمراض وراثية</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-red-50 text-red-700" value={editingClient.injR||(editingClient.injuries||[]).join('، ')} onChange={e=>setEditingClient(p=>({...p,injR:e.target.value}))}/></div></div><div className="grid grid-cols-3 gap-2 mt-4 border-t pt-4"><div className="col-span-3 text-xs font-bold mb-1">المقاسات (cm):</div>{measurePts.map(pt=>(<div key={pt.id} className="p-2 rounded-lg border text-center"><label className="text-[9px] font-bold block mb-1">{pt.ar}</label><input type="number" className="w-full p-1 rounded border text-center font-bold text-xs bg-white" value={editingClient.msr?.[pt.id]||''} onChange={e=>setEditingClient(p=>({...p,msr:{...(p.msr||{}),[pt.id]:e.target.value}}))}/></div>))}</div></div>)}{adminTab==='cals'&&(<div className="animate-slide-up text-gray-800">{(()=>{const cData=getMacs(editingClient);return(<div className="bg-gradient-to-r text-white p-5 rounded-2xl mb-5 shadow-lg border border-white/20"><h3 className="text-sm font-black mb-3">📊 تحليل ومقاسات {editingClient.customMacs?.c?'(مخصص)':''}</h3><div className="grid grid-cols-4 gap-2 mb-4 text-center"><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">BMI</span><span className="font-bold">{cData.bmi||'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">PBF</span><span className="font-bold">{cData.pbf?'~'+cData.pbf+'%':'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">BMR</span><span className="font-bold">{cData.bmr||'-'}</span></div><div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-70">TDEE</span><span className="font-bold">{cData.tdee||'-'}</span></div></div><div className="border-t border-white/20 pt-2 flex justify-around"><div className="text-center"><span className="block text-[10px]">سعرات</span><span className="font-black text-brand-gold">{cData.c}</span></div><div className="text-center"><span className="block text-[10px]">P</span><span className="font-bold">{cData.p}g</span></div><div className="text-center"><span className="block text-[10px]">C</span><span className="font-bold">{cData.cr}g</span></div><div className="text-center"><span className="block text-[10px]">F</span><span className="font-bold">{cData.f}g</span></div></div></div>);})()}<div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 flex flex-col"><div className="bg-gray-50 p-4 rounded-xl border"><h4 className="font-bold text-xs mb-2">تعديل السعرات والماكروز يدوياً (اختياري)</h4><div className="grid grid-cols-4 gap-2"><input placeholder="Cal" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.c||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),c:Number(e.target.value)}}))} /><input placeholder="Pro" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.p||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),p:Number(e.target.value)}}))} /><input placeholder="Carb" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.cr||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),cr:Number(e.target.value)}}))} /><input placeholder="Fat" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.f||''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),f:Number(e.target.value)}}))} /></div></div><div className="mb-2 flex items-center justify-between"><label className="font-bold text-xs mb-1 block">📝 قراءة InBody وملاحظات الكابتن:</label>{editingClient.inbodyUrl && <a href={editingClient.inbodyUrl} target="_blank" className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">عرض InBody 📄</a>}</div><textarea placeholder="اكتب ملاحظاتك عن الحرق أو النصائح هنا..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-blue-50 text-blue-900 mb-2" rows="3" value={editingClient.inbodyNotes||''} onChange={e=>setEditingClient(p=>({...p,inbodyNotes:e.target.value}))}/><div><span className="block text-[10px] font-bold mb-1">تحديث الـ InBody للعميلة (اختياري)</span><input type="file" accept="image/*" className="w-full p-2 rounded-xl border outline-none font-semibold text-xs bg-white text-gray-800" onChange={e=>handleFileUp(e, url=>{setEditingClient(p=>({...p,inbodyUrl:url}));})} /></div>{safeSch(editingClient.sch).map((d,i)=>(<div key={i} className={`p-4 rounded-xl border ${d?.active?'border-brand':'border-gray-100'}`}><span className="font-black text-xs block mb-3">{txt.dWs[i]}</span><textarea placeholder="الوجبات (كل وجبة في سطر)..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-white" rows="3" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], diet:e.target.value}; setEditingClient(p=>({...p,sch:s}));}}/></div>))}</div></div>)}{adminTab==='work'&&(<div className="animate-slide-up text-gray-800"><div className="p-4 rounded-xl border mb-4 bg-input"><div className="flex flex-wrap gap-2 mb-4">{txt.dWs.map((d,i)=>(<label key={i} className={`flex items-center gap-1 text-[10px] px-3 py-2 rounded-lg border cursor-pointer font-bold transition ${safeSch(editingClient.sch)[i]?.active?'bg-brand text-white':'bg-white'}`}><input type="checkbox" className="hidden" checked={safeSch(editingClient.sch)[i]?.active||false} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i],active:e.target.checked}; setEditingClient(p=>({...p,sch:s}));}}/>{d}</label>))}</div><button onClick={genSmartPlan} className="w-full bg-gradient-to-r text-white p-3 rounded-xl text-xs font-black shadow-md">توليد جدول ذكي ⚡</button></div><div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 flex flex-col">{safeSch(editingClient.sch).map((d,i)=>(<div key={i} className={`p-4 rounded-xl border ${d?.active?'border-brand':'border-gray-100'}`}><span className="font-black text-xs block mb-3">{txt.dWs[i]} {d?.active?'💪':'🌿'}</span><textarea placeholder="التمارين (كل تمرين في سطر)..." className="w-full text-xs p-3 border rounded-lg font-bold outline-none bg-white" rows="4" value={d?.workout||''} onChange={e=>{let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], workout:e.target.value}; setEditingClient(p=>({...p,sch:s}));}}/></div>))}</div></div>)}{adminTab==='habits'&&(<div className="space-y-4 animate-slide-up text-gray-800"><div className="p-4 rounded-xl border bg-gray-50"><h3 className="font-bold text-sm mb-3">عادات وإعدادات خاصة (تجاوز الإعداد العام)</h3><p className="text-[10px] text-gray-500 mb-3">اترك الحقول فارغة ليتم تطبيق الإعدادات العامة (التي تظهر لجميع العملاء).</p><div className="grid grid-cols-2 gap-3 mb-3"><div><label className="text-[10px] font-bold">وقت الاستيقاظ المخصص</label><input type="time" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.tgtWake||''} onChange={e=>setEditingClient(p=>({...p,tgtWake:e.target.value}))}/></div><div><label className="text-[10px] font-bold">وقت النوم المخصص</label><input type="time" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.tgtSleep||''} onChange={e=>setEditingClient(p=>({...p,tgtSleep:e.target.value}))}/></div><div><label className="text-[10px] font-bold">مياه (L) مخصص</label><input type="number" step="0.5" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.water||''} onChange={e=>setEditingClient(p=>({...p,water:e.target.value}))}/></div><div className="col-span-2"><label className="text-[10px] font-bold">فيتامينات مخصصة</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.vits||''} onChange={e=>setEditingClient(p=>({...p,vits:e.target.value}))}/></div></div></div></div>)}{adminTab==='history'&&(<div className="space-y-4 animate-slide-up text-gray-800"><h3 className="font-bold text-sm mb-3">سجل المتابعة اليومي</h3><div className="max-h-[400px] overflow-y-auto space-y-2 pr-1">{Object.keys(editingClient.dailyLog||{}).sort().reverse().map(date=>{ const log = editingClient.dailyLog[date]; const doneCnt = Object.values(log).filter(x=>x.state==='done').length; const failItems = Object.values(log).filter(x=>x.state==='fail'); return (<div key={date} className="bg-white p-3 rounded-xl border shadow-sm"><strong className="text-xs text-brand block mb-2">{date}</strong><div className="grid grid-cols-2 gap-2 text-[10px] mb-2"><div>صحيان: {log.wakeTime||'--'} {log.wakeStatus?`(${log.wakeStatus})`:''}</div><div>جيم: {log.gymTime||'--'}</div><div className="col-span-2">تم إنجاز {doneCnt} مهام ✔️</div></div>{failItems.length>0 && <div className="text-[9px] text-red-600 bg-red-50 p-2 rounded mt-1">أعذار: {failItems.map(f=>f.reason).join('، ')}</div>}</div>); })} {Object.keys(editingClient.dailyLog||{}).length===0 && <p className="text-xs text-gray-500 text-center py-4">لا يوجد سجل حتى الآن.</p>}</div></div>)}</div><button onClick={()=>{updateDB(editingClient);window.history.back();}} className="w-full mt-4 bg-gradient-to-r text-white py-3 rounded-xl font-black text-lg shadow-lg">💾 حفظ كل تعديلات العميل</button></div></div>)}</div>);}
 
-// --- Client Dashboard ---
 if(view==='client'&&currentUser){
     const tdIdx=new Date().getDay(); const tdPlan=safeSch(currentUser.sch)[tdIdx] || {}; const iW=currentUser.iW || (currentUser.h>105?currentUser.h-105:currentUser.h); const aC=(currentUser.att||[]).length; const tdStr=new Date().toISOString().split('T')[0];
     const cLog=currentUser.dailyLog?.[tdStr]||{}; const macs=getMacs(currentUser);
-    
-    const activeWake = currentUser.tgtWake || sysConf.wake || '07:00';
-    const activeSleep = currentUser.tgtSleep || sysConf.sleep || '23:00';
-    const activeWater = currentUser.water || sysConf.water || 3;
-    const activeVits = currentUser.vits || sysConf.vits || '';
-    const activeCoachHours = (sysConf.coachHours && Array.isArray(sysConf.coachHours)) ? sysConf.coachHours[tdIdx] : 'غير محدد';
-    
+    const activeWake = currentUser.tgtWake || sysConf.wake || '07:00'; const activeSleep = currentUser.tgtSleep || sysConf.sleep || '23:00'; const activeWater = currentUser.water || sysConf.water || 3; const activeVits = currentUser.vits || sysConf.vits || ''; const activeCoachHours = (sysConf.coachHours && Array.isArray(sysConf.coachHours)) ? sysConf.coachHours[tdIdx] : 'غير محدد';
     const sleepData = calcSleep(activeWake, activeSleep, isAr);
-
-    const now = new Date(); const nowMins = now.getHours()*60 + now.getMinutes();
-    const brkMins = getMins(sysConf.mealDeadlines?.brk || '11:00');
-    const lunMins = getMins(sysConf.mealDeadlines?.lun || '17:00');
-    const dinMins = getMins(sysConf.mealDeadlines?.din || '23:00');
-    let activeMealStr = '';
-    if (nowMins <= brkMins) activeMealStr = isAr?'إفطار':'Breakfast';
-    else if (nowMins <= lunMins) activeMealStr = isAr?'غداء':'Lunch';
-    else if (nowMins <= dinMins) activeMealStr = isAr?'عشاء':'Dinner';
-
-    const getDailyProgress = () => {
-        let total = 2; let done = 0; if(cLog.wakeTime) done++; if(cLog.gymTime) done++;
-        let wkItems = (tdPlan.workout||'').split('\n').filter(i=>i.trim()&&i!=='-');
-        let dtItems = (tdPlan.diet||'').split('\n').filter(i=>i.trim()&&i!=='-');
-        total += wkItems.length + dtItems.length;
-        wkItems.forEach((_, idx) => { if(cLog[`workout_${idx}`]?.state === 'done') done++; });
-        dtItems.forEach((_, idx) => { if(cLog[`diet_${idx}`]?.state === 'done') done++; });
-        return total > 0 ? Math.round((done/total)*100) : 0;
-    };
+    const now = new Date(); const nowMins = now.getHours()*60 + now.getMinutes(); const brkMins = getMins(sysConf.mealDeadlines?.brk || '11:00'); const lunMins = getMins(sysConf.mealDeadlines?.lun || '17:00'); const dinMins = getMins(sysConf.mealDeadlines?.din || '23:00');
+    let activeMealStr = ''; if (nowMins <= brkMins) activeMealStr = isAr?'إفطار':'Breakfast'; else if (nowMins <= lunMins) activeMealStr = isAr?'غداء':'Lunch'; else if (nowMins <= dinMins) activeMealStr = isAr?'عشاء':'Dinner';
+    const getDailyProgress = () => { let total = 2; let done = 0; if(cLog.wakeTime) done++; if(cLog.gymTime) done++; let wkItems = (tdPlan.workout||'').split('\n').filter(i=>i.trim()&&i!=='-'); let dtItems = (tdPlan.diet||'').split('\n').filter(i=>i.trim()&&i!=='-'); total += wkItems.length + dtItems.length; wkItems.forEach((_, idx) => { if(cLog[`workout_${idx}`]?.state === 'done') done++; }); dtItems.forEach((_, idx) => { if(cLog[`diet_${idx}`]?.state === 'done') done++; }); return total > 0 ? Math.round((done/total)*100) : 0; };
     const dailyProgress = getDailyProgress();
-
     const handleProgressUpdate = (newU) => { setCurrentUser(newU); };
-
     const handleTouchStart = (e) => setTouchStart(e.targetTouches[0].clientX);
-    const handleTouchEnd = (e) => {
-        if (touchStart === null) return;
-        const touchEnd = e.changedTouches[0].clientX;
-        const diff = touchStart - touchEnd;
-        const tabs = ['home', 'workout', 'diet', 'settings'];
-        const currIdx = tabs.indexOf(clientTab);
-        if (diff > 60 && currIdx > 0) setClientTab(tabs[currIdx - 1]); 
-        if (diff < -60 && currIdx < tabs.length - 1) setClientTab(tabs[currIdx + 1]); 
-        setTouchStart(null);
-    };
+    const handleTouchEnd = (e) => { if (touchStart === null) return; const touchEnd = e.changedTouches[0].clientX; const diff = touchStart - touchEnd; const tabs = ['home', 'workout', 'diet', 'settings']; const currIdx = tabs.indexOf(clientTab); if (diff > 60 && currIdx > 0) setClientTab(tabs[currIdx - 1]); if (diff < -60 && currIdx < tabs.length - 1) setClientTab(tabs[currIdx + 1]); setTouchStart(null); };
 
     return(
         <div className={`min-h-screen bg-gray-50 dark:bg-[#0b1120] text-gray-800 dark:text-gray-100 flex flex-col pb-28 ${isAr?'font-arabic':'font-english'}`} dir={isAr?'rtl':'ltr'} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} >
-            
             <div className="px-5 pt-6 pb-2 bg-white dark:bg-slate-900 shadow-[0_5px_15px_rgba(0,0,0,0.05)] rounded-b-3xl mb-4 sticky top-0 z-40">
                 <div className="flex justify-between items-center mb-3">
                     <div onClick={()=>setShowProfileModal(true)} className="w-12 h-12 bg-gray-100 text-brand rounded-full flex items-center justify-center text-2xl shadow-inner border border-gray-200 dark:bg-slate-800 dark:border-slate-700 cursor-pointer transition hover:scale-105">{currentUser.avatar||'👑'}</div>
@@ -491,218 +204,39 @@ if(view==='client'&&currentUser){
                     <span className="text-[9px] font-bold text-gray-500 w-6 text-left">{dailyProgress}%</span>
                 </div>
             </div>
-
             <div className="flex-1 px-4 overflow-y-auto custom-scroll swipe-area">
-                
-                {/* 1. HOME TAB */}
                 {clientTab === 'home' && (
                     <div className="animate-slide-up space-y-4">
-                        
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700">
-                             <h3 className="font-black text-brand mb-2">{isAr?'إنجاز اليوم 🚀':'Today\'s Progress 🚀'}</h3>
-                             <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 mb-1 overflow-hidden">
-                                 <div className="bg-gradient-to-r from-brand-gold to-brand h-3 rounded-full transition-all duration-1000 ease-out" style={{width: `${dailyProgress}%`}}></div>
-                             </div>
-                             <p className="text-center text-[10px] font-bold text-gray-500">{dailyProgress}%</p>
-                        </div>
-
-                        {ann&&<div className="bg-brand text-white p-4 rounded-2xl shadow-sm font-bold text-sm flex items-center gap-2"><span className="text-xl animate-bounce">📢</span> {ann}</div>}
-                        {tip&&<div className="bg-blue-500 text-white p-4 rounded-2xl shadow-sm font-bold text-sm flex items-center gap-2"><span className="text-xl animate-pulse">💡</span> {tip}</div>}
-                        
-                        <div className="grid grid-cols-2 gap-3 mb-2">
-                            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex flex-col justify-center">
-                                <h4 className="font-black text-blue-800 dark:text-blue-300 text-[10px] mb-1 flex items-center gap-1"><span>🏋️‍♀️</span> {isAr?'مواعيد كابتن روان بالجيم':'Coach Gym Hours'}</h4>
-                                <p className="font-bold text-xs text-blue-600 dark:text-blue-400" dir="ltr">{formatCoachHours(activeCoachHours, isAr)}</p>
-                            </div>
-                            <div className="bg-gradient-to-r text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-center">
-                                <div className="absolute right-0 top-0 h-full bg-black/20" style={{width:`${(aC/30)*100}%`}}></div>
-                                <span className="relative z-10 font-black text-xs mb-1">🔥 {txt.chl} 30 {isAr?'يوم':'Days'}</span>
-                                <span className="relative z-10 font-black text-2xl drop-shadow-md">{aC}/30</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700">
-                           <div className="flex justify-between items-end mb-3">
-                               <div><span className="block text-[10px] font-bold text-gray-500 mb-1">{isAr?'الوزن الحالي':'Current'}</span><span className="font-black text-2xl text-brand">{currentUser.w} <span className="text-sm text-gray-400">kg</span></span></div>
-                               <div className="text-left"><span className="block text-[10px] font-bold text-gray-500 mb-1">{isAr?'الوزن المثالي (الهدف)':'Goal'} 🎯</span><span className="font-black text-2xl text-green-500">{iW} <span className="text-sm text-gray-400">kg</span></span></div>
-                           </div>
-                           <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2 mb-4 overflow-hidden"><div className="bg-gradient-to-r from-green-400 to-brand h-2 rounded-full transition-all duration-1000" style={{width:`${Math.min(100, (iW/currentUser.w)*100)}%`}}></div></div>
-                           <button onClick={()=>setShowUpdateModal(true)} className="w-full py-3 bg-gray-50 dark:bg-slate-700 rounded-xl font-black text-xs border dark:border-slate-600 hover:bg-gray-100 transition shadow-sm">{isAr?'تحديث الوزن الحالي ⚖️':'Update Weight ⚖️'}</button>
-                        </div>
-
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700">
-                            <h3 className="font-black text-brand mb-4 flex items-center gap-2"><span>🌙</span> {isAr?'نظام النوم والاستيقاظ':'Sleep System'}</h3>
-                            <div className="flex justify-between items-center bg-gray-50 dark:bg-slate-900 p-4 rounded-2xl mb-4 border dark:border-slate-800">
-                                <div className="text-center">
-                                    <span className="block text-[10px] font-bold text-gray-500">{isAr?'وقت النوم':'Bedtime'}</span>
-                                    <span className="font-black text-base font-english">{formatTime12h(activeSleep)}</span>
-                                </div>
-                                <div className="text-center">
-                                    <span className="block text-[10px] font-bold text-gray-500">{isAr?'الاستيقاظ':'Wakeup'}</span>
-                                    <span className="font-black text-base font-english">{formatTime12h(activeWake)}</span>
-                                </div>
-                                <div className={`text-start ${isAr?'':'text-right'}`}>
-                                    <span className="block text-[10px] font-bold text-gray-500">{isAr?'المدة':'Duration'}</span>
-                                    <span className={`font-black text-base font-english ${sleepData.h<6?'text-red-500':'text-green-500'}`}>{sleepData.h}h</span>
-                                </div>
-                            </div>
-                            {!cLog.wakeTime ? (
-                                <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr)} className="w-full py-4 rounded-2xl font-black text-lg transition shadow-xl border border-yellow-200 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 hover:scale-[1.02] animate-pulse">
-                                    {isAr?'تسجيل الاستيقاظ الآن ☀️':'Check-in Awake ☀️'}
-                                </button>
-                            ) : (
-                                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-200 flex justify-between items-center">
-                                    <div>
-                                        <span className="block text-xs font-bold text-gray-500">{isAr?'وقت استيقاظك الفعلي':'Actual Wake Time'}</span>
-                                        <span className="font-black text-2xl text-green-700 font-english">{cLog.wakeTime}</span>
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-800 px-3 py-2 rounded-xl shadow-sm border dark:border-slate-700">
-                                        <span className="font-black text-sm">{cLog.wakeStatus}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        
-                        <button onClick={()=>setMusicModal(true)} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-4 rounded-2xl shadow-md flex items-center justify-between hover:scale-[1.02] transition">
-                            <div className="flex items-center gap-3">
-                                <span className="text-2xl filter hue-rotate-180 drop-shadow-md">🎧</span>
-                                <span className="font-black text-sm">{isAr?'مشغل الموسيقى (Spotify, YT)':'Music Hub'}</span>
-                            </div>
-                            <span className="text-sm">{isAr?'➔':'🡢'}</span>
-                        </button>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700"> <h3 className="font-black text-brand mb-2">{isAr?'إنجاز اليوم 🚀':'Today\'s Progress 🚀'}</h3> <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 mb-1 overflow-hidden"> <div className="bg-gradient-to-r from-brand-gold to-brand h-3 rounded-full transition-all duration-1000 ease-out" style={{width: `${dailyProgress}%`}}></div> </div> <p className="text-center text-[10px] font-bold text-gray-500">{dailyProgress}%</p> </div>
+                        {ann&&<div className="bg-brand text-white p-4 rounded-2xl shadow-sm font-bold text-sm flex items-center gap-2"><span className="text-xl animate-bounce">📢</span> {ann}</div>} {tip&&<div className="bg-blue-500 text-white p-4 rounded-2xl shadow-sm font-bold text-sm flex items-center gap-2"><span className="text-xl animate-pulse">💡</span> {tip}</div>}
+                        <div className="grid grid-cols-2 gap-3 mb-2"> <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex flex-col justify-center"> <h4 className="font-black text-blue-800 dark:text-blue-300 text-[10px] mb-1 flex items-center gap-1"><span>🏋️‍♀️</span> {isAr?'مواعيد كابتن روان':'Coach Gym Hours'}</h4> <p className="font-bold text-xs text-blue-600 dark:text-blue-400" dir="ltr">{formatCoachHours(activeCoachHours, isAr)}</p> </div> <div className="bg-gradient-to-r text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-center"> <div className="absolute right-0 top-0 h-full bg-black/20" style={{width:`${(aC/30)*100}%`}}></div> <span className="relative z-10 font-black text-xs mb-1">🔥 {txt.chl} 30 {isAr?'يوم':'Days'}</span> <span className="relative z-10 font-black text-2xl drop-shadow-md">{aC}/30</span> </div> </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700"> <div className="flex justify-between items-end mb-3"> <div><span className="block text-[10px] font-bold text-gray-500 mb-1">{isAr?'الوزن الحالي':'Current'}</span><span className="font-black text-2xl text-brand">{currentUser.w} <span className="text-sm text-gray-400">kg</span></span></div> <div className="text-left"><span className="block text-[10px] font-bold text-gray-500 mb-1">{isAr?'الوزن المثالي (الهدف)':'Goal'} 🎯</span><span className="font-black text-2xl text-green-500">{iW} <span className="text-sm text-gray-400">kg</span></span></div> </div> <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2 mb-4 overflow-hidden"><div className="bg-gradient-to-r from-green-400 to-brand h-2 rounded-full transition-all duration-1000" style={{width:`${Math.min(100, (iW/currentUser.w)*100)}%`}}></div></div> <button onClick={()=>setShowUpdateModal(true)} className="w-full py-3 bg-gray-50 dark:bg-slate-700 rounded-xl font-black text-xs border dark:border-slate-600 hover:bg-gray-100 transition shadow-sm">{isAr?'تحديث الوزن الحالي ⚖️':'Update Weight ⚖️'}</button> </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700"> <h3 className="font-black text-brand mb-4 flex items-center gap-2"><span>🌙</span> {isAr?'نظام النوم والاستيقاظ':'Sleep System'}</h3> <div className="flex justify-between items-center bg-gray-50 dark:bg-slate-900 p-4 rounded-2xl mb-4 border dark:border-slate-800"> <div className="text-center"> <span className="block text-[10px] font-bold text-gray-500">{isAr?'وقت النوم':'Bedtime'}</span> <span className="font-black text-base font-english">{formatTime12h(activeSleep)}</span> </div> <div className="text-center"> <span className="block text-[10px] font-bold text-gray-500">{isAr?'الاستيقاظ':'Wakeup'}</span> <span className="font-black text-base font-english">{formatTime12h(activeWake)}</span> </div> <div className={`text-start ${isAr?'':'text-right'}`}> <span className="block text-[10px] font-bold text-gray-500">{isAr?'المدة':'Duration'}</span> <span className={`font-black text-base font-english ${sleepData.h<6?'text-red-500':'text-green-500'}`}>{sleepData.h}h</span> </div> </div> {!cLog.wakeTime ? ( <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr)} className="w-full py-4 rounded-2xl font-black text-lg transition shadow-xl border border-yellow-200 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 hover:scale-[1.02] animate-pulse"> {isAr?'تسجيل الاستيقاظ الآن ☀️':'Check-in Awake ☀️'} </button> ) : ( <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-200 flex justify-between items-center"> <div> <span className="block text-xs font-bold text-gray-500">{isAr?'وقت استيقاظك الفعلي':'Actual Wake Time'}</span> <span className="font-black text-2xl text-green-700 font-english">{cLog.wakeTime}</span> </div> <div className="bg-white dark:bg-slate-800 px-3 py-2 rounded-xl shadow-sm border dark:border-slate-700"> <span className="font-black text-sm">{cLog.wakeStatus}</span> </div> </div> )} </div>
+                        <button onClick={()=>setMusicModal(true)} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-4 rounded-2xl shadow-md flex items-center justify-between hover:scale-[1.02] transition"> <div className="flex items-center gap-3"> <span className="text-2xl filter hue-rotate-180 drop-shadow-md">🎧</span> <span className="font-black text-sm">{isAr?'مشغل الموسيقى (Spotify, YT)':'Music Hub'}</span> </div> <span className="text-sm">{isAr?'➔':'🡢'}</span> </button>
                     </div>
                 )}
-
-                {/* 2. WORKOUT TAB */}
                 {clientTab === 'workout' && (
                     <div className="animate-slide-up space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="font-black text-2xl text-brand">{txt.tdy} 💪</h3>
-                            <span className="bg-brand/10 text-brand px-3 py-1 rounded-xl font-bold text-xs">{txt.dWs[tdIdx]}</span>
-                        </div>
-                        
-                        <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-2xl border border-blue-100 dark:border-blue-800 flex justify-between items-center">
-                            <span className="font-black text-blue-800 dark:text-blue-300 text-[10px]">🏋️‍♀️ {isAr?'كابتن روان بالجيم:':'Coach Hours:'}</span>
-                            <span className="font-bold text-xs text-blue-600 dark:text-blue-400" dir="ltr">{formatCoachHours(activeCoachHours, isAr)}</span>
-                        </div>
-
-                        <div className="flex gap-2">
-                             <button onClick={()=>handleCheckIn('gym',tdStr,null,isAr)} disabled={cLog.gymTime} className={`flex-[2] py-4 rounded-2xl font-black text-sm shadow-md transition border-2 ${cLog.gymTime?'bg-gray-100 dark:bg-slate-700 text-gray-500 border-gray-200 dark:border-slate-600':'bg-gradient-to-r from-blue-500 to-brand-dark text-white border-blue-400 hover:scale-[1.02] animate-pulse'}`}>
-                                 {cLog.gymTime ? (isAr?`تم وصول الجيم ✔️`:'Arrived ✔️') : (isAr?'تسجيل وصول الجيم 📍':'Check-in Gym 📍')}
-                             </button>
-                             <a href={`https://wa.me/2${ADMIN_PHONE}?text=${encodeURIComponent(isAr?`أهلاً كابتن، بعتذر مش هقدر اتمرن النهاردة..`:`Hi Coach, I won't be able to workout today.`)}`} target="_blank" className="flex-[2] py-4 bg-red-50 dark:bg-red-900/20 text-red-500 border border-red-200 dark:border-red-800 rounded-2xl flex items-center justify-center font-black text-sm shadow-sm hover:bg-red-100 transition">
-                                ⚠️ {isAr?'اعتذار عن التمرين':'Skip Workout'}
-                             </a>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 relative z-50">
-                            <button onClick={()=>setShowTimer(true)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 text-gray-800 dark:text-white py-3 rounded-2xl shadow-sm font-black flex items-center justify-center gap-2 hover:bg-brand/5 transition"><span className="text-xl">⏳</span> {isAr?'مؤقت':'Timer'}</button>
-                            <button onClick={()=>setShowStopwatch(true)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 text-gray-800 dark:text-white py-3 rounded-2xl shadow-sm font-black flex items-center justify-center gap-2 hover:bg-brand/5 transition"><span className="text-xl">⏱️</span> {isAr?'ساعة':'Stopwatch'}</button>
-                        </div>
-
-                        {(!tdPlan?.workout||tdPlan?.workout.includes('راحة')||tdPlan?.workout.includes('Rest')||tdPlan?.workout.includes('Off'))?(<div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border dark:border-slate-700"><div className="text-5xl mb-4 animate-pulse">🌿</div><p className="font-black text-lg">{isAr?'يوم راحة واستشفاء':'Rest Day'}</p></div>):(
-                            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border dark:border-slate-700 mt-4 relative">
-                                <div className="absolute top-0 right-0 h-1 bg-brand rounded-t-3xl transition-all" style={{width:`${(() => {
-                                    let items = (tdPlan.workout||'').split('\n').filter(i=>i.trim()&&i!=='-');
-                                    if(items.length===0) return 0;
-                                    let done = 0; items.forEach((_,i)=>{ if(cLog[`workout_${i}`]?.state === 'done') done++; });
-                                    return (done/items.length)*100;
-                                })()}%`}}></div>
-                                <h4 className="text-brand font-black mb-4 flex items-center gap-2"><span>🏋️‍♀️</span> {isAr?'قائمة التمارين':'Exercises List'}</h4>
-                                <div className="space-y-1">{renderChecklist(tdPlan.workout, 'workout', tdStr, currentUser, '', handleProgressUpdate)}</div>
-                            </div>
-                        )}
+                        <div className="flex justify-between items-center"> <h3 className="font-black text-2xl text-brand">{txt.tdy} 💪</h3> <span className="bg-brand/10 text-brand px-3 py-1 rounded-xl font-bold text-xs">{txt.dWs[tdIdx]}</span> </div>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-2xl border border-blue-100 dark:border-blue-800 flex justify-between items-center"> <span className="font-black text-blue-800 dark:text-blue-300 text-[10px]">🏋️‍♀️ {isAr?'كابتن روان بالجيم:':'Coach Hours:'}</span> <span className="font-bold text-xs text-blue-600 dark:text-blue-400" dir="ltr">{formatCoachHours(activeCoachHours, isAr)}</span> </div>
+                        <div className="flex gap-2"> <button onClick={()=>handleCheckIn('gym',tdStr,null,isAr)} disabled={cLog.gymTime} className={`flex-[2] py-4 rounded-2xl font-black text-sm shadow-md transition border-2 ${cLog.gymTime?'bg-gray-100 dark:bg-slate-700 text-gray-500 border-gray-200 dark:border-slate-600':'bg-gradient-to-r from-blue-500 to-brand-dark text-white border-blue-400 hover:scale-[1.02] animate-pulse'}`}> {cLog.gymTime ? (isAr?`تم وصول الجيم ✔️`:'Arrived ✔️') : (isAr?'تسجيل وصول الجيم 📍':'Check-in Gym 📍')} </button> <a href={`https://wa.me/2${ADMIN_PHONE}?text=${encodeURIComponent(isAr?`أهلاً كابتن، بعتذر مش هقدر اتمرن النهاردة..`:`Hi Coach, I won't be able to workout today.`)}`} target="_blank" className="flex-[2] py-4 bg-red-50 dark:bg-red-900/20 text-red-500 border border-red-200 dark:border-red-800 rounded-2xl flex items-center justify-center font-black text-sm shadow-sm hover:bg-red-100 transition"> ⚠️ {isAr?'اعتذار عن التمرين':'Skip Workout'} </a> </div>
+                        <div className="grid grid-cols-2 gap-3 relative z-50"> <button onClick={()=>setShowTimer(true)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 text-gray-800 dark:text-white py-3 rounded-2xl shadow-sm font-black flex items-center justify-center gap-2 hover:bg-brand/5 transition"><span className="text-xl">⏳</span> {isAr?'مؤقت':'Timer'}</button> <button onClick={()=>setShowStopwatch(true)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 text-gray-800 dark:text-white py-3 rounded-2xl shadow-sm font-black flex items-center justify-center gap-2 hover:bg-brand/5 transition"><span className="text-xl">⏱️</span> {isAr?'ساعة':'Stopwatch'}</button> </div>
+                        {(!tdPlan?.workout||tdPlan?.workout.includes('راحة')||tdPlan?.workout.includes('Rest')||tdPlan?.workout.includes('Off'))?(<div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border dark:border-slate-700"><div className="text-5xl mb-4 animate-pulse">🌿</div><p className="font-black text-lg">{isAr?'يوم راحة واستشفاء':'Rest Day'}</p></div>):( <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border dark:border-slate-700 mt-4 relative"> <div className="absolute top-0 right-0 h-1 bg-brand rounded-t-3xl transition-all" style={{width:`${(() => { let items = (tdPlan.workout||'').split('\n').filter(i=>i.trim()&&i!=='-'); if(items.length===0) return 0; let done = 0; items.forEach((_,i)=>{ if(cLog[`workout_${i}`]?.state === 'done') done++; }); return (done/items.length)*100; })()}%`}}></div> <h4 className="text-brand font-black mb-4 flex items-center gap-2"><span>🏋️‍♀️</span> {isAr?'قائمة التمارين':'Exercises List'}</h4> <div className="space-y-1">{renderChecklist(tdPlan.workout, 'workout', tdStr, currentUser, '', handleProgressUpdate)}</div> </div> )}
                     </div>
                 )}
-
-                {/* 3. DIET TAB */}
                 {clientTab === 'diet' && (
                     <div className="animate-slide-up space-y-4">
-                        
-                        {currentUser.inbodyNotes && (
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-3xl shadow-sm border border-blue-200 dark:border-blue-800">
-                                <h4 className="font-black text-blue-700 dark:text-blue-300 text-sm mb-2">📝 {isAr?'ملاحظات وقراءة كابتن روان':'Coach Notes'}</h4>
-                                <p className="text-xs font-bold text-blue-900 dark:text-blue-100 whitespace-pre-wrap leading-relaxed">{currentUser.inbodyNotes}</p>
-                            </div>
-                        )}
-
-                        <div className="bg-gradient-to-r text-white p-5 rounded-3xl shadow-lg border border-white/20">
-                            <h3 className="font-black text-lg mb-4 flex items-center gap-2"><span>🥗</span> {isAr?'أهدافك الغذائية اليومية':'Daily Nutrition Goals'}</h3>
-                            <div className="flex justify-between items-center bg-black/20 p-3 rounded-2xl">
-                                <div className="text-center"><span className="block text-[10px] opacity-80">Cal</span><span className="font-black text-xl text-brand-gold">{macs.c}</span></div>
-                                <div className="text-center"><span className="block text-[10px] opacity-80">Pro</span><span className="font-bold text-lg">{macs.p}g</span></div>
-                                <div className="text-center"><span className="block text-[10px] opacity-80">Carb</span><span className="font-bold text-lg">{macs.cr}g</span></div>
-                                <div className="text-center"><span className="block text-[10px] opacity-80">Fat</span><span className="font-bold text-lg">{macs.f}g</span></div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 mb-2">
-                            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 text-center">
-                                <span className="block text-2xl mb-1">💧</span><span className="font-black text-blue-700 dark:text-blue-400 text-xs">{isAr?'شرب':'Drink'} {activeWater} {isAr?'لتر':'L'}</span>
-                            </div>
-                            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-800 text-center flex flex-col justify-center">
-                                <span className="block text-xl mb-1">💊</span><span className="font-black text-yellow-700 dark:text-yellow-400 text-[10px]">{activeVits}</span>
-                            </div>
-                        </div>
-
-                        {tdPlan?.diet ? (
-                            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border dark:border-slate-700 mt-2 relative">
-                                <div className="absolute top-0 right-0 h-1 bg-green-500 rounded-t-3xl transition-all" style={{width:`${(() => {
-                                    let items = (tdPlan.diet||'').split('\n').filter(i=>i.trim()&&i!=='-');
-                                    if(items.length===0) return 0;
-                                    let done = 0; items.forEach((_,i)=>{ if(cLog[`diet_${i}`]?.state === 'done') done++; });
-                                    return (done/items.length)*100;
-                                })()}%`}}></div>
-                                <h4 className="text-green-600 dark:text-green-400 font-black mb-4 flex items-center gap-2"><span>🥑</span> {isAr?'الوجبات':'Meals'}</h4>
-                                <div className="space-y-1">{renderChecklist(tdPlan.diet, 'diet', tdStr, currentUser, activeMealStr, handleProgressUpdate)}</div>
-                            </div>
-                        ) : (
-                            <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl shadow-sm"><p className="font-black">{isAr?'لا يوجد دايت مسجل اليوم.':'No diet plan today.'}</p></div>
-                        )}
-                        
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700 mt-4">
-                            <button onClick={()=>setShowCalc(!showCalc)} className="w-full flex justify-between items-center font-black text-brand text-lg outline-none">
-                                <span>🧮 {isAr?'دليل السعرات الحرارية':'Calorie Guide'}</span>
-                                <span className="text-2xl text-gray-400">{showCalc ? '−' : '+'}</span>
-                            </button>
-                            
-                            {showCalc && (
-                                <div className="mt-4 animate-slide-up border-t dark:border-slate-700 pt-4">
-                                    <select className="w-full p-3 rounded-xl border bg-gray-50 dark:bg-slate-900 font-bold mb-3 outline-none" value={calcCat} onChange={e=>setCalcCat(e.target.value)}>
-                                        {Object.keys(FOOD_DB).map(k => <option key={k} value={k}>{isAr?FOOD_DB[k].labelAr:FOOD_DB[k].labelEn}</option>)}
-                                    </select>
-                                    <div className="max-h-60 overflow-y-auto custom-scroll space-y-2 pr-1">
-                                        {FOOD_DB[calcCat].items.map((item, idx) => (
-                                            <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-700">
-                                                <span className="font-bold text-xs">{isAr ? item.nAr : item.nEn}</span>
-                                                <span className="text-[10px] bg-brand text-white px-2 py-1 rounded font-black">{item.c} Cal</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        
+                        {currentUser.inbodyNotes && ( <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-3xl shadow-sm border border-blue-200 dark:border-blue-800"> <h4 className="font-black text-blue-700 dark:text-blue-300 text-sm mb-2">📝 {isAr?'ملاحظات وقراءة كابتن روان':'Coach Notes'}</h4> <p className="text-xs font-bold text-blue-900 dark:text-blue-100 whitespace-pre-wrap leading-relaxed">{currentUser.inbodyNotes}</p> </div> )}
+                        <div className="bg-gradient-to-r text-white p-5 rounded-3xl shadow-lg border border-white/20"> <h3 className="font-black text-lg mb-4 flex items-center gap-2"><span>🥗</span> {isAr?'أهدافك الغذائية اليومية':'Daily Nutrition Goals'}</h3> <div className="flex justify-between items-center bg-black/20 p-3 rounded-2xl"> <div className="text-center"><span className="block text-[10px] opacity-80">Cal</span><span className="font-black text-xl text-brand-gold">{macs.c}</span></div> <div className="text-center"><span className="block text-[10px] opacity-80">Pro</span><span className="font-bold text-lg">{macs.p}g</span></div> <div className="text-center"><span className="block text-[10px] opacity-80">Carb</span><span className="font-bold text-lg">{macs.cr}g</span></div> <div className="text-center"><span className="block text-[10px] opacity-80">Fat</span><span className="font-bold text-lg">{macs.f}g</span></div> </div> </div>
+                        <div className="grid grid-cols-2 gap-3 mb-2"> <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 text-center"> <span className="block text-2xl mb-1">💧</span><span className="font-black text-blue-700 dark:text-blue-400 text-xs">{isAr?'شرب':'Drink'} {activeWater} {isAr?'لتر':'L'}</span> </div> <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-2xl border border-yellow-100 dark:border-yellow-800 text-center flex flex-col justify-center"> <span className="block text-xl mb-1">💊</span><span className="font-black text-yellow-700 dark:text-yellow-400 text-[10px]">{activeVits}</span> </div> </div>
+                        {tdPlan?.diet ? ( <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border dark:border-slate-700 mt-2 relative"> <div className="absolute top-0 right-0 h-1 bg-green-500 rounded-t-3xl transition-all" style={{width:`${(() => { let items = (tdPlan.diet||'').split('\n').filter(i=>i.trim()&&i!=='-'); if(items.length===0) return 0; let done = 0; items.forEach((_,i)=>{ if(cLog[`diet_${i}`]?.state === 'done') done++; }); return (done/items.length)*100; })()}%`}}></div> <h4 className="text-green-600 dark:text-green-400 font-black mb-4 flex items-center gap-2"><span>🥑</span> {isAr?'الوجبات':'Meals'}</h4> <div className="space-y-1">{renderChecklist(tdPlan.diet, 'diet', tdStr, currentUser, activeMealStr, handleProgressUpdate)}</div> </div> ) : ( <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-3xl shadow-sm"><p className="font-black">{isAr?'لا يوجد دايت مسجل اليوم.':'No diet plan today.'}</p></div> )}
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700 mt-4"> <button onClick={()=>setShowCalc(!showCalc)} className="w-full flex justify-between items-center font-black text-brand text-lg outline-none"> <span>🧮 {isAr?'دليل السعرات الحرارية':'Calorie Guide'}</span> <span className="text-2xl text-gray-400">{showCalc ? '−' : '+'}</span> </button> {showCalc && ( <div className="mt-4 animate-slide-up border-t dark:border-slate-700 pt-4"> <select className="w-full p-3 rounded-xl border bg-gray-50 dark:bg-slate-900 font-bold mb-3 outline-none" value={calcCat} onChange={e=>setCalcCat(e.target.value)}> {Object.keys(FOOD_DB).map(k => <option key={k} value={k}>{isAr?FOOD_DB[k].labelAr:FOOD_DB[k].labelEn}</option>)} </select> <div className="max-h-60 overflow-y-auto custom-scroll space-y-2 pr-1"> {FOOD_DB[calcCat].items.map((item, idx) => ( <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-700"> <span className="font-bold text-xs">{isAr ? item.nAr : item.nEn}</span> <span className="text-[10px] bg-brand text-white px-2 py-1 rounded font-black">{item.c} Cal</span> </div> ))} </div> </div> )} </div>
                     </div>
                 )}
-
                 {/* 4. SETTINGS TAB */}
                 {clientTab === 'settings' && (
                     <div className="animate-slide-up space-y-4">
-                        <h3 className="font-black text-2xl text-brand mb-4">{txt.tSet} ⚙️</h3>
-
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                            <button onClick={toggleT} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'وضع الشاشة':'Theme'} {theme==='dark'?'☀️':'🌙'}</button>
-                            <button onClick={toggleL} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'اللغة':'Language'} {lang==='ar'?'EN':'AR'}</button>
-                        </div>
-                        
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border dark:border-slate-700">
-                            <h4 className="font-bold text-sm mb-3 text-gray-500">{isAr?'اختر صورتك (Avatar)':'Choose Avatar'}</h4>
-                            <div className="flex flex-wrap gap-3 justify-center mb-4 bg-gray-50 dark:bg-slate-900 p-3 rounded-2xl border border-gray-100 dark:border-slate-800">
-                                {EMOJIS.map(e=>(<span key={e} onClick={()=>{const nU={...currentUser,avatar:e};setCurrentUser(nU);updateDB(nU);}} className={`text-3xl cursor-pointer transition hover:scale-110 ${currentUser.avatar===e?'bg-brand/20 rounded-xl p-1':''}`}>{e}</span>))}
-                            </div>
-                        </div>
-
+                        <div className="grid grid-cols-2 gap-3 mb-4"> <button onClick={toggleT} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'وضع الشاشة':'Theme'} {theme==='dark'?'☀️':'🌙'}</button> <button onClick={toggleL} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 font-black flex items-center justify-center gap-2">{isAr?'اللغة':'Language'} {lang==='ar'?'EN':'AR'}</button> </div>
                         <button onClick={logout} className="w-full text-center py-4 font-bold text-red-500 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-100 dark:border-red-800 mb-6">{isAr?'تسجيل الخروج':'Logout'}</button>
                     </div>
                 )}
@@ -714,7 +248,10 @@ if(view==='client'&&currentUser){
                     <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 relative border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto custom-scroll text-right" dir={isAr?'rtl':'ltr'}>
                         <button onClick={()=>{setShowProfileModal(false);}} className="absolute top-4 left-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
                         <div className="text-center mb-6">
-                            <div className="w-20 h-20 bg-brand text-white rounded-full flex items-center justify-center text-4xl shadow-md border-4 border-brand-light mx-auto mb-2">{currentUser.avatar||'👑'}</div>
+                            <div className="w-20 h-20 bg-brand text-white rounded-full flex items-center justify-center text-4xl shadow-md border-4 border-brand-light mx-auto mb-2 cursor-pointer">{currentUser.avatar||'👑'}</div>
+                            <div className="flex flex-wrap gap-2 justify-center mb-4 bg-gray-50 dark:bg-slate-900 p-2 rounded-xl border border-gray-100 dark:border-slate-800">
+                                {EMOJIS.map(e=>(<span key={e} onClick={()=>{const nU={...currentUser,avatar:e};setCurrentUser(nU);updateDB(nU);}} className={`text-xl cursor-pointer transition hover:scale-110 ${currentUser.avatar===e?'bg-brand/20 rounded-lg p-1':''}`}>{e}</span>))}
+                            </div>
                             <input type="text" className="text-center font-black text-xl text-brand bg-transparent border-b outline-none mb-1 w-full" value={currentUser.n} onChange={e=>{const nU={...currentUser,n:e.target.value}; setCurrentUser(nU); updateDB(nU);}} />
                             <span className="text-[10px] font-bold bg-brand/10 text-brand px-3 py-1 rounded-full">{currentUser.lvl}</span>
                         </div>
@@ -728,7 +265,7 @@ if(view==='client'&&currentUser){
                             <div className="bg-gray-50 dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-700"><span className="text-[10px] text-gray-500 block mb-1">الوظيفة</span><input type="text" className="w-full bg-transparent outline-none text-sm font-bold" value={currentUser.job||''} onChange={e=>{const nU={...currentUser,job:e.target.value}; setCurrentUser(nU); updateDB(nU);}} /></div>
                             <div className="bg-gray-50 dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-700"><span className="text-[10px] text-gray-500 block mb-1">شكل الجسم</span><select className="w-full bg-transparent outline-none text-sm font-bold" value={currentUser.shp} onChange={e=>{const nU={...currentUser,shp:e.target.value}; setCurrentUser(nU); updateDB(nU);}}>{SHAPES_NEW.map(s=><option key={s.id} value={s.id}>{isAr?s.ar:s.en}</option>)}</select></div>
                             <div className="bg-gray-50 dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-700"><span className="text-[10px] text-gray-500 block mb-1">حالة العمود الفقري</span><select className="w-full bg-transparent outline-none text-sm font-bold" value={currentUser.pos} onChange={e=>{const nU={...currentUser,pos:e.target.value}; setCurrentUser(nU); updateDB(nU);}}>{POSTURES.map(p=><option key={p.id} value={p.id}>{isAr?p.tAr:p.tEn}</option>)}</select></div>
-                            <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-800"><span className="text-[10px] text-red-500 block mb-1">أمراض وراثية / إصابات</span><textarea className="w-full bg-transparent outline-none text-sm font-bold text-red-700 dark:text-red-400" rows="2" value={currentUser.injR||currentUser.injuries.join('، ')} onChange={e=>{const nU={...currentUser,injR:e.target.value}; setCurrentUser(nU); updateDB(nU);}} /></div>
+                            <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-800"><span className="text-[10px] text-red-500 block mb-1">أمراض وراثية / إصابات</span><textarea className="w-full bg-transparent outline-none text-sm font-bold text-red-700 dark:text-red-400" rows="2" value={currentUser.injR||(currentUser.injuries||[]).join('، ')} onChange={e=>{const nU={...currentUser,injR:e.target.value}; setCurrentUser(nU); updateDB(nU);}} /></div>
                         </div>
                     </div>
                 </div>
@@ -750,26 +287,30 @@ if(view==='client'&&currentUser){
                     </div>
                 </div>
             )}
+            
+            <TimerModal isOpen={showTimer} onClose={()=>setShowTimer(false)} isAr={isAr} />
+            <StopwatchModal isOpen={showStopwatch} onClose={()=>setShowStopwatch(false)} isAr={isAr} />
 
-            {/* Update Weight Modal */}
-            {showUpdateModal && (
-                <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center animate-zoom-in p-4">
-                    <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-[2.5rem] p-6 text-center relative border border-white/10 shadow-2xl">
-                        <button onClick={()=>{setShowUpdateModal(false);}} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
-                        <h3 className="font-black text-xl mb-4 text-brand">⚖️ {isAr?'تحديث الوزن':'Update Weight'}</h3>
-                        <input type="number" autoFocus className="w-full p-4 rounded-xl border bg-input font-black text-center text-3xl mb-4 outline-none" value={newW} onChange={e=>setNewW(e.target.value)} placeholder="0.0"/>
-                        <button onClick={()=>{
-                            if(!newW)return alert(txt.errReq);
-                            const nU = {...currentUser, w:newW};
-                            updateDB(nU);
-                            setShowUpdateModal(false);
-                            if(Math.abs(newW - iW) <= 2) alert(isAr?'عاش يا بطلة! قربنا جداً للهدف 🎉':'Great job! So close to your goal 🎉');
-                        }} className="w-full bg-brand text-white py-4 rounded-xl font-black shadow-md">{isAr?'حفظ الوزن الجديد':'Save New Weight'}</button>
+            {musicModal && (
+                <div className="fixed inset-0 bg-black/80 z-[60] flex items-end justify-center animate-zoom-in p-4 pb-24">
+                    <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-[2.5rem] p-6 text-center relative border border-white/10 shadow-2xl">
+                        <button onClick={()=>{setMusicModal(false);}} className="absolute top-4 right-4 bg-gray-200 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
+                        <h3 className="font-black text-xl mb-6 text-brand">🎧 {isAr?'اختر موسيقى التمرين':'Music Selection'}</h3>
+                        <div className="space-y-3 mb-6">
+                            {[1,2,3].map(i=>{
+                                const url = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i}.mp3`;
+                                const isAct = actMusic===url;
+                                return <button key={i} onClick={()=>playMusic(url)} className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 border transition ${isAct?'bg-brand text-white border-brand animate-pulse':'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700'}`}>{isAct?(isAr?'⏸️ إيقاف':'Pause'):('🎵 Gym Vibe '+i)}</button>;
+                            })}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-4 border-t dark:border-slate-700">
+                            <a href="https://open.spotify.com/" target="_blank" className="bg-[#1DB954] text-white py-3 rounded-xl font-black flex justify-center items-center gap-2 shadow-lg"><img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" className="w-5 h-5"/> Spotify</a>
+                            <a href="https://music.youtube.com/" target="_blank" className="bg-[#FF0000] text-white py-3 rounded-xl font-black flex justify-center items-center gap-2 shadow-lg"><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" className="w-6 h-4"/> YT Music</a>
+                        </div>
                     </div>
                 </div>
             )}
 
-            {/* Bottom Navigation Bar */}
             <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] flex justify-around p-2 z-40 pb-safe">
                 <button onClick={()=>setClientTab('home')} className={`nav-btn ${clientTab==='home'?'active':''}`}><span className="icon">🏠</span><span>{txt.tHm}</span></button>
                 <button onClick={()=>setClientTab('workout')} className={`nav-btn ${clientTab==='workout'?'active':''}`}><span className="icon">💪</span><span>{txt.tEx}</span></button>
