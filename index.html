@@ -241,7 +241,7 @@ const estimateSmartInbody=(u)=>{const w=Number(u.w)||65;const h=Number(u.h)||160
 const DateSelector=({value,onChange,isAr})=>{const parts=(value||'2000-01-01').split('-');const yr=parseInt(parts[0],10)||2000;const mo=parseInt(parts[1],10)||1;const dy=parseInt(parts[2],10)||1;const years=[];const curY=new Date().getFullYear();for(let y=curY-8;y>=1960;y--)years.push(y);const monthsAr=['يناير (1)','فبراير (2)','مارس (3)','أبريل (4)','مايو (5)','يونيو (6)','يوليو (7)','أغسطس (8)','سبتمبر (9)','أكتوبر (10)','نوفمبر (11)','ديسمبر (12)'];const monthsEn=['Jan (1)','Feb (2)','Mar (3)','Apr (4)','May (5)','Jun (6)','Jul (7)','Aug (8)','Sep (9)','Oct (10)','Nov (11)','Dec (12)'];const daysInMonth=new Date(yr,mo,0).getDate();const days=Array.from({length:daysInMonth},(_,i)=>i+1);const update=(nY,nM,nD)=>{const maxD=new Date(nY,nM,0).getDate();const safeD=Math.min(nD,maxD);onChange(`${nY}-${String(nM).padStart(2,'0')}-${String(safeD).padStart(2,'0')}`);};return(<div className="grid grid-cols-3 gap-2"><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'اليوم':'Day'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={dy} onChange={e=>update(yr,mo,Number(e.target.value))}>{days.map(d=><option key={d} value={d}>{d}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'الشهر':'Month'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={mo} onChange={e=>update(yr,Number(e.target.value),dy)}>{(isAr?monthsAr:monthsEn).map((m,idx)=><option key={idx+1} value={idx+1}>{m}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'السنة':'Year'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={yr} onChange={e=>update(Number(e.target.value),mo,dy)}>{years.map(y=><option key={y} value={y}>{y}</option>)}</select></div></div>);};
 const TimeSelector12h=({value,onChange,isAr})=>{const val=value||'10:00';let[h24,m]=val.split(':').map(Number);if(isNaN(h24))h24=10;if(isNaN(m))m=0;const period=h24>=12?'PM':'AM';let h12=h24%12;if(h12===0)h12=12;const mRounded=Math.round(m/5)*5===60?55:Math.round(m/5)*5;const update=(nH12,nM,nP)=>{let nh=parseInt(nH12,10);if(nP==='PM'&&nh<12)nh+=12;if(nP==='AM'&&nh===12)nh=0;onChange(`${String(nh).padStart(2,'0')}:${String(nM).padStart(2,'0')}`);};return(<div className="flex items-center gap-1 bg-input p-1 rounded-xl border" dir="ltr"><select className="bg-transparent font-black text-xs p-1.5 rounded outline-none cursor-pointer flex-1 text-center" value={h12} onChange={e=>update(e.target.value,mRounded,period)}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(h=><option key={h} value={h}>{String(h).padStart(2,'0')}</option>)}</select><span className="font-black text-xs">:</span><select className="bg-transparent font-black text-xs p-1.5 rounded outline-none cursor-pointer flex-1 text-center" value={mRounded} onChange={e=>update(h12,e.target.value,period)}>{[0,5,10,15,20,25,30,35,40,45,50,55].map(mn=><option key={mn} value={mn}>{String(mn).padStart(2,'0')}</option>)}</select><select className="bg-brand text-white font-black text-[10px] px-2 py-1.5 rounded-lg outline-none cursor-pointer" value={period} onChange={e=>update(h12,mRounded,e.target.value)}><option value="AM">AM</option><option value="PM">PM</option></select></div>);};
 const playBeepAlarm=()=>{try{const AudioCtx=window.AudioContext||window.webkitAudioContext;const ctx=new AudioCtx();[0,0.3,0.6,0.9].forEach(delay=>{const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type='sine';osc.frequency.setValueAtTime(880,ctx.currentTime+delay);gain.gain.setValueAtTime(0.5,ctx.currentTime+delay);gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+delay+0.25);osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+delay);osc.stop(ctx.currentTime+delay+0.25);});}catch(e){}};
-const InlineRestBar=({isAr})=>{const[left,setLeft]=useState(0);const[total,setTotal]=useState(45);const[active,setActive]=useState(false);useEffect(()=>{let t;if(active&&left>0){t=setInterval(()=>setLeft(s=>s-1),1000);}else if(active&&left===0){setActive(false);playBeepAlarm();triggerCelebration(['⚡','🔥','💪']);}return()=>clearInterval(t);},[active,left]);const startRest=(sec)=>{setTotal(sec);setLeft(sec);setActive(true);};return(<div className="my-2 px-3 py-2 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 text-white flex flex-col gap-1.5 shadow-sm border border-brand/25"><div className="flex items-center justify-between text-[10px] font-black"><span className="flex items-center gap-1 text-brand-dark">⚡ {isAr?'شريط الراحة بين التمرينين':'Rest Between Sets'}</span>{!active?(<div className="flex gap-1"><button onClick={()=>startRest(30)} className="bg-white/15 hover:bg-brand px-2 py-0.5 rounded-lg transition cursor-pointer">30s</button><button onClick={()=>startRest(45)} className="bg-brand px-2.5 py-0.5 rounded-lg transition cursor-pointer">▶️ {isAr?'بدء الراحة (45s)':'Start 45s'}</button><button onClick={()=>startRest(60)} className="bg-white/15 hover:bg-brand px-2 py-0.5 rounded-lg transition cursor-pointer">60s</button></div>):(<div className="flex items-center gap-2"><span className="font-english text-xs text-brand-gold animate-pulse">{left}s</span><button onClick={()=>{setActive(false);setLeft(0);}} className="bg-red-500/80 px-2 py-0.5 rounded text-[9px] cursor-pointer">{isAr?'إلغاء':'Stop'}</button></div>)}</div>{active&&(<div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden"><div className="bg-gradient-to-r from-brand-gold to-brand h-1.5 transition-all duration-1000" style={{width:`${(left/total)*100}%`}}></div></div>)}</div>);};
+const InlineRestBar=({isAr})=>{const[left,setLeft]=useState(0);const[total,setTotal]=useState(45);const[active,setActive]=useState(false);useEffect(()=>{let t;if(active&&left>0){t=setInterval(()=>setLeft(s=>s-1),1000);}else if(active&&left===0){setActive(false);playBeepAlarm();triggerCelebration(['⚡','🔥','💪']);}return()=>clearInterval(t);},[active,left]);const startRest=(sec)=>{setTotal(sec);setLeft(sec);setActive(true);};return(<div className="my-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 text-white flex items-center justify-between shadow-sm border border-brand/20 text-[10px]"><span className="flex items-center gap-1 font-black text-brand-dark">⚡ {isAr?'الراحة:':'Rest:'}</span><div className="flex items-center gap-1.5">{!active?(<div className="flex gap-1"><button onClick={()=>startRest(30)} className="bg-white/15 hover:bg-brand px-2 py-0.5 rounded-lg transition cursor-pointer font-bold">30s</button><button onClick={()=>startRest(45)} className="bg-brand px-2 py-0.5 rounded-lg transition cursor-pointer font-black">45s</button><button onClick={()=>startRest(60)} className="bg-white/15 hover:bg-brand px-2 py-0.5 rounded-lg transition cursor-pointer font-bold">60s</button></div>):(<div className="flex items-center gap-2"><span className="font-english text-xs text-brand-gold animate-pulse font-black">{left}s</span><button onClick={()=>{setActive(false);setLeft(0);}} className="bg-red-500 px-2 py-0.5 rounded text-[9px] cursor-pointer">✕</button></div>)}</div>{active&&(<div className="w-full bg-white/10 h-1 rounded-full overflow-hidden absolute bottom-0 left-0"><div className="bg-gradient-to-r from-brand-gold to-brand h-1 transition-all duration-1000" style={{width:`${(left/total)*100}%`}}></div></div>)}</div>};
 const TimerModal=({isOpen,onClose,isAr})=>{const[min,setMin]=useState('');const[sec,setSec]=useState('');const[time,setTime]=useState(0);const[initTime,setInitTime]=useState(60);const[run,setRun]=useState(false);useEffect(()=>{let int;if(run&&time>0){int=setInterval(()=>setTime(t=>t-1),1000);}else if(run&&time===0){setRun(false);playBeepAlarm();triggerCelebration(['⏰','🔥','💪']);}return()=>clearInterval(int);},[run,time]);if(!isOpen)return null;const mDisp=Math.floor(time/60).toString().padStart(2,'0');const sDisp=(time%60).toString().padStart(2,'0');const startWithSeconds=(totalSec)=>{if(totalSec<=0)return;setInitTime(totalSec);setTime(totalSec);setRun(true);};const pct=initTime>0?(time/initTime)*100:0;const radius=84;const circum=2*Math.PI*radius;const offset=circum-(pct/100)*circum;return(<div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center animate-zoom-in p-4"><div className="bg-gradient-to-br from-[#2a0826] via-[#1a0b2e] to-[#0f172a] text-white w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border-2 border-pink-500/60 shadow-[0_0_50px_rgba(255,0,127,0.35)] overflow-hidden"><div className="flex justify-between items-center mb-4"><span className="bg-pink-500/20 border border-pink-400/40 text-pink-300 px-3 py-1 rounded-full text-[10px] font-black">⏳ {isAr?'مؤقت التمرين الذكي':'Countdown Timer'}</span><button onClick={()=>{setRun(false);onClose();}} className="bg-white/10 hover:bg-pink-500 w-8 h-8 rounded-full font-bold flex items-center justify-center text-white transition cursor-pointer">✕</button></div><div className="relative w-52 h-52 mx-auto mb-5 flex items-center justify-center"><svg className="w-full h-full -rotate-90 drop-shadow-[0_0_12px_rgba(255,0,127,0.4)]" viewBox="0 0 200 200"><circle cx="100" cy="100" r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth="12" fill="rgba(15,23,42,0.6)"/><circle cx="100" cy="100" r={radius} stroke="url(#timerPinkGrad)" strokeWidth="12" fill="none" strokeDasharray={circum} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-700"/><defs><linearGradient id="timerPinkGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ff007f"/><stop offset="50%" stopColor="#fbbf24"/><stop offset="100%" stopColor="#ff007f"/></linearGradient></defs></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-[10px] font-black text-pink-300 mb-1">{run?(isAr?'🔥 واصلي بقوة':'🔥 Keep Going'):(isAr?'جاهز للعد التنازلي':'Ready')}</span><div className="flex items-center gap-1 font-english font-black text-4xl tracking-wider" dir="ltr"><span className="bg-pink-500/20 border border-pink-400/30 px-2.5 py-1 rounded-xl text-white">{mDisp}</span><span className="text-amber-400 animate-pulse">:</span><span className="bg-pink-500/20 border border-pink-400/30 px-2.5 py-1 rounded-xl text-amber-300">{sDisp}</span></div><span className="text-[9px] font-bold text-gray-400 mt-1">{Math.round(pct)}%</span></div></div>{!run&&time===0&&(<div className="grid grid-cols-2 gap-2.5 mb-4 bg-white/5 p-3 rounded-2xl border border-pink-500/25" dir="ltr"><div><span className="block text-[9px] font-bold text-pink-300 mb-1">{isAr?'الدقائق (MIN)':'Minutes'}</span><input type="number" min="0" placeholder="00" className="w-full p-2 text-center rounded-xl bg-slate-900 border border-pink-500/40 font-black text-base text-white outline-none" value={min} onChange={e=>setMin(e.target.value)}/></div><div><span className="block text-[9px] font-bold text-amber-300 mb-1">{isAr?'الثواني (SEC)':'Seconds'}</span><input type="number" min="0" max="59" placeholder="00" className="w-full p-2 text-center rounded-xl bg-slate-900 border border-amber-400/40 font-black text-base text-white outline-none" value={sec} onChange={e=>setSec(e.target.value)}/></div></div>)}<div className="mb-4"><span className="block text-[9px] font-black text-pink-300 mb-1.5">{isAr?'⚡ مدد سريعة بضغطة واحدة:':'⚡ Quick Presets:'}</span><div className="grid grid-cols-5 gap-1.5">{[{l:'30s',s:30},{l:'45s',s:45},{l:'1m',s:60},{l:'90s',s:90},{l:'2m',s:120}].map(p=>(<button key={p.s} onClick={()=>startWithSeconds(p.s)} className="bg-pink-500/15 hover:bg-pink-500 border border-pink-500/30 text-white py-2 rounded-xl font-black text-[11px] transition cursor-pointer">{p.l}</button>))}</div></div><div className="flex gap-2"><button onClick={()=>{if(!run&&time===0&&(min||sec)){const t=(Number(min||0)*60)+Number(sec||0);startWithSeconds(t);}else if(time>0){setRun(!run);}}} disabled={time===0&&!min&&!sec} className="flex-1 bg-gradient-to-r from-pink-500 to-amber-500 text-white py-3 rounded-2xl font-black text-xs disabled:opacity-40 shadow-lg transition hover:scale-[1.02] cursor-pointer">{run?(isAr?'⏸️ إيقاف مؤقت':'⏸️ Pause'):(time>0?(isAr?'▶️ استكمال العد':'▶️ Resume'):(isAr?'🚀 بدء المؤقت الآن':'🚀 Start Timer'))}</button>{(time>0||min||sec)&&(<button onClick={()=>{setRun(false);setTime(0);setMin('');setSec('');}} className="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-3 rounded-2xl font-black text-xs text-white transition cursor-pointer">🔄 {isAr?'تصفير':'Reset'}</button>)}</div></div></div>);};
 const StopwatchModal=({isOpen,onClose,isAr})=>{const[ms,setMs]=useState(0);const[run,setRun]=useState(false);const[laps,setLaps]=useState([]);useEffect(()=>{let int;if(run)int=setInterval(()=>setMs(t=>t+100),100);return()=>clearInterval(int);},[run]);if(!isOpen)return null;const totalSec=Math.floor(ms/1000);const minStr=Math.floor(totalSec/60).toString().padStart(2,'0');const secStr=(totalSec%60).toString().padStart(2,'0');const tenth=Math.floor((ms%1000)/100);return(<div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center animate-zoom-in p-4"><div className="bg-gradient-to-b from-[#041f2e] via-[#091526] to-[#020617] text-white w-full max-w-sm rounded-[2.5rem] p-6 text-center relative border-2 border-cyan-400/60 shadow-[0_0_50px_rgba(0,229,255,0.3)]"><div className="flex justify-between items-center mb-4"><span className="bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 px-3 py-1 rounded-full text-[10px] font-black">⏱️ {isAr?'عداد السرعة والجولات الرقمي':'Digital Lap Chronograph'}</span><button onClick={()=>{setRun(false);onClose();}} className="bg-white/10 hover:bg-cyan-500 w-8 h-8 rounded-full font-bold flex items-center justify-center text-white transition cursor-pointer">✕</button></div><div className="bg-slate-950/90 border-2 border-cyan-400/40 rounded-3xl p-4 mb-5 shadow-[inset_0_0_25px_rgba(0,229,255,0.18)]"><div className="grid grid-cols-3 gap-2 items-center font-english" dir="ltr"><div className="bg-cyan-950/50 border border-cyan-500/30 rounded-2xl py-3"><span className="block font-black text-3xl text-white">{minStr}</span><span className="text-[9px] font-bold text-cyan-400">MIN</span></div><div className="bg-cyan-950/50 border border-cyan-500/30 rounded-2xl py-3"><span className="block font-black text-3xl text-cyan-300">{secStr}</span><span className="text-[9px] font-bold text-cyan-400">SEC</span></div><div className="bg-emerald-950/50 border border-emerald-400/30 rounded-2xl py-3"><span className="block font-black text-3xl text-emerald-400">.{tenth}</span><span className="text-[9px] font-bold text-emerald-300">MS</span></div></div><div className="mt-3 flex items-center justify-between text-[10px] font-black text-cyan-300/80 px-1"><span>{run?(isAr?'🟢 جاري القياس...':'🟢 Recording...'):(isAr?'⚪ متوقف':'⚪ Paused')}</span><span>{isAr?`عدد الجولات: ${laps.length}`:`Laps: ${laps.length}`}</span></div></div><div className="grid grid-cols-3 gap-2 mb-4"><button onClick={()=>setRun(!run)} className={`py-3 rounded-2xl font-black text-xs transition cursor-pointer shadow-lg ${run?'bg-amber-500 text-slate-950':'bg-gradient-to-r from-cyan-500 to-emerald-500 text-white'}`}>{run?(isAr?'⏸️ إيقاف':'Pause'):(ms>0?(isAr?'▶️ استكمال':'Resume'):(isAr?'🚀 ابدأ':'Start'))}</button><button onClick={()=>{if(run){setLaps([`${minStr}:${secStr}.${tenth}`,...laps]);triggerCelebration(['🚩','⚡']);}}} disabled={!run} className="bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 py-3 rounded-2xl font-black text-xs disabled:opacity-35 cursor-pointer">🚩 {isAr?'تسجيل جولة':'Lap'}</button><button onClick={()=>{setRun(false);setMs(0);setLaps([]);}} disabled={ms===0} className="bg-white/10 border border-white/20 text-gray-200 py-3 rounded-2xl font-black text-xs disabled:opacity-35 cursor-pointer">🔄 {isAr?'تصفير':'Reset'}</button></div>{laps.length>0&&(<div className="max-h-32 overflow-y-auto custom-scroll bg-slate-950/60 rounded-2xl p-2 border border-cyan-500/20 space-y-1">{laps.map((l,i)=>(<div key={i} className="flex justify-between items-center text-xs font-black bg-cyan-500/10 border border-cyan-500/20 px-3 py-1.5 rounded-xl"><span className="text-cyan-300">{isAr?`جولة #${laps.length-i}`:`Lap #${laps.length-i}`}</span><span className="font-english text-emerald-300">{l}</span></div>))}</div>)}</div></div>);};
 const ScrollPicker=({min,max,val,onCh,lbl,suf})=>{const opts=Array.from({length:max-min+1},(_,i)=>min+i);const ref=useRef(null);return(<div className="flex flex-col items-center flex-1 bg-white p-2 rounded-[1.5rem] shadow-sm overflow-hidden border"><span className="text-[10px] font-bold text-gray-500 mb-1 whitespace-nowrap">{lbl}</span><div ref={ref} onScroll={(e)=>onCh(opts[Math.round(e.target.scrollTop/44)]||val)} className="h-[132px] w-full overflow-y-scroll scroll-picker relative"><div style={{height:'44px'}}></div>{opts.map(o=>(<div key={o} onClick={()=>{onCh(o);ref.current.scrollTo({top:(o-min)*44,behavior:'smooth'});}} className={`h-[44px] flex items-center justify-center scroll-picker-item cursor-pointer transition-all ${val===o?'text-brand text-2xl font-black scale-110':'text-gray-400 text-sm font-bold'}`}>{o} <span className="text-[10px] ml-1">{suf}</span></div>))}<div style={{height:'44px'}}></div></div></div>);};
@@ -558,20 +558,15 @@ return(
           </div>
         )}
 
-        <div className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border dark:border-slate-700 space-y-2">
-          <div className="flex justify-between items-center border-b dark:border-slate-700 pb-2">
-            <div>
-              <h3 className="font-black text-xs text-brand">{currentUser.n}</h3>
-              <p className="text-[10px] font-bold text-gray-500">{formatLevel(currentUser.lvl,isAr)} | {userAge} {isAr?'سنة':'Years'} | 📏 {currentUser.h||160} cm</p>
-            </div>
-            <button onClick={()=>{setProfileDraftPh(currentUser.ph||'');setShowProfileModal(true);}} className="bg-brand text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer">✏️ {isAr?'تعديل بياناتي':'Edit Profile'}</button>
+                <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border dark:border-slate-700 flex justify-between items-center">
+          <div>
+            <h3 className="font-black text-xs text-brand flex items-center gap-1.5">
+              <span>{currentUser.n}</span>
+              <span className="text-[9px] font-bold text-gray-400 bg-gray-100 dark:bg-slate-900 px-2 py-0.5 rounded-full">({userAge} سنة | {currentUser.h||160}cm | {formatLevel(currentUser.lvl,isAr)})</span>
+            </h3>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center text-[10px] font-bold">
-            <div className="bg-gray-50 dark:bg-slate-900 p-1.5 rounded-xl border"><span>{isAr?'الطول:':'Height:'}</span> <strong className="text-brand">{currentUser.h||160} cm</strong></div>
-            <div className="bg-gray-50 dark:bg-slate-900 p-1.5 rounded-xl border"><span>{isAr?'السن:':'Age:'}</span> <strong className="text-brand">{userAge} {isAr?'سنة':'y'}</strong></div>
-            <div className="bg-gray-50 dark:bg-slate-900 p-1.5 rounded-xl border"><span>{isAr?'المستوى:':'Level:'}</span> <strong className="text-brand">{formatLevel(currentUser.lvl,isAr)}</strong></div>
-            <div className="bg-gray-50 dark:bg-slate-900 p-1.5 rounded-xl border"><span>{isAr?'الهدف:':'Goal:'}</span> <strong className="text-emerald-500">{currentUser.iW||55} kg</strong></div>
-          </div>
+          <button onClick={()=>{setProfileDraftPh(currentUser.ph||'');setShowProfileModal(true);}} className="bg-brand text-white px-2.5 py-1 rounded-xl font-black text-[9px] shadow cursor-pointer">✏️ {isAr?'تعديل':'Edit'}</button>
+        </div>
           {currentUser.msr&&Object.keys(currentUser.msr).length>0&&(
             <div className="bg-blue-50/50 dark:bg-slate-900/60 p-2 rounded-xl border border-blue-200 dark:border-slate-700">
               <span className="block text-[9px] font-black text-blue-600 dark:text-blue-400 mb-1">📏 {isAr?'مقاسات الجسم المسجلة (cm):':'Body Measurements (cm):'}</span>
@@ -613,10 +608,82 @@ return(
                 <div className="shimmer-fill h-full rounded-full transition-all duration-1000 relative flex items-center justify-end pr-1.5" style={{width:`${wPct}%`}}>
                   <span className="text-[7px] font-black text-white drop-shadow">{wPct}%</span>
                 </div>
+    {clientTab==='home'&&(
+      <div className="animate-slide-up space-y-2.5">
+        {(ann||tip)&&(
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {ann&&<div className="bg-brand text-white px-3 py-2 rounded-2xl shadow-sm font-bold text-[11px] flex items-center gap-2 animate-pop"><span className="text-base">📢</span> <span>{ann}</span></div>}
+            {tip&&<div className="bg-blue-500 text-white px-3 py-2 rounded-2xl shadow-sm font-bold text-[11px] flex items-center gap-2 animate-pop"><span className="text-base">💡</span> <span>{tip}</span></div>}
+          </div>
+        )}
+
+        {/* 1. الشريط العلوي المدمج (الاسم، السن، الطول، المستوى) */}
+        <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border dark:border-slate-700 flex justify-between items-center">
+          <div>
+            <h3 className="font-black text-xs text-brand flex items-center gap-1.5">
+              <span>{currentUser.n}</span>
+              <span className="text-[9px] font-bold text-gray-400 bg-gray-100 dark:bg-slate-900 px-2 py-0.5 rounded-full">({userAge} سنة | {currentUser.h||160}cm | {formatLevel(currentUser.lvl,isAr)})</span>
+            </h3>
+          </div>
+          <button onClick={()=>{setProfileDraftPh(currentUser.ph||'');setShowProfileModal(true);}} className="bg-brand text-white px-2.5 py-1 rounded-xl font-black text-[9px] shadow cursor-pointer">✏️ {isAr?'تعديل':'Edit'}</button>
+        </div>
+
+        {/* 2. مؤشر الوصول للوزن المثالي (فوق الـ InBody مباشرةً) */}
+        {(()=>{
+          const curW=Number(currentUser.w)||65;
+          const goalW=Number(iW)||55;
+          const diffW=Number(Math.abs(curW-goalW).toFixed(1));
+          const isGoalReached=diffW<=0.5;
+          const isVeryClose=!isGoalReached&&diffW<=3;
+          const wPct=isGoalReached?100:Math.max(18,Math.min(96,Math.round((1-(diffW/Math.max(15,diffW+8)))*100)));
+          return(
+            <div className={`bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border transition-all ${isGoalReached?'border-amber-400 ring-2 ring-amber-300/30':isVeryClose?'border-emerald-400':'dark:border-slate-700'}`}>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center text-base">{isGoalReached?'🏆':isVeryClose?'🔥':'⚖️'}</span>
+                  <div>
+                    <span className="block text-[9px] font-bold text-gray-400">{isAr?'مؤشر الوصول للوزن المثالي':'Goal Weight Tracker'}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-black text-sm text-brand">{curW}kg</span>
+                      <span className="text-[9px] text-gray-400">➔</span>
+                      <span className="font-black text-sm text-emerald-500">{goalW}kg 🎯</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <button onClick={()=>{setNewW(currentUser.w);setShowUpdateModal(true);}} className="bg-brand text-white px-3 py-1 rounded-xl font-black text-[10px] shadow hover:scale-105 transition cursor-pointer">{isAr?'تحديث الوزن ✏️':'Update ✏️'}</button>
+                  <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400">{isGoalReached?(isAr?'🎉 وصلتِ للهدف!':'Goal Reached!'):(isAr?`باقي ${diffW} كجم (${wPct}%)`:`${diffW}kg left (${wPct}%)`)}</span>
+                </div>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 p-0.5 overflow-hidden shadow-inner relative">
+                <div className="shimmer-fill h-full rounded-full transition-all duration-1000 relative flex items-center justify-end pr-1.5" style={{width:`${wPct}%`}}>
+                  <span className="text-[7px] font-black text-white drop-shadow">{wPct}%</span>
+                </div>
               </div>
             </div>
           );
         })()}
+
+        {/* 3. ملخص الـ InBody الذكي */}
+        <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
+
+        {/* 4. الثلاث حاجات اللي تحت خالص (تحدي 30 يوم، المرونة، الفيتنس) تم رفعها للأعلى */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-gradient-to-r text-white p-2.5 rounded-2xl shadow-sm flex flex-col justify-center items-center text-center">
+            <span className="block font-black text-[9px] opacity-90">🔥 {txt.chl} 30 {isAr?'يوم':'Days'}</span>
+            <span className="font-black text-base drop-shadow-md font-english">{aC}/30</span>
+          </div>
+          <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-purple-300/50 shadow-sm flex flex-col justify-center items-center text-center">
+            <span className="text-[8px] font-bold text-gray-400 block">{isAr?'تقييم اللياقة':'Fitness'}</span>
+            <span className="font-black text-xs text-purple-600 dark:text-purple-400">🏆 {currentUser.fitOverall||'Good'}</span>
+          </div>
+          <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-cyan-300/50 shadow-sm flex flex-col justify-center items-center text-center">
+            <span className="text-[8px] font-bold text-gray-400 block">{isAr?'تقييم المرونة':'Mobility'}</span>
+            <span className="font-black text-xs text-cyan-600 dark:text-cyan-400">🧘‍♀️ {currentUser.flexOverall||'Good'}</span>
+          </div>
+        </div>
+
+        {/* 5. مواعيد كابتن روان ووضع الهدوء */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 dark:border-blue-800 flex flex-col justify-center">
             <h4 className="font-black text-blue-800 dark:text-blue-300 text-[10px] mb-0.5 flex items-center gap-1"><span>🏋️‍♀️</span> {isAr?'مواعيد كابتن روان في الجيم:':'Coach Rawan Gym Hours:'}</h4>
@@ -634,11 +701,8 @@ return(
           </div>
         </div>
 
+        {/* 6. تبديل الموسيقي لتكون تحت، وصحيان دي فوق */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button onClick={()=>setMusicModal(true)} className="bg-slate-900 dark:bg-slate-800 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between hover:scale-[1.01] transition cursor-pointer border border-white/10">
-            <div className="flex items-center gap-2"><span className="text-lg">🎧</span><span className="font-black text-xs">{isAr?'موسيقى التمرين الحماسية':'Workout Music Hub'}</span></div>
-            <span className="text-[10px] bg-brand px-2.5 py-1 rounded-lg font-bold">{actMusic?(isAr?'يعمل 🔊':'Playing 🔊'):(isAr?'تشغيل':'Open')}</span>
-          </button>
           <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border dark:border-slate-700 flex items-center justify-between gap-2">
             <div>
               <span className="block text-[9px] font-bold text-gray-400">🌙 {isAr?'النوم والاستيقاظ':'Sleep'} ({formatTime12h(activeSleep)} ➔ {formatTime12h(activeWake)})</span>
@@ -648,24 +712,13 @@ return(
               <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr,activeCoachHours)} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer whitespace-nowrap">{isAr?'صحيت الآن ☀️':'Awake ☀️'}</button>
             )}
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-gradient-to-r text-white p-2.5 rounded-2xl shadow-sm flex flex-col justify-center items-center text-center">
-            <span className="block font-black text-[9px] opacity-90">🔥 {txt.chl} 30 {isAr?'يوم':'Days'}</span>
-            <span className="font-black text-base drop-shadow-md font-english">{aC}/30</span>
-          </div>
-          <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-purple-300/50 shadow-sm flex flex-col justify-center items-center text-center">
-            <span className="text-[8px] font-bold text-gray-400 block">{isAr?'تقييم اللياقة':'Fitness'}</span>
-            <span className="font-black text-xs text-purple-600 dark:text-purple-400">🏆 {currentUser.fitOverall||'Good'}</span>
-          </div>
-          <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-cyan-300/50 shadow-sm flex flex-col justify-center items-center text-center">
-            <span className="text-[8px] font-bold text-gray-400 block">{isAr?'تقييم المرونة':'Mobility'}</span>
-            <span className="font-black text-xs text-cyan-600 dark:text-cyan-400">🧘‍♀️ {currentUser.flexOverall||'Good'}</span>
-          </div>
+          <button onClick={()=>setMusicModal(true)} className="bg-slate-900 dark:bg-slate-800 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between hover:scale-[1.01] transition cursor-pointer border border-white/10">
+            <div className="flex items-center gap-2"><span className="text-lg">🎧</span><span className="font-black text-xs">{isAr?'موسيقى التمرين الحماسية':'Workout Music Hub'}</span></div>
+            <span className="text-[10px] bg-brand px-2.5 py-1 rounded-lg font-bold">{actMusic?(isAr?'يعمل 🔊':'Playing 🔊'):(isAr?'تشغيل':'Open')}</span>
+          </button>
         </div>
       </div>
     )}
-
     {clientTab==='workout'&&(
       <div className="animate-slide-up space-y-2.5">
         <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border dark:border-slate-700 space-y-2.5">
