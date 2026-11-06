@@ -109,24 +109,9 @@ const ADMIN_EMAILS=['rawanelsayed322@gmail.com','yousef74joe74@gmail.com'];
 const GH_CDN='https://cdn.jsdelivr.net/gh/GeoXPlatform/fitness@main/';
 const GH_RAW='https://raw.githubusercontent.com/GeoXPlatform/fitness/main/';
 
-const triggerCelebration=(emojis=['✨','💖','🔥','💪','🌟'])=>{
-  try{
-    for(let i=0;i<10;i++){
-      const span=document.createElement('span');
-      span.className='fx-particle';
-      span.innerText=emojis[i%emojis.length];
-      const angle=(Math.PI*2*i)/10;
-      const dist=45+Math.random()*55;
-      span.style.left='50%';
-      span.style.top='50%';
-      span.style.setProperty('--tx',`${Math.cos(angle)*dist}px`);
-      span.style.setProperty('--ty',`${Math.sin(angle)*dist}px`);
-      document.body.appendChild(span);
-      setTimeout(()=>span.remove(),950);
-    }
-  }catch(e){}
+const triggerCelebration=(emojis=[])=>{
+  // تم إيقاف تأثير الإيموجيز المتطايرة بناءً على طلبك
 };
-
 const makeBodyFallbackSVG=(type)=>{const label=type.includes('ecto')?'Ectomorph (نحيف)':type.includes('meso')?'Mesomorph (عضلي متناسق)':type.includes('endo')?'Endomorph (ممتلئ)':type;const path=type.includes('ecto')?'M92 45 C92 33 108 33 108 45 C108 55 92 55 92 45 M85 60 L115 60 L110 110 L113 165 L103 165 L100 120 L97 165 L87 165 L90 110 Z':type.includes('meso')?'M90 42 C90 28 110 28 110 42 C110 54 90 54 90 42 M72 58 L128 58 L114 102 L122 165 L106 165 L100 118 L94 165 L78 165 L86 102 Z':'M88 42 C88 28 112 28 112 42 C112 54 88 54 88 42 M74 60 L126 60 C135 90 135 120 124 165 L104 165 L100 125 L96 165 L76 165 C65 120 65 90 74 60 Z';const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 185" width="100%" height="185"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fdf2f8"/><stop offset="100%" stop-color="#fce7f3"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff007f"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient></defs><rect width="200" height="185" fill="url(#g)"/><circle cx="100" cy="95" r="68" fill="#ff007f" fill-opacity="0.08"/><path d="${path}" fill="url(#b)"/><text x="100" y="178" font-family="Cairo, sans-serif" font-size="11" font-weight="bold" fill="#be185d" text-anchor="middle">${label}</text></svg>`;return`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;};
 const handleImgError=(e,filename)=>{const el=e.currentTarget;const step=parseInt(el.dataset.retry||'0',10);const base=filename.split('.')[0];const variants=[`${GH_CDN}${filename}`,`${GH_RAW}${filename}`,`${GH_CDN}${base}.JPG`,`${GH_CDN}${base}.png`,`${GH_CDN}${base}.jpeg`,`${GH_CDN}${base}.webp`,`${GH_RAW}${base}.JPG`,`${GH_RAW}${base}.png`,filename];if(step<variants.length){el.dataset.retry=step+1;el.src=variants[step];}else{el.onerror=null;el.src=makeBodyFallbackSVG(base);}};
 const GreenCheckIcon=()=>(<svg className="w-5 h-5 text-emerald-500 inline-block drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>);
