@@ -1012,6 +1012,134 @@ return(
             <div><label className="text-[10px] font-bold block mb-1">{txt.w} (kg)</label><input type="number" step="0.1" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.w||''} onChange={e=>setCurrentUser({...currentUser,w:e.target.value})}/></div>
           </div>
           <div className="bg-gray-50 dark:bg-slate-900 p-2.5 rounded-xl border"><span className="text-[10px] text-gray-500 block mb-1">{txt.dob}</span><DateSelector value={currentUser.dob||'2000-01-01'} onChange={v=>setCurrentUser({...currentUser,dob:v})} isAr={isAr}/></div>
+  {musicModal&&(
+    <div className="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center animate-zoom-in p-4">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 relative border border-white/10 shadow-2xl">
+        <button onClick={()=>setMusicModal(false)} className="absolute top-4 right-4 bg-gray-100 dark:bg-slate-700 w-9 h-9 rounded-full font-bold flex items-center justify-center">✕</button>
+        <h3 className="font-black text-lg mb-4 text-brand text-center">🎧 {isAr?'موسيقى التمرين الحماسية':'Workout Music Hub'}</h3>
+        <div className="space-y-2.5 mb-5">
+          {          {isFetchingMusic ? (
+            <div className="text-center text-xs font-bold text-gray-500 py-4">{isAr?'جاري تحميل المكتبة ⏳':'Loading Library ⏳'}</div>
+          ) : (
+            musicCats.map(cat=>{
+              const isPlaying = actMusic && actMusic.catId === cat.id;
+              return (
+                <button key={cat.id} onClick={()=>playRandomMusic(cat)} className={`w-full p-3.5 rounded-2xl font-black text-xs flex justify-between items-center border transition cursor-pointer ${isPlaying?'bg-brand text-white border-brand':'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700'}`}>
+                  <span>{isAr?cat.titleAr:cat.titleEn}</span>
+                  <span>{isPlaying?(isAr?'⏸️ إيقاف':'⏸️ Pause'):(isAr?'▶️ تشغيل عشوائي':'▶️ Shuffle Play')}</span>
+                </button>
+              );
+            })
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 border-t dark:border-slate-700 pt-4">
+          <a href="https://open.spotify.com/search/ladies%20workout" target="_blank" className="bg-[#1DB954] text-white py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow hover:scale-105 transition"><span>Spotify</span></a>
+          <a href="https://music.youtube.com/search?q=ladies+workout" target="_blank" className="bg-[#FF0000] text-white py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow hover:scale-105 transition"><span>YouTube Music</span></a>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {swapModalMeal&&(()=>{
+    const mealStr=typeof swapModalMeal==='string'?swapModalMeal:(swapModalMeal.text||'');
+    const prefixMatch=mealStr.match(/^(•\s*(?:إفطار|غداء|عشاء|سناك)\s*:)/);
+    const mealPrefix=prefixMatch?prefixMatch[1]:(mealStr.includes('إفطار')?'• إفطار:':mealStr.includes('غداء')?'• غداء:':mealStr.includes('عشاء')?'• عشاء:':mealStr.includes('سناك')?'• سناك:':'• وجبة:');
+    const gKey=currentUser.goal||macs.goal||'loss';
+    const dDB=DB_DIET_SMART[gKey]||DB_DIET_SMART.loss;
+    let catKey='lun';let catLabelAr='وجبة الغداء 🍲';let catLabelEn='Lunch 🍲';
+    if(mealStr.includes('إفطار')||mealStr.toLowerCase().includes('breakfast')){catKey='brk';catLabelAr='وجبة الإفطار 🌅';catLabelEn='Breakfast 🌅';}
+    else if(mealStr.includes('غداء')||mealStr.toLowerCase().includes('lunch')){catKey='lun';catLabelAr='وجبة الغداء 🍲';catLabelEn='Lunch 🍲';}
+    else if(mealStr.includes('عشاء')||mealStr.toLowerCase().includes('dinner')){catKey='din';catLabelAr='وجبة العشاء 🌙';catLabelEn='Dinner 🌙';}
+    else if(mealStr.includes('سناك')||mealStr.toLowerCase().includes('snack')){catKey='snk';catLabelAr='السناك 🍿';catLabelEn='Snack 🍿';}
+    const pool=dDB[catKey]||dDB.brk;
+    const cleanCurrent=mealStr.replace(/^(•\s*(?:إفطار|غداء|عشاء|سناك)\s*:)/,'').replace(/\(\💡.*?\)/g,'').trim();
+    const curPoolIdx=pool.findIndex(p=>cleanCurrent.includes(p.slice(0,22))||p.includes(cleanCurrent.slice(0,22)));
+    const nextIdx=curPoolIdx>-1?(curPoolIdx+1)%pool.length:((swapModalMeal.step||0)%pool.length);
+    const singleAlt=pool[nextIdx]||pool[0];
+    const applySwapToSchedule=(newText)=>{
+      if(typeof swapModalMeal==='object'){
+        const dIdx=swapModalMeal.dayIdx??new Date().getDay();
+        const schCopy=[...safeSch(currentUser.sch)];
+        const dayDiet=schCopy[dIdx]?.diet||'';
+        const allLines=String(dayDiet).split('\n').filter(i=>i&&i.trim()&&i.trim()!=='-'&&i.trim()!=='•');
+        const exactIdx=allLines.findIndex(l=>l.trim()===mealStr.trim()||l.startsWith(mealPrefix));
+        if(exactIdx>-1){allLines[exactIdx]=`${mealPrefix} ${newText}`;}
+        schCopy[dIdx]={...schCopy[dIdx],diet:allLines.join('\n')};
+        const nU={...currentUser,sch:schCopy};
+        setCurrentUser(nU);updateDB(nU);
+      }
+      setSwapModalMeal(null);
+    };
+    return(
+      <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 animate-zoom-in">
+        <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2rem] p-5 relative shadow-2xl border-2 border-purple-400/40 flex flex-col">
+          <button onClick={()=>setSwapModalMeal(null)} className="absolute top-4 left-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
+          <h3 className="font-black text-sm text-purple-600 dark:text-purple-400 mb-1">🔄 {isAr?`بديل ${catLabelAr}`:`Swap ${catLabelEn}`}</h3>
+          <p className="text-[10px] font-bold text-gray-400 mb-2">{isAr?'الوجبة الحالية:':'Current Meal:'}</p>
+          <p className="text-[11px] font-bold text-gray-600 dark:text-gray-300 mb-3 bg-gray-50 dark:bg-slate-900 p-2.5 rounded-xl border dark:border-slate-700">{addEmojisToDiet(mealStr,isAr)}</p>
+          <span className="block text-[10px] font-black text-brand mb-1.5">✨ {isAr?`البديل المخصص لـ ${catLabelAr}:`:'Recommended Swap:'}</span>
+          <div className="p-3.5 rounded-2xl bg-purple-50/90 dark:bg-purple-900/30 border-2 border-brand/40 text-xs font-black leading-relaxed mb-4 text-gray-800 dark:text-white shadow-sm">{addEmojisToDiet(singleAlt,isAr)}</div>
+          <div className="flex gap-2">
+            <button onClick={()=>applySwapToSchedule(singleAlt)} className="flex-1 bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs cursor-pointer shadow-md hover:scale-[1.01] transition">✔️ {isAr?'اعتماد واستبدال الوجبة':'Confirm Swap'}</button>
+            <button onClick={()=>setSwapModalMeal(null)} className="px-4 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-xl font-black text-xs cursor-pointer">{isAr?'إلغاء':'Cancel'}</button>
+          </div>
+        </div>
+      </div>
+    );
+  })()}
+
+  {previewInbUrl&&(
+    <div className="fixed inset-0 bg-black/90 z-[120] flex flex-col items-center justify-center p-4 animate-zoom-in">
+      <div className="w-full max-w-md flex justify-between items-center mb-3">
+        <span className="text-white font-black text-sm">📄 {isAr?'معاينة تقرير الـ InBody':'InBody Report'}</span>
+        <button onClick={()=>setPreviewInbUrl(null)} className="bg-white text-slate-900 w-9 h-9 rounded-full font-black">✕</button>
+      </div>
+      <div className="bg-white p-2 rounded-2xl max-h-[80vh] overflow-auto max-w-md w-full"><img src={previewInbUrl} className="w-full h-auto object-contain rounded-xl" alt="InBody"/></div>
+    </div>
+  )}
+
+  {inbFormModal&&(
+    <div className="fixed inset-0 bg-black/80 z-[130] flex items-center justify-center p-4 animate-zoom-in">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl">
+        <h3 className="font-black text-base text-brand mb-2 text-center">📊 {isAr?'تحليل ومطابقة أرقام الـ InBody':'InBody Analysis'}</h3>
+        <p className="text-[10px] font-bold text-gray-500 mb-3 text-center">{isAr?'يمكنكِ تعديل الأرقام لتطابق ورقة الـ InBody الخاصة بكِ لحساب مقارنة التطور بدقة:':'Confirm or edit numbers from your InBody sheet:'}</p>
+        <div className="grid grid-cols-2 gap-2.5 text-xs font-bold mb-4">
+          <div><label className="text-[10px] block mb-1">{isAr?'الوزن (Weight kg)':'Weight (kg)'}</label><input type="number" step="0.1" placeholder="0.0" className="w-full p-2 border rounded-xl" value={inbDraft.w??''} onChange={e=>setInbDraft({...inbDraft,w:e.target.value})}/></div>
+          <div><label className="text-[10px] block mb-1">{isAr?'العضلات (SMM kg)':'SMM (kg)'}</label><input type="number" step="0.1" placeholder="0.0" className="w-full p-2 border rounded-xl" value={inbDraft.smm??''} onChange={e=>setInbDraft({...inbDraft,smm:e.target.value})}/></div>
+          <div><label className="text-[10px] block mb-1">{isAr?'كتلة الدهون (BFM kg)':'Fat Mass (kg)'}</label><input type="number" step="0.1" placeholder="0.0" className="w-full p-2 border rounded-xl" value={inbDraft.bfm??''} onChange={e=>setInbDraft({...inbDraft,bfm:e.target.value})}/></div>
+          <div><label className="text-[10px] block mb-1">{isAr?'نسبة الدهون (PBF %)':'PBF (%)'}</label><input type="number" step="0.1" placeholder="0.0" className="w-full p-2 border rounded-xl" value={inbDraft.pbf??''} onChange={e=>setInbDraft({...inbDraft,pbf:e.target.value})}/></div>
+          <div><label className="text-[10px] block mb-1">{isAr?'معدل الحرق (BMR)':'BMR'}</label><input type="number" placeholder="0" className="w-full p-2 border rounded-xl" value={inbDraft.bmr??''} onChange={e=>setInbDraft({...inbDraft,bmr:e.target.value})}/></div>
+          <div><label className="text-[10px] block mb-1">{isAr?'الدهون الحشوية (VFL)':'Visceral Fat'}</label><input type="number" placeholder="0" className="w-full p-2 border rounded-xl" value={inbDraft.vfl??''} onChange={e=>setInbDraft({...inbDraft,vfl:e.target.value})}/></div>
+        </div>
+        <button onClick={()=>{let hist=[...(currentUser.inbodyHistory||[])];if(hist.length>0){hist[hist.length-1]={...hist[hist.length-1],...inbDraft};}else{hist=[{...inbDraft,date:new Date().toISOString().split('T')[0],img:currentUser.inbodyUrl}];}const nU={...currentUser,w:inbDraft.w||currentUser.w,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);setInbFormModal(false);}} className="w-full bg-brand text-white py-3 rounded-xl font-black text-xs cursor-pointer">{isAr?'اعتماد وحفظ التحليل ✔️':'Save Analysis ✔️'}</button>
+      </div>
+    </div>
+  )}
+
+  {showWModal&&(
+    <div className="fixed inset-0 bg-black/80 z-[80] flex items-center justify-center animate-zoom-in p-4">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 text-center relative shadow-2xl border-2 border-brand-gold">
+        <div className="text-6xl mb-3">🏆</div>
+        <h3 className="font-black text-2xl text-brand mb-2">{isAr?'مبروك يا بطلة!':'Congratulations!'}</h3>
+        <p className="text-xs font-bold text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{isAr?'أتممتِ تحدي الـ 30 يوم التزام بنجاح! أرسلي لكابتن روان الآن لاستلام تقييمك ومكافأتك.':'You completed the 30-day challenge!'}</p>
+        <button onClick={()=>{const nU={...currentUser,chDone:true};updateDB(nU);setShowWModal(false);window.open(`https://wa.me/2${ADMIN_PHONE}?text=${encodeURIComponent(`كابتن روان! أنا ${currentUser.n} وأتممت تحدي الـ 30 يوم التزام بنجاح! 🏆🎉`)}`,'_blank');}} className="w-full bg-gradient-to-r text-white py-3.5 rounded-xl font-black text-sm shadow-lg cursor-pointer">{isAr?'إرسال الإنجاز لكابتن روان 🎉':'Send Achievement to Coach Rawan 🎉'}</button>
+      </div>
+    </div>
+  )}
+
+  {showProfileModal&&(
+    <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center animate-zoom-in p-4">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-6 relative border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto custom-scroll">
+        <button onClick={()=>setShowProfileModal(false)} className="absolute top-4 left-4 bg-gray-100 dark:bg-slate-700 w-8 h-8 rounded-full font-bold">✕</button>
+        <h3 className="font-black text-base text-brand mb-3 text-center">📋 {isAr?'تعديل بياناتي الشخصية':'Edit My Profile'}</h3>
+        <div className="space-y-3 text-xs">
+          <div><label className="text-[10px] font-bold block mb-1">{txt.n}</label><input type="text" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.n||''} onChange={e=>setCurrentUser({...currentUser,n:e.target.value})}/></div>
+          <div><label className="text-[10px] font-bold block mb-1">{txt.ph} 📱</label><input type="tel" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={profileDraftPh} onChange={e=>setProfileDraftPh(e.target.value)}/></div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><label className="text-[10px] font-bold block mb-1">{txt.h} (cm)</label><input type="number" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.h||''} onChange={e=>setCurrentUser({...currentUser,h:e.target.value})}/></div>
+            <div><label className="text-[10px] font-bold block mb-1">{txt.w} (kg)</label><input type="number" step="0.1" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.w||''} onChange={e=>setCurrentUser({...currentUser,w:e.target.value})}/></div>
+          </div>
+          <div className="bg-gray-50 dark:bg-slate-900 p-2.5 rounded-xl border"><span className="text-[10px] text-gray-500 block mb-1">{txt.dob}</span><DateSelector value={currentUser.dob||'2000-01-01'} onChange={v=>setCurrentUser({...currentUser,dob:v})} isAr={isAr}/></div>
           <div><label className="text-[10px] font-bold block mb-1">{txt.emPh} 📞</label><input type="tel" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.emPh||''} onChange={e=>setCurrentUser({...currentUser,emPh:e.target.value})}/></div>
           <div><label className="text-[10px] font-bold block mb-1">{txt.job} 💼</label><input type="text" className="w-full p-2.5 rounded-xl border font-bold text-sm bg-input outline-none" value={currentUser.job||''} onChange={e=>setCurrentUser({...currentUser,job:e.target.value})}/></div>
         </div>
@@ -1082,3 +1210,4 @@ root.render(<App/>);
 </script>
 </body>
 </html>
+
