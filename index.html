@@ -366,12 +366,67 @@ const handleFileUp=async(e,targetClient,cb)=>{const file=e.target.files?.[0];if(
 const handleLoginExisting=()=>{const cleanPh=(fData.ph||'').trim();if(!cleanPh)return alert(txt.errReq);if(cleanPh===ADMIN_PHONE){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(err=>alert(err.message));return;}const ex=clients.find(c=>c.ph===cleanPh);if(ex){sessionStorage.setItem('elite_phone',ex.ph);setCurrentUser(ex);setProfileDraftPh(ex.ph||'');setView('client');setClientTab('home');triggerCelebration(['👑','💖','✨']);}else alert(txt.err);};
 const handleRegisterNew=()=>{const cleanPh=(fData.ph||'').trim();if(!fData.n||!cleanPh||!fData.dob)return alert(txt.errReq);if(clients.find(c=>c.ph===cleanPh))return alert(txt.errEx);uF('ph',cleanPh);nav('onboarding',2);};
 const finishOnb=()=>{let defIW=fData.h>105?fData.h-105:fData.h;const nc={...fData,id:fData.ph,regDate:new Date().toISOString().split('T')[0],status:'approved',iW:defIW};const updatedLocalDB=syncLocalDB(nc);setClients(updatedLocalDB);sessionStorage.setItem('elite_phone',nc.ph);setCurrentUser(nc);setProfileDraftPh(nc.ph);nav('client',1);setClientTab('home');triggerCelebration(['🎉','👑','💪','💖']);db.collection('elite_clients').doc(nc.ph).set(nc).catch(()=>{});};
-const updateDB = async (c, oldPh = null) => {   if (!c || !c.ph) return false;    try {     // في حالة تغيير رقم هاتف العميلة     if (oldPh && oldPh !== c.ph) {       await db.collection('elite_clients')         .doc(oldPh)         .delete();        await db.collection('elite_clients')         .doc(c.ph)         .set({ ...c, id: c.ph }, { merge: true });        let localDB = JSON.parse(         localStorage.getItem('gg_local_clients_db') || '[]'       ).filter(x => x.ph !== oldPh);        const newClient = { ...c, id: c.ph };       localDB = localDB.filter(x => x.ph !== c.ph);       localDB.push(newClient);        localStorage.setItem(         'gg_local_clients_db',         JSON.stringify(localDB)       );        setClients(localDB);        if (currentUser && currentUser.ph === oldPh) {         setCurrentUser(newClient);         sessionStorage.setItem('elite_phone', c.ph);       }        return true;     }      // حفظ بيانات العميلة على Firebase أولاً     await db.collection('elite_clients')       .doc(c.ph)       .set(c, { merge: true });      // تحديث النسخة المحلية بعد نجاح الحفظ     const updatedLocalDB = syncLocalDB(c);      setClients(updatedLocalDB);      if (currentUser && currentUser.ph === c.ph) {       setCurrentUser(c);     }      return true;    } catch (err) {     console.error('CLIENT SAVE ERROR:', err);      alert(       'فشل حفظ البيانات على السحابة!
-alert(
-  'فشل حفظ البيانات على السحابة!\n' +
-  'سبب المشكلة: ' + (err.message || err)
-);const updateAnn=()=>{db.collection('elite_clients').doc('system_ann').set({id:'system_ann',text:ann,tip:tip},{merge:true});alert(isAr?'تم نشر الإعلان للعميلات بنجاح! 🚀':'Published Successfully! 🚀');};
-const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts,sysConf},{merge:true}).then(()=>{alert(isAr?'تم حفظ الإعدادات بنجاح! 💾':'Settings Saved! 💾');setShowDotsEditor(false);setShowHoursModal(false);});};
+const updateDB = async (c, oldPh = null) => {
+  if (!c || !c.ph) return false;
+
+  try {
+    if (oldPh && oldPh !== c.ph) {
+      await db.collection('elite_clients')
+        .doc(oldPh)
+        .delete();
+
+      await db.collection('elite_clients')
+        .doc(c.ph)
+        .set({ ...c, id: c.ph }, { merge: true });
+
+      let localDB = JSON.parse(
+        localStorage.getItem('gg_local_clients_db') || '[]'
+      );
+
+      localDB = localDB.filter(x => x.ph !== oldPh && x.ph !== c.ph);
+      localDB.push({ ...c, id: c.ph });
+
+      localStorage.setItem(
+        'gg_local_clients_db',
+        JSON.stringify(localDB)
+      );
+
+      setClients(localDB);
+
+      if (currentUser && currentUser.ph === oldPh) {
+        setCurrentUser({ ...c, id: c.ph });
+        sessionStorage.setItem('elite_phone', c.ph);
+      }
+
+      return true;
+    }
+
+    await db.collection('elite_clients')
+      .doc(c.ph)
+      .set(c, { merge: true });
+
+    const updatedLocalDB = syncLocalDB(c);
+
+    setClients(updatedLocalDB);
+
+    if (currentUser && currentUser.ph === c.ph) {
+      setCurrentUser(c);
+    }
+
+    return true;
+
+  } catch (err) {
+    console.error('CLIENT SAVE ERROR:', err);
+
+    alert(
+      'فشل حفظ البيانات على السحابة!\n' +
+      'سبب المشكلة: ' + (err.message || err)
+    );
+
+    return false;
+  }
+};
+  const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts,sysConf},{merge:true}).then(()=>{alert(isAr?'تم حفظ الإعدادات بنجاح! 💾':'Settings Saved! 💾');setShowDotsEditor(false);setShowHoursModal(false);});};
 const handleImgClick=(e)=>{if(!adminActPt)return;const rect=e.currentTarget.getBoundingClientRect();const cx=e.type.includes('touch')?e.touches[0].clientX:e.clientX;const cy=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const x=Math.round(((cx-rect.left)/rect.width)*100);const y=Math.round(((cy-rect.top)/rect.height)*100);setMeasurePts(p=>p.map(pt=>pt.id===adminActPt?{...pt,l:x+'%',t:y+'%'}:pt));};
 const nav=(v,s)=>{setView(v);setStep(s);window.history.pushState({v,s},'');};
 const uF=(k,v)=>setFData(p=>({...p,[k]:v}));
