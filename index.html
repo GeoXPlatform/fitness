@@ -845,7 +845,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
         <label className="font-bold text-xs block mb-1">📝 {isAr?'ملاحظات الكابتن على الـ InBody والنظام الغذائي:':'Coach Notes on InBody & Nutrition:'}</label>
         <textarea placeholder={isAr?"اكتبي ملاحظاتك عن الحرق أو النصائح هنا...":"Write notes or tips here..."} className="w-full text-xs p-3 border rounded-xl font-bold outline-none" rows="2" value={editingClient.inbodyNotes||''} onChange={e=>setEditingClient(p=>({...p,inbodyNotes:e.target.value}))}/>
       </div>
-      {safeSch(editingClient.sch).map((d,i)=>{
+            {safeSch(editingClient.sch).map((d,i)=>{
         const gKey=editingClient.goal||'loss';
         const dPool=DB_DIET_SMART[gKey]?.[dtBuilderType]||DB_DIET_SMART.loss.brk;
         const appendMealToDay=(mealTypeKey,mealText)=>{
@@ -861,41 +861,40 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
           setDtBuilderCustom('');
         };
         return(
-          <div key={i} className={`p-3.5 rounded-2xl border space-y-2 ${d?.freeDay?'border-2 border-amber-400 bg-amber-50/30':'border-brand/30'}`}>
-            <div className="flex flex-wrap justify-between items-center gap-2">
-              <span className="font-black text-xs text-brand">📅 {txt.dWs[i]} {d?.freeDay?(isAr?'🍕 (يوم فري مفتوح)':'🍕 (Free Cheat Day)'):''}</span>
-              <div className="flex gap-1.5">
-                <button onClick={()=>setDtBuilderDay(dtBuilderDay===i?null:i)} className="px-2.5 py-1 rounded-xl font-black text-[10px] bg-emerald-600 text-white shadow cursor-pointer hover:scale-105 transition">➕ {isAr?'إضافة وجبة أو سناك مخصص':'Add Meal / Snack'}</button>
-                <button onClick={()=>{let s=[...safeSch(editingClient.sch)];const nextFree=!s[i]?.freeDay;s[i]={...s[i],freeDay:nextFree,diet:nextFree?'• إفطار: وجبة مفتوحة (يوم فري 🎉)\n• غداء: وجبة فري مفتوحة من اختياركِ 🍕🍔\n• عشاء: كوب زبادي لايت بالليمون للهضم\n• سناك: حلويات أو فاكهة مفضلة 🍰':s[i]?.diet||''};setEditingClient(p=>({...p,sch:s}));}} className={`px-2.5 py-1 rounded-xl font-black text-[10px] cursor-pointer transition ${d?.freeDay?'bg-amber-500 text-white shadow':'bg-gray-100 text-gray-700 border'}`}>🍕 {d?.freeDay?(isAr?'إلغاء اليوم الفري':'Cancel Free Day'):(isAr?'يوم فري':'Free Day')}</button>
+          <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.freeDay?'border-amber-400 bg-amber-50/30':'border-brand/30 bg-white'}`}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5 border-b pb-2.5">
+              <span className="font-black text-base text-brand flex items-center gap-1.5">📅 {txt.dWs[i]} {d?.freeDay?(isAr?'🍕 (يوم فري مفتوح)':'🍕 (Free Cheat Day)'):''}</span>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button onClick={()=>setDtBuilderDay(dtBuilderDay===i?null:i)} className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-md cursor-pointer hover:scale-[1.01] transition">➕ {isAr?'إضافة وجبة أو سناك':'Add Meal / Snack'}</button>
+                <button onClick={()=>{let s=[...safeSch(editingClient.sch)];const nextFree=!s[i]?.freeDay;s[i]={...s[i],freeDay:nextFree,diet:nextFree?'• إفطار: وجبة مفتوحة (يوم فري 🎉)\n• غداء: وجبة فري مفتوحة من اختياركِ 🍕🍔\n• عشاء: كوب زبادي لايت بالليمون للهضم\n• سناك: حلويات أو فاكهة مفضلة 🍰':s[i]?.diet||''};setEditingClient(p=>({...p,sch:s}));}} className={`py-2.5 px-3 rounded-xl font-black text-xs cursor-pointer transition shrink-0 ${d?.freeDay?'bg-amber-500 text-white shadow':'bg-gray-100 text-gray-700 border'}`}>🍕 {d?.freeDay?(isAr?'إلغاء الفري':'Cancel Free'):(isAr?'يوم فري':'Free Day')}</button>
               </div>
             </div>
             {dtBuilderDay===i&&(
-              <div className="p-3 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/50 space-y-2 animate-zoom-in">
-                <div className="grid grid-cols-4 gap-1">
+              <div className="p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-slate-800 border-2 border-emerald-400/60 space-y-3 animate-zoom-in overflow-hidden">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                   {[{k:'brk',lAr:'🌅 الفطار',lEn:'🌅 Breakfast'},{k:'lun',lAr:'☀️ الغداء',lEn:'☀️ Lunch'},{k:'din',lAr:'🌙 العشاء',lEn:'🌙 Dinner'},{k:'snk',lAr:'🍿 سناك',lEn:'🍿 Snack'}].map(mt=>(
-                    <button key={mt.k} onClick={()=>{setDtBuilderType(mt.k);setDtBuilderSelected('');}} className={`py-1.5 rounded-lg font-black text-[10px] border cursor-pointer ${dtBuilderType===mt.k?'bg-emerald-600 text-white border-emerald-700':'bg-white text-gray-700'}`}>{isAr?mt.lAr:mt.lEn}</button>
+                    <button key={mt.k} onClick={()=>{setDtBuilderType(mt.k);setDtBuilderSelected('');}} className={`py-2 rounded-xl font-black text-xs border cursor-pointer transition ${dtBuilderType===mt.k?'bg-emerald-600 text-white border-emerald-700 shadow':'bg-white text-gray-700'}`}>{isAr?mt.lAr:mt.lEn}</button>
                   ))}
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-emerald-800 mb-1">{isAr?'1. اختاري من الوجبات الجاهزة:':'1. Pick from ready meals:'}</label>
-                  <div className="flex gap-1.5">
-                    <select className="flex-1 p-2 rounded-xl border text-[10px] font-bold bg-white outline-none" value={dtBuilderSelected} onChange={e=>setDtBuilderSelected(e.target.value)}>
-                      <option value="">{isAr?'-- اختاري وجبة من القائمة --':'-- Select a meal --'}</option>
-                      {dPool.map((m,idx)=><option key={idx} value={m}>{stripDietCalorieTags(m)}</option>)}
-                    </select>
-                    <button onClick={()=>{if(dtBuilderSelected)appendMealToDay(dtBuilderType,dtBuilderSelected);}} className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black text-[10px] cursor-pointer shrink-0">{isAr?'إضافة ➕':'Add ➕'}</button>
-                  </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-black text-emerald-800 dark:text-emerald-300">{isAr?'1. اختاري من الوجبات الجاهزة:':'1. Pick from ready meals:'}</label>
+                  <select className="w-full max-w-full p-3 rounded-xl border-2 border-emerald-300 text-xs font-black bg-white outline-none truncate" value={dtBuilderSelected} onChange={e=>setDtBuilderSelected(e.target.value)}>
+                    <option value="">{isAr?'-- اضغطي هنا لاختيار وجبة جاهزة --':'-- Tap to select a meal --'}</option>
+                    {dPool.map((m,idx)=>{const cl=stripDietCalorieTags(m);return(<option key={idx} value={m}>{cl.length>62?cl.slice(0,62)+'...':cl}</option>);})}
+                  </select>
+                  {dtBuilderSelected&&(
+                    <div className="p-2.5 rounded-xl bg-white border text-[11px] font-bold text-gray-700 leading-relaxed">{stripDietCalorieTags(dtBuilderSelected)}</div>
+                  )}
+                  <button onClick={()=>{if(dtBuilderSelected)appendMealToDay(dtBuilderType,dtBuilderSelected);}} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">➕ {isAr?'إدراج الوجبة المختارة في الجدول ✔️':'Insert Selected Meal ✔️'}</button>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-emerald-800 mb-1">{isAr?'2. أو اكتبي وجبة / سناك من عندكِ:':'2. Or write your own custom meal / snack:'}</label>
-                  <div className="flex gap-1.5">
-                    <input type="text" placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا...":"Type custom meal details..."} className="flex-1 p-2 rounded-xl border text-[11px] font-bold bg-white outline-none" value={dtBuilderCustom} onChange={e=>setDtBuilderCustom(e.target.value)}/>
-                    <button onClick={()=>{if(dtBuilderCustom)appendMealToDay(dtBuilderType,dtBuilderCustom);}} className="bg-brand text-white px-3 py-1.5 rounded-xl font-black text-[10px] cursor-pointer shrink-0">{isAr?'إضافة المكتوب ✔️':'Add Custom ✔️'}</button>
-                  </div>
+                <div className="space-y-2 border-t border-emerald-200 pt-2.5">
+                  <label className="block text-xs font-black text-emerald-800 dark:text-emerald-300">{isAr?'2. أو اكتبي وجبة / سناك من عندكِ:':'2. Or write your own custom meal / snack:'}</label>
+                  <input type="text" placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا بحرية...":"Type custom meal details..."} className="w-full p-3 rounded-xl border-2 border-brand/40 text-xs font-bold bg-white outline-none" value={dtBuilderCustom} onChange={e=>setDtBuilderCustom(e.target.value)}/>
+                  <button onClick={()=>{if(dtBuilderCustom)appendMealToDay(dtBuilderType,dtBuilderCustom);}} className="w-full bg-brand text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">✍️ {isAr?'إضافة الوجبة المكتوبة لليوم ✔️':'Add Custom Written Meal ✔️'}</button>
                 </div>
               </div>
             )}
-            <textarea placeholder={isAr?"الوجبات (إفطار، غداء، عشاء، سناك - كل وجبة في سطر)...":"Meals (Breakfast, Lunch, Dinner, Snack - one per line)..."} className="w-full text-xs p-2.5 border rounded-xl font-bold outline-none" rows="4" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],diet:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
+            <textarea placeholder={isAr?"الوجبات (إفطار، غداء، عشاء، سناك - كل وجبة في سطر)...":"Meals (Breakfast, Lunch, Dinner, Snack - one per line)..."} className="w-full text-xs p-3 border-2 rounded-2xl font-bold outline-none leading-relaxed" rows="5" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],diet:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
           </div>
         );
       })}
@@ -921,65 +920,65 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
       </div>
     </div>
 
-    <div className="p-4 rounded-2xl border-2 border-cyan-500/30 bg-cyan-50/20">
+        <div className="p-4 rounded-2xl border-2 border-cyan-500/30 bg-cyan-50/20">
       <div className="flex flex-wrap justify-between items-center mb-3 gap-2">
         <h3 className="font-black text-sm text-cyan-700">🧘‍♀️ {isAr?'2. اختبار المرونة والمفاصل (عام أو يمين وشمال)':'2. Flexibility & Mobility Test (General or Right & Left)'}</h3>
-        <div className="flex items-center gap-1"><span className="text-[11px] font-bold">{isAr?'تقييم المرونة العام:':'Overall Flexibility:'}</span>{['Poor','Good','Excellent'].map(r=>(<button key={r} onClick={()=>setEditingClient(p=>({...p,flexOverall:r}))} className={`px-3 py-1 rounded-lg font-black text-xs cursor-pointer border ${(editingClient.flexOverall||'Good')===r?(r==='Excellent'?'bg-emerald-500 text-white':r==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{r}</button>))}</div>
+        <div className="flex items-center gap-1"><span className="text-[11px] font-bold">{isAr?'تقييم المرونة العام:':'Overall Flexibility:'}</span>{['Poor','Good','Excellent'].map(r=>(<button key={r} onClick={()=>setEditingClient(p=>({...p,flexOverall:r}))} className={`px-2.5 py-1 rounded-lg font-black text-[11px] cursor-pointer border ${(editingClient.flexOverall||'Good')===r?(r==='Excellent'?'bg-emerald-500 text-white':r==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{r}</button>))}</div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {FLEXIBILITY_TESTS.map(item=>{
           const cur=editingClient.flexTest?.[item.id]||{mode:'general',pass:null,rate:'Good',note:'',passR:null,rateR:'Good',noteR:'',passL:null,rateL:'Good',noteL:''};
           const mode=cur.mode||'general';
           const updateFlex=(patch)=>setEditingClient(p=>({...p,flexTest:{...(p.flexTest||{}),[item.id]:{...cur,...patch}}}));
           return(
-            <div key={item.id} className="bg-white p-3.5 rounded-2xl border flex flex-col gap-2.5 shadow-sm">
-              <div className="flex flex-wrap justify-between items-center gap-1 border-b pb-2">
+            <div key={item.id} className="bg-white p-3.5 rounded-2xl border flex flex-col gap-3 shadow-sm">
+              <div className="flex flex-wrap justify-between items-center gap-1.5 border-b pb-2.5">
                 <span className="font-black text-xs text-gray-800">{isAr?item.nAr:item.nEn}</span>
-                <div className="flex bg-gray-100 p-0.5 rounded-lg border">
-                  <button onClick={()=>updateFlex({mode:'general'})} className={`px-2 py-0.5 rounded-md text-[9px] font-black cursor-pointer transition ${mode==='general'?'bg-cyan-600 text-white shadow-sm':'text-gray-600'}`}>{isAr?'عام':'General'}</button>
-                  <button onClick={()=>updateFlex({mode:'rl'})} className={`px-2 py-0.5 rounded-md text-[9px] font-black cursor-pointer transition ${mode==='rl'?'bg-brand text-white shadow-sm':'text-gray-600'}`}>{isAr?'يمين وشمال':'Right & Left'}</button>
+                <div className="flex bg-gray-100 p-0.5 rounded-xl border">
+                  <button onClick={()=>updateFlex({mode:'general'})} className={`px-3 py-1 rounded-lg text-[10px] font-black cursor-pointer transition ${mode==='general'?'bg-cyan-600 text-white shadow-sm':'text-gray-600'}`}>{isAr?'عام':'General'}</button>
+                  <button onClick={()=>updateFlex({mode:'rl'})} className={`px-3 py-1 rounded-lg text-[10px] font-black cursor-pointer transition ${mode==='rl'?'bg-brand text-white shadow-sm':'text-gray-600'}`}>{isAr?'يمين وشمال':'Right & Left'}</button>
                 </div>
               </div>
               {mode==='general'?(
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center gap-2">
-                    <div className="flex gap-1">
-                      <button onClick={()=>updateFlex({pass:true})} className={`w-8 h-8 rounded-lg font-black flex items-center justify-center border cursor-pointer ${cur.pass===true?'bg-emerald-500 text-white border-emerald-600':'bg-gray-50'}`}>{cur.pass===true?<WhiteCheckIcon/>:<GreenCheckIcon/>}</button>
-                      <button onClick={()=>updateFlex({pass:false})} className={`w-8 h-8 rounded-lg font-black flex items-center justify-center border cursor-pointer ${cur.pass===false?'bg-red-500 text-white border-red-600':'bg-gray-50 text-red-500'}`}>✕</button>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex gap-1.5 shrink-0">
+                      <button onClick={()=>updateFlex({pass:true})} className={`w-9 h-9 rounded-xl font-black flex items-center justify-center border cursor-pointer ${cur.pass===true?'bg-emerald-500 text-white border-emerald-600':'bg-gray-50'}`}>{cur.pass===true?<WhiteCheckIcon/>:<GreenCheckIcon/>}</button>
+                      <button onClick={()=>updateFlex({pass:false})} className={`w-9 h-9 rounded-xl font-black flex items-center justify-center border cursor-pointer ${cur.pass===false?'bg-red-500 text-white border-red-600':'bg-gray-50 text-red-500'}`}>✕</button>
                     </div>
-                    <div className="grid grid-cols-3 gap-1 flex-1">
-                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rate:lvl})} className={`py-1 rounded-lg font-black text-[10px] border cursor-pointer ${cur.rate===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-gray-50'}`}>{lvl}</button>))}
+                    <div className="grid grid-cols-3 gap-1.5 flex-1">
+                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rate:lvl})} className={`py-2 px-1 rounded-xl font-black text-[10px] text-center truncate border cursor-pointer ${cur.rate===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-gray-50'}`}>{lvl}</button>))}
                     </div>
                   </div>
-                  <input type="text" placeholder={isAr?"ملاحظات أو درجة المرونة...":"Notes or degree..."} className="w-full p-1.5 rounded-lg border text-[10px] font-bold bg-gray-50 outline-none" value={cur.note||''} onChange={e=>updateFlex({note:e.target.value})}/>
+                  <input type="text" placeholder={isAr?"ملاحظات أو درجة المرونة...":"Notes or degree..."} className="w-full p-2 rounded-xl border text-xs font-bold bg-gray-50 outline-none" value={cur.note||''} onChange={e=>updateFlex({note:e.target.value})}/>
                 </div>
               ):(
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 rounded-xl bg-pink-50/40 border border-pink-200 space-y-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="p-3 rounded-xl bg-pink-50/40 border border-pink-200 space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="font-black text-[10px] text-brand">➡️ {isAr?'يمين (Right)':'Right'}</span>
-                      <div className="flex gap-1">
-                        <button onClick={()=>updateFlex({passR:true})} className={`w-6 h-6 rounded font-black text-[10px] flex items-center justify-center border cursor-pointer ${cur.passR===true?'bg-emerald-500 text-white':'bg-white'}`}>✓</button>
-                        <button onClick={()=>updateFlex({passR:false})} className={`w-6 h-6 rounded font-black text-[10px] flex items-center justify-center border cursor-pointer ${cur.passR===false?'bg-red-500 text-white':'bg-white text-red-500'}`}>✕</button>
+                      <span className="font-black text-xs text-brand">➡️ {isAr?'يمين (Right)':'Right'}</span>
+                      <div className="flex gap-1.5">
+                        <button onClick={()=>updateFlex({passR:true})} className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center border cursor-pointer ${cur.passR===true?'bg-emerald-500 text-white':'bg-white'}`}>✓</button>
+                        <button onClick={()=>updateFlex({passR:false})} className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center border cursor-pointer ${cur.passR===false?'bg-red-500 text-white':'bg-white text-red-500'}`}>✕</button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-0.5">
-                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rateR:lvl})} className={`py-0.5 rounded font-black text-[8.5px] border cursor-pointer ${(cur.rateR||'Good')===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{lvl}</button>))}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rateR:lvl})} className={`py-1.5 px-1 rounded-lg font-black text-[10px] text-center truncate border cursor-pointer ${(cur.rateR||'Good')===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{lvl}</button>))}
                     </div>
-                    <input type="text" placeholder={isAr?"اكتبي تقييم اليمين...":"Right note..."} className="w-full p-1 rounded border text-[9.5px] font-bold bg-white outline-none" value={cur.noteR||''} onChange={e=>updateFlex({noteR:e.target.value})}/>
+                    <input type="text" placeholder={isAr?"اكتبي تقييم اليمين...":"Right note..."} className="w-full p-2 rounded-lg border text-[11px] font-bold bg-white outline-none" value={cur.noteR||''} onChange={e=>updateFlex({noteR:e.target.value})}/>
                   </div>
-                  <div className="p-2 rounded-xl bg-cyan-50/40 border border-cyan-200 space-y-1.5">
+                  <div className="p-3 rounded-xl bg-cyan-50/40 border border-cyan-200 space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="font-black text-[10px] text-cyan-700">⬅️ {isAr?'شمال (Left)':'Left'}</span>
-                      <div className="flex gap-1">
-                        <button onClick={()=>updateFlex({passL:true})} className={`w-6 h-6 rounded font-black text-[10px] flex items-center justify-center border cursor-pointer ${cur.passL===true?'bg-emerald-500 text-white':'bg-white'}`}>✓</button>
-                        <button onClick={()=>updateFlex({passL:false})} className={`w-6 h-6 rounded font-black text-[10px] flex items-center justify-center border cursor-pointer ${cur.passL===false?'bg-red-500 text-white':'bg-white text-red-500'}`}>✕</button>
+                      <span className="font-black text-xs text-cyan-700">⬅️ {isAr?'شمال (Left)':'Left'}</span>
+                      <div className="flex gap-1.5">
+                        <button onClick={()=>updateFlex({passL:true})} className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center border cursor-pointer ${cur.passL===true?'bg-emerald-500 text-white':'bg-white'}`}>✓</button>
+                        <button onClick={()=>updateFlex({passL:false})} className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center border cursor-pointer ${cur.passL===false?'bg-red-500 text-white':'bg-white text-red-500'}`}>✕</button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-0.5">
-                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rateL:lvl})} className={`py-0.5 rounded font-black text-[8.5px] border cursor-pointer ${(cur.rateL||'Good')===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{lvl}</button>))}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {['Poor','Good','Excellent'].map(lvl=>(<button key={lvl} onClick={()=>updateFlex({rateL:lvl})} className={`py-1.5 px-1 rounded-lg font-black text-[10px] text-center truncate border cursor-pointer ${(cur.rateL||'Good')===lvl?(lvl==='Excellent'?'bg-emerald-500 text-white':lvl==='Good'?'bg-blue-500 text-white':'bg-red-500 text-white'):'bg-white'}`}>{lvl}</button>))}
                     </div>
-                    <input type="text" placeholder={isAr?"اكتبي تقييم الشمال...":"Left note..."} className="w-full p-1 rounded border text-[9.5px] font-bold bg-white outline-none" value={cur.noteL||''} onChange={e=>updateFlex({noteL:e.target.value})}/>
+                    <input type="text" placeholder={isAr?"اكتبي تقييم الشمال...":"Left note..."} className="w-full p-2 rounded-lg border text-[11px] font-bold bg-white outline-none" value={cur.noteL||''} onChange={e=>updateFlex({noteL:e.target.value})}/>
                   </div>
                 </div>
               )}
@@ -988,7 +987,6 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
         })}
       </div>
     </div>
-  </div>
 )}
 
 {adminTab==='work'&&(
@@ -1016,7 +1014,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
       <button onClick={genSmartWorkoutOnly} className="w-full bg-gradient-to-r text-white p-3 rounded-xl text-xs font-black shadow-md hover:scale-[1.01] transition cursor-pointer">💪 {isAr?'توليد جدول التمارين الذكي تلقائياً (أو أضيفي وعدلي يدوياً بالأسفل) ⚡':'Auto-Generate Smart Workout Plan ⚡'}</button>
     </div>
 
-    <div className="space-y-3 max-h-[460px] overflow-y-auto px-1 custom-scroll">
+      <div className="space-y-4 max-h-[520px] overflow-y-auto px-1 custom-scroll">
       {safeSch(editingClient.sch).map((d,i)=>{
         const spFound=SPLIT_PARTS.find(sp=>sp.id===(d.split||'full'));
         const curPool=wkBuilderCat==='warmup'?ALL_WARMUPS_POOL:wkBuilderCat==='gym'?ALL_GYM_POOL:ALL_HOME_POOL;
@@ -1034,52 +1032,51 @@ if(view==='admin'){return(<div className={`min-h-screen p-4 pb-16 ${isAr?'font-a
           setWkBuilderGentleAlt('');
         };
         return(
-          <div key={i} className={`p-3.5 rounded-2xl border space-y-2 ${d?.active?'border-brand':'border-gray-200'}`}>
-            <div className="flex flex-wrap justify-between items-center gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-black text-xs">{txt.dWs[i]} {d?.active?(isAr?'💪 (يوم تمرين)':'💪 (Workout Day)'):(isAr?'🌿 (يوم راحة)':'🌿 (Rest Day)')}</span>
-                {d?.active&&<span className="text-[10px] font-black bg-brand/10 text-brand px-2.5 py-0.5 rounded-full">{isAr?spFound?.ar:spFound?.en}</span>}
-              </div>
-              <div className="flex gap-1.5">
-                <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='warmup'?null:i);setWkBuilderCat('warmup');setWkBuilderSelected('');}} className="bg-orange-500 text-white px-2.5 py-1 rounded-xl font-black text-[10px] shadow cursor-pointer hover:scale-105 transition">🔥 {isAr?'+ إطالات وتسخين':'+ Warm-up'}</button>
-                <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='gym'?null:i);setWkBuilderCat('gym');setWkBuilderSelected('');}} className="bg-blue-600 text-white px-2.5 py-1 rounded-xl font-black text-[10px] shadow cursor-pointer hover:scale-105 transition">🏋️‍♀️ {isAr?'+ تمرين جيم':'+ Gym Ex'}</button>
-                <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='home'?null:i);setWkBuilderCat('home');setWkBuilderSelected('');}} className="bg-emerald-600 text-white px-2.5 py-1 rounded-xl font-black text-[10px] shadow cursor-pointer hover:scale-105 transition">🏠 {isAr?'+ تمرين منزل':'+ Home Ex'}</button>
-              </div>
+          <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.active?'border-brand bg-white':'border-gray-200 bg-gray-50/50'}`}>
+            <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-2.5">
+              <span className="font-black text-base text-brand">📅 {txt.dWs[i]} {d?.active?(isAr?'💪 (يوم تمرين)':'💪 (Workout Day)'):(isAr?'🌿 (يوم راحة)':'🌿 (Rest Day)')}</span>
+              {d?.active&&<span className="text-xs font-black bg-brand/10 text-brand px-3 py-1 rounded-full">{isAr?spFound?.ar:spFound?.en}</span>}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='warmup'?null:i);setWkBuilderCat('warmup');setWkBuilderSelected('');}} className={`py-2.5 px-2 rounded-xl font-black text-xs shadow cursor-pointer transition text-center ${wkBuilderDay===i&&wkBuilderCat==='warmup'?'bg-orange-600 text-white ring-2 ring-orange-300':'bg-orange-500 text-white'}`}>🔥 {isAr?'+ إطالات':'+ Warm-up'}</button>
+              <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='gym'?null:i);setWkBuilderCat('gym');setWkBuilderSelected('');}} className={`py-2.5 px-2 rounded-xl font-black text-xs shadow cursor-pointer transition text-center ${wkBuilderDay===i&&wkBuilderCat==='gym'?'bg-blue-700 text-white ring-2 ring-blue-300':'bg-blue-600 text-white'}`}>🏋️‍♀️ {isAr?'+ تمرين جيم':'+ Gym Ex'}</button>
+              <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='home'?null:i);setWkBuilderCat('home');setWkBuilderSelected('');}} className={`py-2.5 px-2 rounded-xl font-black text-xs shadow cursor-pointer transition text-center ${wkBuilderDay===i&&wkBuilderCat==='home'?'bg-emerald-700 text-white ring-2 ring-emerald-300':'bg-emerald-600 text-white'}`}>🏠 {isAr?'+ تمرين منزل':'+ Home Ex'}</button>
             </div>
 
             {wkBuilderDay===i&&(
-              <div className="p-3 rounded-2xl bg-pink-50/70 border-2 border-brand/40 space-y-2.5 animate-zoom-in">
-                <div className="flex justify-between items-center">
-                  <span className="font-black text-[11px] text-brand">
+              <div className="p-3.5 rounded-2xl bg-pink-50/80 dark:bg-slate-800 border-2 border-brand/50 space-y-3 animate-zoom-in overflow-hidden">
+                <div className="flex justify-between items-center border-b border-pink-200 pb-2">
+                  <span className="font-black text-xs text-brand">
                     {wkBuilderCat==='warmup'?(isAr?'🔥 إضافة إطالات وتسخين لليوم':'🔥 Add Warm-up / Stretch'):wkBuilderCat==='gym'?(isAr?'🏋️‍♀️ إضافة تمرين جيم (بالأجهزة)':'🏋️‍♀️ Add Gym Exercise'):(isAr?'🏠 إضافة تمرين منزل (بدون أجهزة)':'🏠 Add Home Exercise')}
                   </span>
-                  <button onClick={()=>setWkBuilderDay(null)} className="text-xs font-black text-gray-500">✕</button>
+                  <button onClick={()=>setWkBuilderDay(null)} className="w-7 h-7 rounded-full bg-white text-xs font-black text-gray-600 flex items-center justify-center shadow-sm">✕</button>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-gray-700 mb-1">{isAr?'1. اختاري التمرين من القائمة أو اكتبي تمريناً جديداً بالأسفل:':'1. Select from list or type custom exercise below:'}</label>
-                  <select className="w-full p-2 rounded-xl border text-[10px] font-bold bg-white outline-none mb-1.5" value={wkBuilderSelected} onChange={e=>{setWkBuilderSelected(e.target.value);setWkBuilderCustom(e.target.value);}}>
-                    <option value="">{isAr?'-- اختاري من التمارين المتاحة --':'-- Select Exercise --'}</option>
-                    {curPool.map((ex,idx)=><option key={idx} value={ex}>{ex}</option>)}
+                <div className="space-y-2">
+                  <label className="block text-xs font-black text-gray-700 dark:text-gray-200">{isAr?'1. اختاري تمريناً جاهزاً أو اكتبي تمريناً جديداً:':'1. Select from list or type custom exercise:'}</label>
+                  <select className="w-full max-w-full p-3 rounded-xl border-2 border-brand/30 text-xs font-black bg-white outline-none truncate" value={wkBuilderSelected} onChange={e=>{setWkBuilderSelected(e.target.value);setWkBuilderCustom(e.target.value);}}>
+                    <option value="">{isAr?'-- اضغطي لاختيار تمرين من القائمة --':'-- Select Exercise --'}</option>
+                    {curPool.map((ex,idx)=><option key={idx} value={ex}>{ex.length>60?ex.slice(0,60)+'...':ex}</option>)}
                   </select>
-                  <input type="text" placeholder={isAr?"أو اكتبي اسم التمرين والعدات هنا بحرية (مثلاً: سكوات حر 4x15)...":"Or type custom exercise & reps here..."} className="w-full p-2 rounded-xl border text-[11px] font-bold bg-white outline-none" value={wkBuilderCustom} onChange={e=>setWkBuilderCustom(e.target.value)}/>
+                  <input type="text" placeholder={isAr?"أو اكتبي اسم التمرين والعدات هنا بحرية (مثلاً: سكوات 4x15)...":"Or type custom exercise & reps here..."} className="w-full p-3 rounded-xl border-2 border-brand/40 text-xs font-bold bg-white outline-none" value={wkBuilderCustom} onChange={e=>setWkBuilderCustom(e.target.value)}/>
                 </div>
-                <div className="bg-white p-2.5 rounded-xl border border-pink-300">
-                  <label className="block text-[10px] font-black text-pink-600 mb-1">🌸 {isAr?'2. بديل هذا التمرين في حالة تفعيل (وضع الهدوء) - اختياري:':'2. Gentle Mode Alternative (Optional):'}</label>
-                  <select className="w-full p-1.5 rounded-lg border text-[10px] font-bold bg-pink-50/40 outline-none mb-1.5" value="" onChange={e=>{if(e.target.value)setWkBuilderGentleAlt(e.target.value);}}>
-                    <option value="">{isAr?'-- اختاري بديلاً هادئاً جاهزاً أو اكتبيه بالأسفل --':'-- Pick ready gentle alternative or type below --'}</option>
-                    {GENTLE_ALTS_POOL.map((gAlt,idx)=><option key={idx} value={gAlt}>{gAlt}</option>)}
+                <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-pink-300 space-y-2">
+                  <label className="block text-xs font-black text-pink-600">🌸 {isAr?'2. بديل هذا التمرين في حالة تفعيل (وضع الهدوء) - اختياري:':'2. Gentle Mode Alternative (Optional):'}</label>
+                  <select className="w-full max-w-full p-2.5 rounded-xl border text-xs font-bold bg-pink-50/40 outline-none truncate" value="" onChange={e=>{if(e.target.value)setWkBuilderGentleAlt(e.target.value);}}>
+                    <option value="">{isAr?'-- اختاري بديلاً هادئاً جاهزاً أو اكتبيه بالأسفل --':'-- Pick ready gentle alternative --'}</option>
+                    {GENTLE_ALTS_POOL.map((gAlt,idx)=><option key={idx} value={gAlt}>{gAlt.length>58?gAlt.slice(0,58)+'...':gAlt}</option>)}
                   </select>
-                  <input type="text" placeholder={isAr?"اكتبي البديل الهادئ المخصص لهذا التمرين (أو اتركيه للبديل التلقائي)...":"Type custom gentle alternative..."} className="w-full p-1.5 rounded-lg border text-[10px] font-bold bg-white outline-none" value={wkBuilderGentleAlt} onChange={e=>setWkBuilderGentleAlt(e.target.value)}/>
+                  <input type="text" placeholder={isAr?"اكتبي البديل الهادئ المخصص لهذا التمرين (أو اتركيه للبديل التلقائي)...":"Type custom gentle alternative..."} className="w-full p-2.5 rounded-xl border text-xs font-bold bg-white outline-none" value={wkBuilderGentleAlt} onChange={e=>setWkBuilderGentleAlt(e.target.value)}/>
                 </div>
-                <button onClick={()=>{if(wkBuilderCustom||wkBuilderSelected)appendExerciseToDay(wkBuilderCat,wkBuilderCustom||wkBuilderSelected,wkBuilderGentleAlt);}} className="w-full bg-gradient-to-r text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">➕ {isAr?'إدراج التمرين في جدول هذا اليوم ✔️':'Insert Exercise into Day Plan ✔️'}</button>
+                <button onClick={()=>{if(wkBuilderCustom||wkBuilderSelected)appendExerciseToDay(wkBuilderCat,wkBuilderCustom||wkBuilderSelected,wkBuilderGentleAlt);}} className="w-full bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer">➕ {isAr?'إدراج التمرين في جدول هذا اليوم ✔️':'Insert Exercise into Day Plan ✔️'}</button>
               </div>
             )}
 
-            <textarea placeholder={isAr?"التمارين (كل تمرين في سطر - يمكنك التعديل أو الكتابة اليدوية بحرية وستظهر فوراً للعميلة)...":"Exercises (one per line)..."} className="w-full text-xs p-2.5 border rounded-xl font-bold outline-none" rows="5" value={d?.workout||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],active:true,workout:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
+            <textarea placeholder={isAr?"التمارين (كل تمرين في سطر - يمكنك التعديل أو الكتابة اليدوية بحرية وستظهر فوراً للعميلة)...":"Exercises (one per line)..."} className="w-full text-xs p-3 border-2 rounded-2xl font-bold outline-none leading-relaxed" rows="6" value={d?.workout||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],active:true,workout:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
           </div>
         );
       })}
-    </div>
+    </div>  
   </div>
 )}
 
