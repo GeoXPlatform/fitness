@@ -561,6 +561,20 @@ const unsub=db.collection('elite_clients').onSnapshot(s=>{
   }
 },()=>{console.warn('Firebase offline, relying on local DB');});
 const unregAuth=auth.onAuthStateChanged(user=>{if(user){if(ADMIN_EMAILS.includes(user.email)){sessionStorage.setItem('elite_phone',ADMIN_PHONE);setView('admin');if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission().catch(()=>{});}}else{auth.signOut();alert(isAr?'غير مصرح لكِ بالدخول كأدمن.':'Not authorized.');}}});
+const handlePopState=(event)=>{
+  if(event.state){
+    setView(event.state.v||'login');
+    if(event.state.v==='client'){
+      setClientTab(event.state.tab||'home');
+    }
+    setStep(event.state.s||1);
+    if(!event.state.mod){
+      setEditingClient(null);
+      setShowDotsEditor(false);
+    }
+  }
+};
+window.addEventListener('popstate',handlePopState);
 const handlePopState=(event)=>{if(event.state){setView(event.state.v||'login');setStep(event.state.s||1);if(!event.state.mod){setEditingClient(null);setShowDotsEditor(false);}}};
 window.addEventListener('popstate',handlePopState);
 return()=>{unsub();unregAuth();window.removeEventListener('popstate',handlePopState);audioRef.current.pause();};
@@ -673,6 +687,16 @@ const updateAnn=()=>{db.collection('elite_clients').doc('system_ann').set({id:'s
 const savePts=()=>{db.collection('elite_clients').doc('system_config').set({id:'system_config',measurePts,sysConf},{merge:true}).then(()=>{alert(isAr?'تم حفظ الإعدادات بنجاح! 💾':'Settings Saved! 💾');setShowDotsEditor(false);setShowHoursModal(false);});};
 const handleImgClick=(e)=>{if(!adminActPt)return;const rect=e.currentTarget.getBoundingClientRect();const cx=e.type.includes('touch')?e.touches[0].clientX:e.clientX;const cy=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const x=Math.round(((cx-rect.left)/rect.width)*100);const y=Math.round(((cy-rect.top)/rect.height)*100);setMeasurePts(p=>p.map(pt=>pt.id===adminActPt?{...pt,l:x+'%',t:y+'%'}:pt));};
 const nav=(v,s)=>{setView(v);setStep(s);window.history.pushState({v,s},'');};
+
+// دالة التنقل بين تبويبات العميلة مع حفظ الحالة للرجوع
+const changeClientTab=(tabName)=>{
+  setClientTab(tabName);
+  window.history.pushState({v:'client',tab:tabName,s:1},'');
+};
+const changeClientTab=(tabName)=>{
+  setClientTab(tabName);
+  window.history.pushState({v:'client',tab:tabName,s:1},'');
+};
 const uF=(k,v)=>setFData(p=>({...p,[k]:v}));
 const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter(x=>x!==i):[...fData.injuries,i]);
 const logout=()=>{sessionStorage.removeItem('elite_phone');audioRef.current.pause();if(auth.currentUser)auth.signOut().then(()=>window.location.reload());else window.location.reload();};
@@ -1793,10 +1817,10 @@ return(
   )}
 
   <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-[0_-5px_20px_rgba(0,0,0,0.06)] flex justify-around p-2 z-40">
-    <button onClick={()=>setClientTab('home')} className={`nav-btn ${clientTab==='home'?'active':''}`}><span className="icon">🏠</span><span>{txt.tHm}</span></button>
-    <button onClick={()=>setClientTab('workout')} className={`nav-btn ${clientTab==='workout'?'active':''}`}><span className="icon">💪</span><span>{txt.tEx}</span></button>
-    <button onClick={()=>setClientTab('diet')} className={`nav-btn ${clientTab==='diet'?'active':''}`}><span className="icon">🥗</span><span>{txt.tDt}</span></button>
-    <button onClick={()=>setClientTab('settings')} className={`nav-btn ${clientTab==='settings'?'active':''}`}><span className="icon">⚙️</span><span>{txt.tSet}</span></button>
+    <button onClick={()=>changeClientTab('home')} className={`nav-btn ${clientTab==='home'?'active':''}`}><span className="icon">🏠</span><span>{txt.tHm}</span></button>
+    <button onClick={()=>changeClientTab('workout')} className={`nav-btn ${clientTab==='workout'?'active':''}`}><span className="icon">💪</span><span>{txt.tEx}</span></button>
+    <button onClick={()=>changeClientTab('diet')} className={`nav-btn ${clientTab==='diet'?'active':''}`}><span className="icon">🥗</span><span>{txt.tDt}</span></button>
+    <button onClick={()=>changeClientTab('settings')} className={`nav-btn ${clientTab==='settings'?'active':''}`}><span className="icon">⚙️</span><span>{txt.tSet}</span></button>
   </div>
 </div>);}
 return null;};
