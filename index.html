@@ -492,6 +492,7 @@ const[wkReps,setWkReps]=useState('12');
 const[wkTimeVal,setWkTimeVal]=useState('45');
 const[wkTimeUnit,setWkTimeUnit]=useState('ثانية');
 const[wkExSource,setWkExSource]=useState('');
+const[dtMealSource,setDtMealSource]=useState('');
 const[sysConf,setSysConf]=useState({coachHours:['10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','إجازة','10:00 - 20:00'],wake:'07:00',sleep:'23:00',water:3,vits:'Omega 3, Vit C',mealDeadlines:{brk:'11:00',lun:'17:00',din:'23:00'}});
 const audioRef=useRef(new Audio());
 const lastNotifTsRef=useRef(Number(localStorage.getItem('gg_last_gym_notif_ts')||'0'));
@@ -1037,41 +1038,95 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
             </div>
             {dtBuilderDay===i&&(
               <div className="p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-slate-800 border-2 border-emerald-400/60 space-y-3 animate-zoom-in overflow-hidden">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                   {[{k:'brk',lAr:'🌅 الفطار',lEn:'🌅 Breakfast'},{k:'lun',lAr:'☀️ الغداء',lEn:'☀️ Lunch'},{k:'din',lAr:'🌙 العشاء',lEn:'🌙 Dinner'},{k:'snk',lAr:'🍿 سناك',lEn:'🍿 Snack'}].map(mt=>(
-                    <button key={mt.k} onClick={()=>{setDtBuilderType(mt.k);setDtBuilderSelected('');}} className={`py-2 rounded-xl font-black text-xs border cursor-pointer transition ${dtBuilderType===mt.k?'bg-emerald-600 text-white border-emerald-700 shadow':'bg-white text-gray-700'}`}>{isAr?mt.lAr:mt.lEn}</button>
+                    <button key={mt.k} onClick={()=>{setDtBuilderType(mt.k);setDtBuilderSelected('');setDtBuilderCustom('');}} className={`py-2 rounded-xl font-black text-xs border cursor-pointer transition ${dtBuilderType===mt.k?'bg-emerald-600 text-white border-emerald-700 shadow':'bg-white text-gray-700'}`}>{isAr?mt.lAr:mt.lEn}</button>
                   ))}
                 </div>
-                                <div className="space-y-2">
-                  <label className="block text-xs font-black text-emerald-800 dark:text-emerald-300">{isAr?'1. اختاري الوجبة من القائمة (اضغطي عليها للاختيار):':'1. Pick from ready meals (Tap to select):'}</label>
+
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-black text-emerald-800 dark:text-emerald-300">{isAr?'تحديد الوجبة: اختار وجبة جاهزة أو كتابة يدوي؟':'Select Meal Mode:'}</label>
                   
-                  <div className="max-h-56 overflow-y-auto space-y-1.5 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border-2 border-emerald-300 custom-scroll">
-                    {dPool.map((m,idx)=>{
-                      const cl=stripDietCalorieTags(m);
-                      const isSel=dtBuilderSelected===m;
-                      return(
-                        <div 
-                          key={idx} 
-                          onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl);}} 
-                          className={`p-2.5 rounded-xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-sm ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400'}`}
-                        >
-                          <div className="flex items-start gap-2">
-                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300'}`}>{isSel?'✓':''}</span>
-                            <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{cl}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  {/* أزرار التبديل: اختيار جاهز أو كتابة يدوي */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      type="button" 
+                      onClick={()=>setDtMealSource(dtMealSource==='list'?'':'list')} 
+                      className={`py-2.5 px-2 rounded-xl font-black text-xs border cursor-pointer transition flex items-center justify-center gap-1.5 ${dtMealSource==='list'?'bg-emerald-600 text-white border-emerald-700 shadow-md':'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:border-emerald-500'}`}
+                    >
+                      <span>📋</span>
+                      <span>{isAr?'اختيار وجبة جاهزة':'Pick from List'}</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={()=>setDtMealSource(dtMealSource==='manual'?'':'manual')} 
+                      className={`py-2.5 px-2 rounded-xl font-black text-xs border cursor-pointer transition flex items-center justify-center gap-1.5 ${dtMealSource==='manual'?'bg-emerald-600 text-white border-emerald-700 shadow-md':'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:border-emerald-500'}`}
+                    >
+                      <span>✍️</span>
+                      <span>{isAr?'كتابة يدوي بايدك':'Type Manually'}</span>
+                    </button>
                   </div>
 
-                  <button onClick={()=>{if(dtBuilderSelected)appendMealToDay(dtBuilderType,dtBuilderSelected);}} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">➕ {isAr?'إدراج الوجبة المختارة في الجدول ✔️':'Insert Selected Meal ✔️'}</button>
+                  {/* في حال الضغط على اختيار وجبة جاهزة: تفتح قائمة الكروت */}
+                  {dtMealSource==='list'&&(
+                    <div className="space-y-1.5 animate-slide-up">
+                      <span className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-300">{isAr?'اضغط على الوجبة لاختيارها مباشرة:':'Tap a meal to select:'}</span>
+                      <div className="max-h-60 overflow-y-auto space-y-1.5 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border-2 border-emerald-300 custom-scroll shadow-inner">
+                        {dPool.map((m,idx)=>{
+                          const cl=stripDietCalorieTags(m);
+                          const isSel=dtBuilderSelected===m;
+                          return(
+                            <div 
+                              key={idx} 
+                              onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl);}} 
+                              className={`p-2.5 rounded-xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-sm ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400'}`}
+                            >
+                              <div className="flex items-start gap-2">
+                                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300'}`}>{isSel?'✓':''}</span>
+                                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{cl}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* في حال الضغط على كتابة يدوي: يفتح مربع الإدخال */}
+                  {dtMealSource==='manual'&&(
+                    <div className="space-y-1 animate-slide-up">
+                      <span className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-300">{isAr?'اكتب تفاصيل الوجبة أو السناك بحرية:':'Type meal details:'}</span>
+                      <input 
+                        type="text" 
+                        autoFocus
+                        placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا بحرية...":"Type meal details..."} 
+                        className="w-full p-3 rounded-xl border-2 border-emerald-400 text-xs font-bold bg-white dark:bg-slate-900 outline-none shadow-sm" 
+                        value={dtBuilderCustom} 
+                        onChange={e=>{setDtBuilderCustom(e.target.value);setDtBuilderSelected('');}}
+                      />
+                    </div>
+                  )}
+
+                  {/* شارة توضح الوجبة المختارة حالياً */}
+                  {(dtBuilderCustom||dtBuilderSelected)&&(
+                    <div className="p-2 bg-emerald-100/70 dark:bg-emerald-950/50 border border-emerald-400 rounded-xl text-emerald-900 dark:text-emerald-200 text-xs font-black flex items-center gap-1.5 animate-pop">
+                      <span>🍽️</span>
+                      <span>{isAr?'المحدد حالياً:':'Selected:'} {dtBuilderCustom||stripDietCalorieTags(dtBuilderSelected)}</span>
+                    </div>
+                  )}
+
+                  {/* زر الإدراج النهائي */}
+                  <button 
+                    onClick={()=>{
+                      const toAdd = dtBuilderCustom || dtBuilderSelected;
+                      if(toAdd) appendMealToDay(dtBuilderType, toAdd);
+                    }} 
+                    className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition"
+                  >
+                    ➕ {isAr?'إدراج الوجبة في جدول هذا اليوم ✔️':'Insert Meal into Day Plan ✔️'}
+                  </button>
                 </div>
 
-                <div className="space-y-2 border-t border-emerald-200 pt-2.5">
-                  <label className="block text-xs font-black text-emerald-800 dark:text-emerald-300">{isAr?'2. أو اكتبي وجبة / سناك من عندكِ:':'2. Or write your own custom meal / snack:'}</label>
-                  <input type="text" placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا بحرية...":"Type custom meal details..."} className="w-full p-3 rounded-xl border-2 border-brand/40 text-xs font-bold bg-white outline-none" value={dtBuilderCustom} onChange={e=>setDtBuilderCustom(e.target.value)}/>
-                  <button onClick={()=>{if(dtBuilderCustom)appendMealToDay(dtBuilderType,dtBuilderCustom);}} className="w-full bg-brand text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">✍️ {isAr?'إضافة الوجبة المكتوبة لليوم ✔️':'Add Custom Written Meal ✔️'}</button>
-                </div>
               </div>
             )}
             <textarea placeholder={isAr?"الوجبات (إفطار، غداء، عشاء، سناك - كل وجبة في سطر)...":"Meals (Breakfast, Lunch, Dinner, Snack - one per line)..."} className="w-full text-xs p-3 border-2 rounded-2xl font-bold outline-none leading-relaxed" rows="5" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],diet:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
