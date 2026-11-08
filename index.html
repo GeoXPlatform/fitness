@@ -465,6 +465,7 @@ const[showCoachModal,setShowCoachModal]=useState(false);
 const[showUpdateModal,setShowUpdateModal]=useState(false);
 const[uploadingInb,setUploadingInb]=useState(false);
 const[previewInbUrl,setPreviewInbUrl]=useState(null);
+const[previewShapeModal,setPreviewShapeModal]=useState(null);
 const[swapModalMeal,setSwapModalMeal]=useState(null);
 const[inbFormModal,setInbFormModal]=useState(false);
 const[inbDraft,setInbDraft]=useState({w:'',smm:'',bfm:'',pbf:'',bmr:'',vfl:''});
@@ -923,30 +924,75 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
 <div className="col-span-full bg-pink-50/40 p-3 rounded-2xl border border-brand/25 space-y-3">
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
     <div className="bg-white p-2.5 rounded-2xl border shadow-sm">
-      <label className="text-[11px] font-black text-brand block mb-2">🔥 {isAr?'طبيعة الحرق (اضغطي على الصورة للاختيار):':'Metabolism Type (Tap Image):'}</label>
-      <div className="flex items-center gap-2.5 mb-2.5 p-2 rounded-xl bg-pink-50/60 border border-brand/30">
-        <img src={fastImg(`shape-${editingClient.shp||'endomorph'}.jpg`,180)} onError={(e)=>handleImgError(e,`shape-${editingClient.shp||'endomorph'}.jpg`)} className="w-14 h-14 object-contain rounded-xl bg-white border p-0.5 shrink-0"/>
-        <div>
-          <span className="text-[9px] font-bold text-gray-400 block">{isAr?'المختار حالياً:':'Currently Selected:'}</span>
+      <label className="text-[11px] font-black text-brand block mb-2">🔥 {isAr?'طبيعة الحرق (اضغط على الصورة لتكبيرها أو لاختيارها):':'Metabolism Type (Tap to View/Select):'}</label>
+      <div 
+        onClick={()=>setPreviewShapeModal({
+          url: fastImg(`shape-${editingClient.shp||'endomorph'}.jpg`,800),
+          filename: `shape-${editingClient.shp||'endomorph'}.jpg`,
+          title: BODY_METABOLISM.find(x=>x.id===(editingClient.shp||'endomorph'))?.[isAr?'ar':'en']||editingClient.shp,
+          type: 'shp',
+          id: editingClient.shp||'endomorph'
+        })}
+        className="flex items-center gap-2.5 mb-2.5 p-2 rounded-xl bg-pink-50/60 border border-brand/30 cursor-pointer hover:bg-pink-100/60 transition"
+        title={isAr?"اضغط لتكبير الصورة":"Tap to zoom image"}
+      >
+        <img src={fastImg(`shape-${editingClient.shp||'endomorph'}.jpg`,180)} onError={(e)=>handleImgError(e,`shape-${editingClient.shp||'endomorph'}.jpg`)} className="w-14 h-14 object-contain rounded-xl bg-white border p-0.5 shrink-0 shadow-sm"/>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold text-gray-400 block">{isAr?'المختار حالياً:':'Currently Selected:'}</span>
+            <span className="text-[10px] text-brand font-black">🔍 {isAr?'تكبير':'Zoom'}</span>
+          </div>
           <h4 className="font-black text-xs text-brand">{BODY_METABOLISM.find(x=>x.id===(editingClient.shp||'endomorph'))?.[isAr?'ar':'en']}</h4>
           <p className="text-[9px] font-bold text-gray-500">{BODY_METABOLISM.find(x=>x.id===(editingClient.shp||'endomorph'))?.[isAr?'dAr':'dEn']}</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-1.5">
         {BODY_METABOLISM.map(s=>(
-          <div key={s.id} onClick={()=>setEditingClient(p=>({...p,shp:s.id}))} className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all p-1 text-center bg-white ${editingClient.shp===s.id?'border-brand ring-2 ring-brand/30 scale-[1.02]':'border-gray-200 opacity-75 hover:opacity-100'}`}>
-            <img src={fastImg(s.img,150)} onError={(e)=>handleImgError(e,s.img)} className="w-full h-14 object-contain mx-auto"/>
+          <div 
+            key={s.id} 
+            onClick={()=>setEditingClient(p=>({...p,shp:s.id}))} 
+            className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all p-1 text-center bg-white ${editingClient.shp===s.id?'border-brand ring-2 ring-brand/30 scale-[1.02] shadow-sm':'border-gray-200 opacity-80 hover:opacity-100'}`}
+          >
+            <div className="relative group">
+              <img 
+                src={fastImg(s.img,150)} 
+                onError={(e)=>handleImgError(e,s.img)} 
+                onClick={(e)=>{
+                  e.stopPropagation();
+                  setPreviewShapeModal({ url: fastImg(s.img,800), filename: s.img, title: isAr?s.ar:s.en, type: 'shp', id: s.id });
+                }} 
+                className="w-full h-14 object-contain mx-auto cursor-zoom-in hover:scale-105 transition"
+                title={isAr?"اضغط لتكبير الصورة":"Tap to view image"}
+              />
+            </div>
             <span className="block text-[8.5px] font-black mt-1 truncate">{isAr?s.ar.split(' ')[0]:s.en}</span>
           </div>
         ))}
       </div>
     </div>
+
     <div className="bg-white p-2.5 rounded-2xl border shadow-sm">
-      <label className="text-[11px] font-black text-purple-700 block mb-2">👗 {isAr?'الشكل الهندسي للجسم (اضغطي على الصورة):':'Geometric Body Shape (Tap Image):'}</label>
-      <div className="flex items-center gap-2.5 mb-2.5 p-2 rounded-xl bg-purple-50/60 border border-purple-300">
-        <img src={fastImg(`shape-${(editingClient.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`,180)} onError={(e)=>handleImgError(e,`shape-${(editingClient.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`)} className="w-14 h-14 object-contain rounded-xl bg-white border p-0.5 shrink-0"/>
-        <div>
-          <span className="text-[9px] font-bold text-gray-400 block">{isAr?'المختار حالياً:':'Currently Selected:'}</span>
+      <label className="text-[11px] font-black text-purple-700 block mb-2">👗 {isAr?'الشكل الهندسي للجسم (اضغط على الصورة لتكبيرها أو لاختيارها):':'Geometric Body Shape (Tap to View/Select):'}</label>
+      <div 
+        onClick={()=>{
+          const selFn=`shape-${(editingClient.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`;
+          setPreviewShapeModal({
+            url: fastImg(selFn,800),
+            filename: selFn,
+            title: SHAPES_GEOMETRIC.find(x=>x.id===(editingClient.shpG||'Hourglass'))?.[isAr?'ar':'en']||editingClient.shpG,
+            type: 'shpG',
+            id: editingClient.shpG||'Hourglass'
+          });
+        }}
+        className="flex items-center gap-2.5 mb-2.5 p-2 rounded-xl bg-purple-50/60 border border-purple-300 cursor-pointer hover:bg-purple-100/60 transition"
+        title={isAr?"اضغط لتكبير الصورة":"Tap to zoom image"}
+      >
+        <img src={fastImg(`shape-${(editingClient.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`,180)} onError={(e)=>handleImgError(e,`shape-${(editingClient.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`)} className="w-14 h-14 object-contain rounded-xl bg-white border p-0.5 shrink-0 shadow-sm"/>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold text-gray-400 block">{isAr?'المختار حالياً:':'Currently Selected:'}</span>
+            <span className="text-[10px] text-purple-700 font-black">🔍 {isAr?'تكبير':'Zoom'}</span>
+          </div>
           <h4 className="font-black text-xs text-purple-700">{SHAPES_GEOMETRIC.find(x=>x.id===(editingClient.shpG||'Hourglass'))?.[isAr?'ar':'en']}</h4>
         </div>
       </div>
@@ -954,8 +1000,21 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         {SHAPES_GEOMETRIC.map(s=>{
           const fn=`shape-${s.id.toLowerCase().replace(' ','-')}.jpg`;
           return(
-            <div key={s.id} onClick={()=>setEditingClient(p=>({...p,shpG:s.id}))} className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all p-0.5 text-center bg-white ${editingClient.shpG===s.id?'border-brand ring-2 ring-brand/30 scale-[1.03]':'border-gray-200 opacity-75 hover:opacity-100'}`}>
-              <img src={fastImg(fn,120)} onError={(e)=>handleImgError(e,fn)} className="w-full h-11 object-contain mx-auto"/>
+            <div 
+              key={s.id} 
+              onClick={()=>setEditingClient(p=>({...p,shpG:s.id}))} 
+              className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all p-0.5 text-center bg-white ${editingClient.shpG===s.id?'border-brand ring-2 ring-brand/30 scale-[1.03] shadow-sm':'border-gray-200 opacity-80 hover:opacity-100'}`}
+            >
+              <img 
+                src={fastImg(fn,120)} 
+                onError={(e)=>handleImgError(e,fn)} 
+                onClick={(e)=>{
+                  e.stopPropagation();
+                  setPreviewShapeModal({ url: fastImg(fn,800), filename: fn, title: isAr?s.ar:s.en, type: 'shpG', id: s.id });
+                }} 
+                className="w-full h-11 object-contain mx-auto cursor-zoom-in hover:scale-105 transition"
+                title={isAr?"اضغط لتكبير الصورة":"Tap to view image"}
+              />
               <span className="block text-[7.5px] font-black mt-0.5 truncate">{isAr?s.ar.split('(')[0]:s.en}</span>
             </div>
           );
@@ -964,6 +1023,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
     </div>
   </div>
 </div>
+
 <div className="col-span-full"><label className="text-[10px] font-bold text-red-500">{isAr?'العمود الفقري والإصابات':'Posture & Injuries'}</label><div className="flex gap-2"><select className="w-1/3 p-2 rounded-lg border font-bold text-xs bg-white" value={editingClient.pos} onChange={e=>setEditingClient(p=>({...p,pos:e.target.value}))}>{POSTURES.map(p=><option key={p.id} value={p.id}>{isAr?p.tAr:p.tEn}</option>)}</select><input type="text" className="w-2/3 p-2 rounded-lg border font-bold text-xs bg-red-50 text-red-700" value={editingClient.injR||(editingClient.injuries||[]).join(isAr?'، ':', ')} onChange={e=>setEditingClient(p=>({...p,injR:e.target.value}))}/></div></div>
 </div>
 <div className="border-t pt-3 mt-3"><div className="text-xs font-black mb-2 text-brand">🩺 {isAr?'إجابات التاريخ الطبي للعميلة (قابلة للتعديل):':'Medical History Answers (Editable):'}</div><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">{[{q:txt.q1,kq:'m1',kr:'m1r'},{q:txt.q2,kq:'m2',kr:'m2r'},{q:txt.q3,kq:'m3',kr:'m3r'},{q:txt.q4,kq:'m4',kr:'m4r'},{q:txt.q5,kq:'m5',kr:'m5r'},{q:txt.q6,kq:'m6',kr:'m6r'}].map(m=>(<div key={m.kq} className="p-2 rounded-xl border bg-gray-50 text-[10px]"><div className="flex justify-between items-center mb-1"><span className="font-black">{m.q}</span><select className="p-1 rounded border font-bold bg-white" value={editingClient[m.kq]||'no'} onChange={e=>setEditingClient(p=>({...p,[m.kq]:e.target.value}))}><option value="no">{txt.no}</option><option value="yes">{txt.y}</option></select></div><input type="text" placeholder={txt.rsn} className="w-full p-1 rounded border bg-white font-bold" value={editingClient[m.kr]||''} onChange={e=>setEditingClient(p=>({...p,[m.kr]:e.target.value}))}/></div>))}</div></div>
@@ -1630,6 +1690,32 @@ return(
 
     <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
 
+    {/* شريط مقاسات الجسم التفصيلية */}
+    <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-brand/25 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="w-6 h-6 rounded-lg bg-pink-500/15 text-brand flex items-center justify-center text-xs">📏</span>
+          <h4 className="font-black text-xs text-brand">{isAr?'شريط مقاسات الجسم (cm)':'Body Measurements (cm)'}</h4>
+        </div>
+        <span className="text-[9px] font-bold text-gray-400">
+          {Object.keys(currentUser.msr||{}).filter(k=>currentUser.msr[k]).length}/{measurePts.length} {isAr?'مسجل':'Recorded'}
+        </span>
+      </div>
+      
+      <div className="flex gap-2 overflow-x-auto custom-scroll pb-1.5 pt-0.5">
+        {measurePts.map(pt=>{
+          const val = currentUser.msr?.[pt.id];
+          return(
+            <div key={pt.id} className="min-w-[82px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-gray-200 dark:border-slate-700 text-center shadow-sm">
+              <span className="block text-[8.5px] font-bold text-gray-500 dark:text-gray-400 truncate mb-1">{isAr?pt.ar:pt.en}</span>
+              <span className={`block font-black text-xs font-english ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>
+                {val ? `${val} cm` : '--'}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
       <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-2xl border border-blue-100 flex flex-col justify-center">
         <h4 className="font-black text-blue-800 dark:text-blue-300 text-[10px] mb-0.5">🏋️‍♀️ {isAr?'مواعيد كابتن روان في الجيم:':'Coach Rawan Gym Hours:'}</h4>
@@ -1946,14 +2032,45 @@ return(
   })()}
 
   {previewInbUrl&&(
-    <div className="fixed inset-0 bg-black/90 z-[120] flex flex-col items-center justify-center p-4 animate-zoom-in">
-      <div className="w-full max-w-md flex justify-between items-center mb-3">
-        <span className="text-white font-black text-sm">📄 {isAr?'معاينة تقرير الـ InBody':'InBody Report'}</span>
-        <button onClick={()=>setPreviewInbUrl(null)} className="bg-white text-slate-900 w-9 h-9 rounded-full font-black">✕</button>
-      </div>
-      <div className="bg-white p-2 rounded-2xl max-h-[80vh] overflow-auto max-w-md w-full"><img src={previewInbUrl} className="w-full h-auto object-contain rounded-xl" alt="InBody"/></div>
+  <div className="fixed inset-0 bg-black/90 z-[120] flex flex-col items-center justify-center p-4 animate-zoom-in">
+    <div className="w-full max-w-md flex justify-between items-center mb-3">
+      <span className="text-white font-black text-sm">📄 {isAr?'معاينة تقرير الـ InBody':'InBody Report'}</span>
+      <button onClick={()=>setPreviewInbUrl(null)} className="bg-white text-slate-900 w-9 h-9 rounded-full font-black">✕</button>
     </div>
-  )}
+    <div className="bg-white p-2 rounded-2xl max-h-[80vh] overflow-auto max-w-md w-full"><img src={previewInbUrl} className="w-full h-auto object-contain rounded-xl" alt="InBody"/></div>
+  </div>
+)}
+
+{previewShapeModal&&(
+  <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[130] flex flex-col items-center justify-center p-4 animate-zoom-in" onClick={()=>setPreviewShapeModal(null)}>
+    <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2rem] p-4 relative shadow-2xl border-2 border-brand/50 flex flex-col max-h-[88vh]" onClick={e=>e.stopPropagation()}>
+      <div className="flex justify-between items-center mb-3 border-b dark:border-slate-700 pb-2">
+        <span className="font-black text-sm text-brand truncate">🔍 {previewShapeModal.title}</span>
+        <button onClick={()=>setPreviewShapeModal(null)} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 font-black flex items-center justify-center hover:bg-red-500 hover:text-white transition">✕</button>
+      </div>
+      <div className="flex-1 overflow-auto flex items-center justify-center bg-pink-50/30 dark:bg-slate-900 rounded-2xl p-2 mb-3">
+        <img src={previewShapeModal.url} onError={(e)=>handleImgError(e,previewShapeModal.filename||'')} className="max-h-[62vh] w-auto max-w-full object-contain rounded-xl shadow" alt={previewShapeModal.title}/>
+      </div>
+      <div className="flex gap-2">
+        {previewShapeModal.type&&(
+          <button 
+            onClick={()=>{
+              if(previewShapeModal.type==='shp') setEditingClient(p=>({...p, shp: previewShapeModal.id}));
+              if(previewShapeModal.type==='shpG') setEditingClient(p=>({...p, shpG: previewShapeModal.id}));
+              setPreviewShapeModal(null);
+            }} 
+            className="flex-1 bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition"
+          >
+            ✔️ {isAr?'اختيار هذا الشكل':'Select This Shape'}
+          </button>
+        )}
+        <button onClick={()=>setPreviewShapeModal(null)} className="flex-1 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-xl font-black text-xs cursor-pointer">
+          ✕ {isAr?'إلغاء وإغلاق':'Close'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
   {inbFormModal&&(
     <div className="fixed inset-0 bg-black/80 z-[130] flex items-center justify-center p-4 animate-zoom-in">
