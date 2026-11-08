@@ -1429,15 +1429,20 @@ return(
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-      <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border flex items-center justify-between gap-2">
-        <div>
-          <span className="block text-[9px] font-bold text-gray-400">🌙 {isAr?'النوم والاستيقاظ':'Sleep & Wake-up'}</span>
-          <span className="font-black text-xs text-brand">{cLog.wakeTime?`${cLog.wakeTime} (${cLog.wakeStatus})`:(isAr?`الهدف: ${sleepData.h} ساعات`:`Target: ${sleepData.h} hrs`)}</span>
-        </div>
-        {!cLog.wakeTime&&(
-          <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr,activeCoachHours)} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer">{isAr?'صحيت الآن ☀️':'I Woke Up ☀️'}</button>
-        )}
-      </div>
+      {/* الكود الجديد */}
+<div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border flex items-center justify-between gap-2">
+  <div>
+    <span className="block text-[9px] font-bold text-gray-400">🌙 النوم والاستيقاظ</span>
+    <div className="font-black text-xs text-brand flex items-center gap-2 mt-0.5" dir="ltr">
+      <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">Rise: {formatTime12h(activeWake)}</span>
+      <span className="text-gray-400">|</span>
+      <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">Sleep: {formatTime12h(activeSleep)}</span>
+    </div>
+  </div>
+  {!cLog.wakeTime && (
+    <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr,activeCoachHours)} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer">صحيت الآن ☀️</button>
+  )}
+</div>
       <button onClick={()=>setMusicModal(true)} className="bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 text-white p-3 rounded-2xl shadow-[0_4px_18px_rgba(255,0,127,0.35)] flex items-center justify-between hover:scale-[1.01] transition cursor-pointer border border-white/30">
         <div className="flex items-center gap-2"><span className="text-lg">🎧</span><span className="font-black text-xs">{isAr?'بلاي ليست موسيقى التمرين':'Workout Music Playlists'}</span></div>
         <span className="text-[10px] bg-white/25 backdrop-blur-sm border border-white/40 px-2.5 py-1 rounded-lg font-black">{actMusic?(isAr?'يعمل 🔊':'Playing 🔊'):(isAr?'تشغيل 🔀':'Play 🔀')}</span>
