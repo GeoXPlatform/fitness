@@ -711,10 +711,6 @@ const changeClientTab=(tabName)=>{
   setClientTab(tabName);
   window.history.pushState({v:'client',tab:tabName,s:1},'');
 };
-const changeClientTab=(tabName)=>{
-  setClientTab(tabName);
-  window.history.pushState({v:'client',tab:tabName,s:1},'');
-};
 const uF=(k,v)=>setFData(p=>({...p,[k]:v}));
 const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter(x=>x!==i):[...fData.injuries,i]);
 const logout=()=>{sessionStorage.removeItem('elite_phone');audioRef.current.pause();if(auth.currentUser)auth.signOut().then(()=>window.location.reload());else window.location.reload();};
