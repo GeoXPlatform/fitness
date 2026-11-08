@@ -1,0 +1,27 @@
+[
+  {
+    "id": "lw1",
+    "titleAr": "💖 بلاي ليست حماس وكارديو",
+    "titleEn": "💖 Cardio Pop & High Energy",
+    "tracks": [
+      {"name": "أغنيتك الحماسية الأولى", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/your-song-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+      {"name": "أغنيتك الحماسية الثانية", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/your-song-2.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"}
+    ]
+  },
+  {
+    "id": "lw2",
+    "titleAr": "🔥 بلاي ليست نحت وتونينج",
+    "titleEn": "🔥 Toning & Sculpt Beats",
+    "tracks": [
+      {"name": "تراك التونينج الأول", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/power-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"}
+    ]
+  },
+  {
+    "id: "lw3",
+    "titleAr": "💃 بلاي ليست طاقة ورقص HIIT",
+    "titleEn": "💃 Queen HIIT & Dance",
+    "tracks": [
+      {"name": "تراك الهيت الأول", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/hiit-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"}
+    ]
+  }
+]
