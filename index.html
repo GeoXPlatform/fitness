@@ -404,7 +404,43 @@ const calcAge=(dob)=>{if(!dob)return 25;const parts=dob.split('-').map(Number);i
 const isBirthdayToday=(dob)=>{if(!dob)return false;const parts=dob.split('-').map(Number);if(parts.length!==3)return false;const today=new Date();return(today.getMonth()+1)===parts[1]&&today.getDate()===parts[2];};
 const safeSch=(arr)=>(Array.isArray(arr)&&arr.length===7)?arr.map(x=>x&&typeof x==='object'?x:{}):[{},{},{},{},{},{},{}];
 const calcSleep=(wake,sleep)=>{if(!wake||!sleep)return{h:8,m:0};const w=wake.split(':').map(Number);const s=sleep.split(':').map(Number);let wMins=w[0]*60+(w[1]||0);let sMins=s[0]*60+(s[1]||0);if(wMins<=sMins)wMins+=24*60;const diff=wMins-sMins;return{h:Math.floor(diff/60),m:diff%60};};
-const getMacs=(u,isAr=true)=>{if(u.customMacs&&u.customMacs.c){const st=u.customMacs.state||(isAr?'مخصص':'Custom');return{...u.customMacs,state:st};}let a=calcAge(u.dob);let w=Number(u.w)||65,h=Number(u.h)||160;let iW=Number(u.iW)||(h>105?h-105:60);let targetW=(w*0.7)+(iW*0.3);let bmi=w/((h/100)*(h/100));let pbf=(1.20*bmi)+(0.23*a)-5.4;let bmr=(10*w)+(6.25*h)-(5*a)-161;let act=(u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.35:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.55:1.75;let tdee=bmr*act;let stateAr=bmi<18.5?"نحافة":bmi<25?"وزن مثالي":bmi<30?"وزن زائد":"سمنة";let stateEn=bmi<18.5?"Underweight":bmi<25?"Normal Weight":bmi<30?"Overweight":"Obese";let g=u.goal||(w>iW+2?'loss':w<iW-2?'gain':'maint');let cal=tdee;if(g==='loss')cal=Math.max(1200,tdee-500);else if(g==='gain')cal=tdee+400;return{bmi:bmi.toFixed(1),pbf:pbf.toFixed(1),bmr:Math.round(bmr),tdee:Math.round(tdee),c:Math.round(cal),p:Math.round(targetW*(g==='loss'?2.2:g==='gain'?2.2:1.8)),cr:Math.round((cal*(g==='loss'?0.35:g==='gain'?0.50:0.42))/4),f:Math.round((cal*0.25)/9),state:isAr?stateAr:stateEn,goal:g};};
+const getMacs=(u,isAr=true)=>{
+  if(u.customMacs&&u.customMacs.c){
+    const st=u.customMacs.state||(isAr?'مخصص':'Custom');
+    return{...u.customMacs,state:st,source:isAr?'تعديل يدوي':'Manual'};
+  }
+  let a=calcAge(u.dob); let w=Number(u.w)||65,h=Number(u.h)||160;
+  let iW=Number(u.iW)||(h>105?h-105:60); let bmi=w/((h/100)*(h/100));
+
+  const hist=Array.isArray(u.inbodyHistory)&&u.inbodyHistory.length>0?u.inbodyHistory:null;
+  const latestInb=hist?hist[hist.length-1]:null;
+  const inbPBF=latestInb&&latestInb.pbf?Number(latestInb.pbf):null;
+  const inbBMR=latestInb&&latestInb.bmr?Number(latestInb.bmr):null;
+
+  let pbf=inbPBF||((1.20*bmi)+(0.23*a)-5.4);
+  let lbm=w-(w*(pbf/100));
+
+  let bmr=0; let src='';
+  if(inbBMR){bmr=inbBMR;src=isAr?'مربوط بجهاز الـ InBody 🟢':'InBody Synced 🟢';}
+  else if(inbPBF){bmr=370+(21.6*lbm);src=isAr?'معادلة InBody الدقيقة 🔵':'InBody Math 🔵';}
+  else{bmr=(10*w)+(6.25*h)-(5*a)-161;src=isAr?'حسابات تقريبية قياسية ⚪':'Standard Math ⚪';}
+
+  let act=(u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.35:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.55:1.75;
+  let tdee=bmr*act;
+  let stateAr=bmi<18.5?"نحافة":bmi<25?"وزن مثالي":bmi<30?"وزن زائد":"سمنة";
+  let stateEn=bmi<18.5?"Underweight":bmi<25?"Normal Weight":bmi<30?"Overweight":"Obese";
+  let g=u.goal||(w>iW+2?'loss':w<iW-2?'gain':'maint');
+
+  let cal=tdee;
+  if(g==='loss')cal=Math.max(1200,tdee*0.80);
+  else if(g==='gain')cal=tdee*1.15;
+
+  let pTarget=g==='loss'?2.2:g==='gain'?2.0:1.8; let pro=w*pTarget;
+  let fatPct=g==='loss'?0.25:g==='gain'?0.30:0.25; let fat=(cal*fatPct)/9;
+  let carb=(cal-(pro*4)-(fat*9))/4;
+
+  return{bmi:bmi.toFixed(1),pbf:pbf.toFixed(1),bmr:Math.round(bmr),tdee:Math.round(tdee),c:Math.round(cal),p:Math.round(pro),cr:Math.round(carb),f:Math.round(fat),state:isAr?stateAr:stateEn,goal:g,source:src};
+};
 const estimateSmartInbody=(u)=>({date:new Date().toISOString().split('T')[0],w:u?.w||'',smm:'',bfm:'',pbf:'',bmr:'',vfl:''});
 const DateSelector=({value,onChange,isAr})=>{const parts=(value||'2000-01-01').split('-');const yr=parseInt(parts[0],10)||2000;const mo=parseInt(parts[1],10)||1;const dy=parseInt(parts[2],10)||1;const years=[];const curY=new Date().getFullYear();for(let y=curY-8;y>=1960;y--)years.push(y);const monthsAr=['يناير (1)','فبراير (2)','مارس (3)','أبريل (4)','مايو (5)','يونيو (6)','يوليو (7)','أغسطس (8)','سبتمبر (9)','أكتوبر (10)','نوفمبر (11)','ديسمبر (12)'];const monthsEn=['Jan (1)','Feb (2)','Mar (3)','Apr (4)','May (5)','Jun (6)','Jul (7)','Aug (8)','Sep (9)','Oct (10)','Nov (11)','Dec (12)'];const daysInMonth=new Date(yr,mo,0).getDate();const days=Array.from({length:daysInMonth},(_,i)=>i+1);const update=(nY,nM,nD)=>{const maxD=new Date(nY,nM,0).getDate();const safeD=Math.min(nD,maxD);onChange(`${nY}-${String(nM).padStart(2,'0')}-${String(safeD).padStart(2,'0')}`);};return(<div className="grid grid-cols-3 gap-2"><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'اليوم':'Day'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={dy} onChange={e=>update(yr,mo,Number(e.target.value))}>{days.map(d=><option key={d} value={d}>{d}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'الشهر':'Month'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={mo} onChange={e=>update(yr,Number(e.target.value),dy)}>{(isAr?monthsAr:monthsEn).map((m,idx)=><option key={idx+1} value={idx+1}>{m}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'السنة':'Year'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={yr} onChange={e=>update(Number(e.target.value),mo,dy)}>{years.map(y=><option key={y} value={y}>{y}</option>)}</select></div></div>);};
 const TimeSelector12h=({value,onChange,isAr})=>{const val=value||'10:00';let[h24,m]=val.split(':').map(Number);if(isNaN(h24))h24=10;if(isNaN(m))m=0;const period=h24>=12?'PM':'AM';let h12=h24%12;if(h12===0)h12=12;const mRounded=Math.round(m/5)*5===60?55:Math.round(m/5)*5;const update=(nH12,nM,nP)=>{let nh=parseInt(nH12,10);if(nP==='PM'&&nh<12)nh+=12;if(nP==='AM'&&nh===12)nh=0;onChange(`${String(nh).padStart(2,'0')}:${String(nM).padStart(2,'0')}`);};return(<div className="flex items-center gap-1 bg-input p-1 rounded-xl border" dir="ltr"><select className="bg-transparent font-black text-xs p-1.5 rounded outline-none cursor-pointer flex-1 text-center" value={h12} onChange={e=>update(e.target.value,mRounded,period)}>{[1,2,3,4,5,6,7,8,9,10,11,12].map(h=><option key={h} value={h}>{String(h).padStart(2,'0')}</option>)}</select><span className="font-black text-xs">:</span><select className="bg-transparent font-black text-xs p-1.5 rounded outline-none cursor-pointer flex-1 text-center" value={mRounded} onChange={e=>update(h12,e.target.value,period)}>{[0,5,10,15,20,25,30,35,40,45,50,55].map(mn=><option key={mn} value={mn}>{String(mn).padStart(2,'0')}</option>)}</select><select className="bg-brand text-white font-black text-[10px] px-2 py-1.5 rounded-lg outline-none cursor-pointer" value={period} onChange={e=>update(h12,mRounded,e.target.value)}><option value="AM">AM</option><option value="PM">PM</option></select></div>);};
@@ -1075,8 +1111,10 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
 {adminTab==='cals'&&(
   <div className="animate-slide-up text-gray-800">
     {(()=>{const cData=getMacs(editingClient,isAr);return(
-      <div className="bg-gradient-to-r text-white p-4 rounded-2xl mb-4 shadow-lg">
-        <div className="flex justify-between items-center mb-2"><h3 className="text-xs font-black">📊 {isAr?`السعرات والماكروز للوصول للوزن المثالي (${editingClient.iW||60}kg)`:`Calories & Macros for Target Weight (${editingClient.iW||60}kg)`}</h3><span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-bold">{cData.state}</span></div>
+      <div className="bg-gradient-to-r text-white p-4 rounded-2xl mb-4 shadow-lg relative overflow-hidden">
+        {cData.source.includes('InBody') && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-black px-2.5 py-0.5 rounded-bl-lg shadow-sm animate-pulse">{isAr?'مربوط بالـ InBody':'InBody Synced'}</div>}
+        <div className="flex justify-between items-center mb-2 mt-1"><h3 className="text-xs font-black">📊 {isAr?`السعرات والماكروز للوصول للوزن المثالي (${editingClient.iW||60}kg)`:`Calories & Macros for Target Weight (${editingClient.iW||60}kg)`}</h3><span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-bold">{cData.state}</span></div>
+        <div className="text-[9px] font-bold text-white/80 mb-2 flex items-center gap-1 border-b border-white/20 pb-2"><span>🧠 {isAr?'طريقة الحساب الذكية:':'Calculation Method:'}</span><span className="bg-white/20 px-1.5 py-0.5 rounded">{cData.source}</span></div>
         <div className="grid grid-cols-4 gap-2 mb-3 text-center">
           <div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-75">BMI</span><span className="font-bold text-xs">{cData.bmi||'-'}</span></div>
           <div className="bg-black/20 p-2 rounded-lg"><span className="block text-[9px] opacity-75">{isAr?'PBF (الدهون)':'PBF (Fat)'}</span><span className="font-bold text-xs">{cData.pbf?'~'+cData.pbf+'%':'-'}</span></div>
@@ -1994,10 +2032,11 @@ return(
       </div>
     )}
 
-    {clientTab==='diet'&&(
+        {clientTab==='diet'&&(
       <div className="animate-slide-up space-y-2.5">
-        <div className="bg-gradient-to-r text-white p-3 rounded-2xl shadow-md">
-          <div className="flex justify-between items-center mb-1.5">
+        <div className="bg-gradient-to-r text-white p-3 rounded-2xl shadow-md relative overflow-hidden">
+          {macs.source.includes('InBody') && <div className="absolute top-0 left-0 bg-emerald-500 text-white text-[8px] font-black px-2.5 py-0.5 rounded-br-lg shadow-sm animate-pulse">✨ {isAr?'حسابات مخصصة ببيانات الـ InBody':'InBody Powered'}</div>}
+          <div className="flex justify-between items-center mb-1.5 mt-2.5">
             <h3 className="font-black text-xs flex items-center gap-1.5"><span>🥗</span> {isAr?'احتياجك اليومي من السعرات والماكروز':'Daily Nutrition Target'}</h3>
             <span className="text-[9px] bg-black/25 px-2 py-0.5 rounded-full font-black">{macs.state}</span>
           </div>
