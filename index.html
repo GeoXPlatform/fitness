@@ -493,6 +493,7 @@ const[dtBuilderDay,setDtBuilderDay]=useState(null);
 const[dtBuilderType,setDtBuilderType]=useState('brk');
 const[dtBuilderSelected,setDtBuilderSelected]=useState('');
 const[dtBuilderCustom,setDtBuilderCustom]=useState('');
+const[dtEditingIdx,setDtEditingIdx]=useState(null);
 const[wkMetricMode,setWkMetricMode]=useState('reps');
 const[wkSets,setWkSets]=useState('3');
 const[wkReps,setWkReps]=useState('12');
@@ -1097,17 +1098,27 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         const d=safeSch(editingClient.sch)[i]||{};
         const gKey=editingClient.goal||'loss';
         const dPool=DB_DIET_SMART[gKey]?.[dtBuilderType]||DB_DIET_SMART.loss.brk;
-        const appendMealToDay=(mealTypeKey,mealText)=>{
+                const appendMealToDay=(mealTypeKey,mealText)=>{
           if(!mealText||!mealText.trim())return;
           const prefMap={brk:'• إفطار:',lun:'• غداء:',din:'• عشاء:',snk:'• سناك:'};
           const prefix=prefMap[mealTypeKey]||'• وجبة:';
           let s=[...safeSch(editingClient.sch)];
           const curDiet=(s[i]?.diet||'').trim();
           const newLine=`${prefix} ${mealText.trim()}`;
-          s[i]={...s[i],diet:curDiet?`${curDiet}\n${newLine}`:newLine};
+          
+          if(dtEditingIdx !== null) {
+            let lines = curDiet.split('\n');
+            lines[dtEditingIdx] = newLine;
+            s[i]={...s[i], diet: lines.join('\n')};
+          } else {
+            s[i]={...s[i],diet:curDiet?`${curDiet}\n${newLine}`:newLine};
+          }
+          
           if(mealTypeKey==='snk')s[i].snacks=mealText.trim();
           setEditingClient(p=>({...p,sch:s}));
           setDtBuilderCustom('');
+          setDtEditingIdx(null);
+          setDtBuilderDay(null); // لإغلاق القائمة بعد الإضافة
         };
         return(
           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.freeDay?'border-amber-400 bg-amber-50/30':'border-brand/30 bg-white'}`}>
@@ -1150,26 +1161,31 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
                   </div>
 
                   {/* في حال الضغط على اختيار وجبة جاهزة: تفتح قائمة الكروت */}
-                  {dtMealSource==='list'&&(
-                    <div className="space-y-1.5 animate-slide-up">
-                      <span className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-300">{isAr?'اضغط على الوجبة لاختيارها مباشرة:':'Tap a meal to select:'}</span>
-                      <div className="max-h-60 overflow-y-auto space-y-1.5 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border-2 border-emerald-300 custom-scroll shadow-inner">
-                        {dPool.map((m,idx)=>{
-                          const cl=stripDietCalorieTags(m);
-                          const isSel=dtBuilderSelected===m;
-                          return(
-                            <div 
-                              key={idx} 
-                              onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl);}} 
-                              className={`p-2.5 rounded-xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-sm ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400'}`}
-                            >
-                              <div className="flex items-start gap-2">
-                                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300'}`}>{isSel?'✓':''}</span>
-                                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{cl}</span>
+                                    {dtMealSource==='list'&&(
+                    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-zoom-in">
+                      <div className="bg-white dark:bg-slate-900 w-full max-w-md h-[85vh] rounded-[2rem] flex flex-col shadow-2xl border-2 border-emerald-500/50 overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-emerald-50 dark:bg-slate-800">
+                          <span className="font-black text-emerald-700 dark:text-emerald-400 text-sm">{isAr?'📋 قائمة الوجبات الجاهزة':'📋 Pre-made Meals'}</span>
+                          <button onClick={()=>setDtMealSource('')} className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center">✕</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scroll bg-gray-50/50 dark:bg-slate-900/50">
+                          {dPool.map((m,idx)=>{
+                            const cl=stripDietCalorieTags(m);
+                            const isSel=dtBuilderSelected===m;
+                            return(
+                              <div 
+                                key={idx} 
+                                onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} 
+                                className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow'}`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
+                                  <span className="text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed">{cl}</span>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1205,13 +1221,56 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
                     }} 
                     className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition"
                   >
-                    ➕ {isAr?'إدراج الوجبة في جدول هذا اليوم ✔️':'Insert Meal into Day Plan ✔️'}
-                  </button>
+➕ {dtEditingIdx !== null ? (isAr ? 'حفظ تعديل الوجبة ✔️' : 'Save Meal Edit ✔️') : (isAr ? 'إدراج الوجبة في جدول هذا اليوم ✔️' : 'Insert Meal into Day Plan ✔️')}                  </button>
                 </div>
 
               </div>
             )}
-            <textarea placeholder={isAr?"الوجبات (إفطار، غداء، عشاء، سناك - كل وجبة في سطر)...":"Meals (Breakfast, Lunch, Dinner, Snack - one per line)..."} className="w-full text-xs p-3 border-2 rounded-2xl font-bold outline-none leading-relaxed" rows="5" value={d?.diet||''} onChange={e=>{let s=[...safeSch(editingClient.sch)];s[i]={...s[i],diet:e.target.value};setEditingClient(p=>({...p,sch:s}));}}/>
+            <div className="space-y-2 mt-3">
+              {(d?.diet||'').split('\n').filter(x=>x.trim()).map((line, lIdx, arr) => (
+                <div key={lIdx} className="flex justify-between items-center bg-emerald-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 p-2.5 rounded-xl shadow-sm hover:border-emerald-500 dark:hover:border-emerald-500 transition gap-2">
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <button onClick={()=>{
+                       if (lIdx === 0) return;
+                       let s=[...safeSch(editingClient.sch)];
+                       let lines=(s[i].diet||'').split('\n').filter(x=>x.trim());
+                       let temp = lines[lIdx];
+                       lines[lIdx] = lines[lIdx - 1];
+                       lines[lIdx - 1] = temp;
+                       s[i].diet=lines.join('\n');
+                       setEditingClient(p=>({...p,sch:s}));
+                    }} disabled={lIdx===0} className={`w-6 h-5 rounded flex items-center justify-center text-[10px] font-black transition ${lIdx===0?'bg-gray-100 text-gray-300 dark:bg-slate-700 dark:text-gray-600':'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-600 dark:text-gray-200 cursor-pointer'}`}>▲</button>
+                    <button onClick={()=>{
+                       let s=[...safeSch(editingClient.sch)];
+                       let lines=(s[i].diet||'').split('\n').filter(x=>x.trim());
+                       if (lIdx === lines.length - 1) return;
+                       let temp = lines[lIdx];
+                       lines[lIdx] = lines[lIdx + 1];
+                       lines[lIdx + 1] = temp;
+                       s[i].diet=lines.join('\n');
+                       setEditingClient(p=>({...p,sch:s}));
+                    }} disabled={lIdx===arr.length-1} className={`w-6 h-5 rounded flex items-center justify-center text-[10px] font-black transition ${lIdx===arr.length-1?'bg-gray-100 text-gray-300 dark:bg-slate-700 dark:text-gray-600':'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-600 dark:text-gray-200 cursor-pointer'}`}>▼</button>
+                  </div>
+                  <span className="text-[11px] font-black text-gray-800 dark:text-gray-200 flex-1 leading-relaxed">{line}</span>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={()=>{
+                      let rawLine = line;
+                      let type = 'lun';
+                      if(rawLine.includes('إفطار')) { type = 'brk'; rawLine = rawLine.replace(/•\s*إفطار:\s*/, ''); }
+                      else if(rawLine.includes('غداء')) { type = 'lun'; rawLine = rawLine.replace(/•\s*غداء:\s*/, ''); }
+                      else if(rawLine.includes('عشاء')) { type = 'din'; rawLine = rawLine.replace(/•\s*عشاء:\s*/, ''); }
+                      else if(rawLine.includes('سناك')) { type = 'snk'; rawLine = rawLine.replace(/•\s*سناك:\s*/, ''); }
+                      else { rawLine = rawLine.replace(/•\s*وجبة:\s*/, ''); }
+                      
+                      setDtBuilderDay(i); setDtBuilderType(type); setDtMealSource('manual');
+                      setDtBuilderCustom(rawLine.trim()); setDtEditingIdx(lIdx);
+                    }} className="w-7 h-7 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center font-bold hover:bg-blue-500 hover:text-white transition cursor-pointer" title="تعديل الوجبة">✏️</button>
+                    <button onClick={()=>{let s=[...safeSch(editingClient.sch)]; let lines=(s[i].diet||'').split('\n').filter(x=>x.trim()); lines.splice(lIdx, 1); s[i].diet=lines.join('\n'); setEditingClient(p=>({...p,sch:s}));}} className="w-7 h-7 bg-red-100 dark:bg-red-900/40 text-red-500 dark:text-red-400 rounded-lg flex items-center justify-center font-bold hover:bg-red-500 hover:text-white transition cursor-pointer" title="مسح الوجبة">✕</button>
+                  </div>
+                </div>
+              ))}
+              {!(d?.diet||'').trim() && <div className="text-[10px] text-gray-500 dark:text-gray-300 text-center py-3 font-bold border-2 border-dashed border-emerald-300 dark:border-slate-500 rounded-xl">لم يتم إضافة وجبات بعد 📌</div>}
+            </div>
           </div>
         );
       })}
@@ -1365,10 +1424,11 @@ const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
           } else {
             s[i]={...s[i],active:true,workout:curWk?`${curWk}\n${newLine}`:newLine};
           }
-          setEditingClient(p=>({...p,sch:s}));
+                    setEditingClient(p=>({...p,sch:s}));
           setWkBuilderCustom('');
           setWkBuilderGentleAlt('');
           setWkEditingIdx(null);
+          setWkBuilderDay(null); // لإغلاق القائمة بعد الحفظ
         };
         return(
           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.active?'border-brand bg-white':'border-gray-200 bg-gray-50/50'}`}>
@@ -1416,25 +1476,30 @@ const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
                   </div>
 
                   {/* في حال اختيار تمرين جاهز: تفتح القائمة */}
-                  {wkExSource==='list'&&(
-                    <div className="space-y-1.5 animate-slide-up">
-                      <span className="block text-[10px] font-bold text-brand">{isAr?'اضغط على التمرين لاختياره مباشرة:':'Tap an exercise to select:'}</span>
-                      <div className="max-h-60 overflow-y-auto space-y-1.5 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border-2 border-brand/40 custom-scroll shadow-inner">
-                        {curPool.map((ex,idx)=>{
-                          const isSel=wkBuilderSelected===ex;
-                          return(
-                            <div 
-                              key={idx} 
-                              onClick={()=>{setWkBuilderSelected(ex);setWkBuilderCustom(ex.replace(/\s*\([^)]*\)\s*$/,'').trim());}} 
-                              className={`p-2.5 rounded-xl border-2 cursor-pointer transition text-start ${isSel?'border-brand bg-pink-50 dark:bg-pink-950/60 shadow-sm ring-1 ring-brand':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand/50'}`}
-                            >
-                              <div className="flex items-start gap-2">
-                                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-brand bg-brand text-white text-[10px]':'border-gray-300'}`}>{isSel?'✓':''}</span>
-                                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{ex}</span>
+                                    {wkExSource==='list'&&(
+                    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-zoom-in">
+                      <div className="bg-white dark:bg-slate-900 w-full max-w-md h-[85vh] rounded-[2rem] flex flex-col shadow-2xl border-2 border-brand/50 overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                          <span className="font-black text-brand text-sm">{isAr?'📋 قائمة التمارين المتاحة':'📋 Available Exercises'}</span>
+                          <button onClick={()=>setWkExSource('')} className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center">✕</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scroll bg-gray-50/50 dark:bg-slate-900/50">
+                          {curPool.map((ex,idx)=>{
+                            const isSel=wkBuilderSelected===ex;
+                            return(
+                              <div 
+                                key={idx} 
+                                onClick={()=>{setWkBuilderSelected(ex);setWkBuilderCustom(ex.replace(/\s*\([^)]*\)\s*$/,'').trim()); setWkExSource('');}} 
+                                className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-brand bg-pink-50 dark:bg-pink-950/60 shadow-md ring-1 ring-brand':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand/50 hover:shadow'}`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-brand bg-brand text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
+                                  <span className="text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed">{ex}</span>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
