@@ -1,27 +1,98 @@
 [
   {
     "id": "lw1",
-    "titleAr": "💖 بلاي ليست حماس وكارديو",
-    "titleEn": "💖 Cardio Pop & High Energy",
+    "titleAr": "💖 Ladies Glutes & Cardio Pop (حماس عالي)",
+    "titleEn": "💖 Ladies Glutes & Cardio Pop (High Energy)",
     "tracks": [
-      {"name": "أغنيتك الحماسية الأولى", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/your-song-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
-      {"name": "أغنيتك الحماسية الثانية", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/your-song-2.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"}
+      {
+        "name": "Cardio Beat Energy #1",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+      },
+      {
+        "name": "Glutes Power Rhythm #2",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+      },
+      {
+        "name": "Fast Burn Dynamic #3",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"
+      },
+      {
+        "name": "High Vibe Cardio #4",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
+      },
+      {
+        "name": "Ultimate Energy Pop #5",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3"
+      }
     ]
   },
   {
     "id": "lw2",
-    "titleAr": "🔥 بلاي ليست نحت وتونينج",
-    "titleEn": "🔥 Toning & Sculpt Beats",
+    "titleAr": "🔥 Female Fitness Power Beats (نحت وتونينج)",
+    "titleEn": "🔥 Female Fitness Power Beats (Toning)",
     "tracks": [
-      {"name": "تراك التونينج الأول", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/power-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"}
+      {
+        "name": "Toning & Sculpt #1",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+      },
+      {
+        "name": "Strong Curves Tempo #2",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+      },
+      {
+        "name": "Focus Gym Groove #3",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3"
+      },
+      {
+        "name": "Iron & Glow Mix #4",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"
+      },
+      {
+        "name": "Sculpting Beats #5",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+      }
     ]
   },
   {
-    "id: "lw3",
-    "titleAr": "💃 بلاي ليست طاقة ورقص HIIT",
-    "titleEn": "💃 Queen HIIT & Dance",
-    "tracks": [
-      {"name": "تراك الهيت الأول", "url": "https://raw.githubusercontent.com/GeoXPlatform/fitness/main/hiit-1.mp3", "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"}
+    "id": "lw3",
+    "titleAr": "💃 Queen HIIT & Dance Workout (طاقة ورقص)",
+    "titleEn": "💃 Queen HIIT & Dance Workout (Cardio)",
+    tracks": [
+      {
+        "name": "Queen Dance HIIT #1",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+      },
+      {
+        "name": "Zumba & Vibe Mix #2",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"
+      },
+      {
+        "name": "High Vibe Rhythm #3",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+      },
+      {
+        "name": "Cardio Party Beat #4",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
+      },
+      {
+        "name": "Active Motion HIIT #5",
+        "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
+        "fallback": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3"
+      }
     ]
   }
 ]
