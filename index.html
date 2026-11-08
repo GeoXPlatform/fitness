@@ -902,8 +902,20 @@ if(view==='onboarding'){return(<div className={`min-h-screen flex items-center j
 
 if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?'font-arabic':'font-english'}`} dir={isAr?'rtl':'ltr'}><div className="flex justify-between items-center fixed top-0 w-full left-0 p-4 z-50 pointer-events-none"><div className="flex gap-2 pointer-events-auto"><button onClick={toggleT} className="btn-toggle">{theme==='dark'?'☀️':'🌙'}</button><button onClick={toggleL} className="btn-toggle">{lang==='ar'?'EN':'AR'}</button></div></div>{gymAlertBanner&&(<div className="fixed top-16 left-1/2 -translate-x-1/2 z-[150] w-[92%] max-w-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3.5 rounded-2xl shadow-2xl border-2 border-white flex items-center justify-between gap-2 animate-pop"><div className="flex items-center gap-2"><span className="text-2xl">🏋️‍♀️🔔</span><div><h4 className="font-black text-xs">{isAr?'إشعار حضور جيم الآن!':'Gym Check-in Alert!'}</h4><p className="text-[11px] font-bold">{isAr?`العميلة (${gymAlertBanner.name}) سجلت حضورها بالجيم الساعة ${gymAlertBanner.time}`:`Client (${gymAlertBanner.name}) checked in at the gym at ${gymAlertBanner.time}`}</p></div></div><button onClick={()=>setGymAlertBanner(null)} className="bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg font-black text-xs cursor-pointer">✕</button></div>)}{showDotsEditor?(<div className="max-w-md mx-auto pt-16"><div className="glass p-6 rounded-[2rem] text-center"><h2 className="text-xl font-black mb-2 text-brand">{isAr?'تعديل أماكن النقاط (يمين وشمال) 📍':'Edit Measurement Points (R & L) 📍'}</h2><p className="text-xs mb-4 font-bold text-gray-800 bg-white p-2 rounded-lg">{isAr?'اضغطي على اسم الجزء أولاً، ثم اضغطي على المكان الصحيح في الصورة لنقله.':'Select body part first, then tap on the image to move the point.'}</p><div className="flex flex-wrap gap-1.5 justify-center mb-4">{measurePts.map(pt=>(<button key={pt.id} onClick={()=>setAdminActPt(pt.id)} className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer ${adminActPt===pt.id?'bg-brand text-white':'bg-white text-gray-800 border'}`}>{isAr?pt.ar:pt.en}</button>))}</div><div className="relative w-full max-w-[260px] mx-auto glass-card rounded-[2rem] shadow-inner flex justify-center overflow-hidden mb-6 cursor-crosshair" onClick={handleImgClick}><img src={fastImg('measurements-body.jpg',650)} onError={(e)=>handleImgError(e,'measurements-body.jpg')} loading="lazy" decoding="async" className="w-full h-auto object-contain pointer-events-none opacity-90 block"/>{measurePts.map(pt=>(<div key={pt.id} className={`dot ${adminActPt===pt.id?'filled scale-125':''}`} style={{top:pt.t,left:pt.l}}>{adminActPt===pt.id?'🎯':'+'}</div>))}</div><button onClick={savePts} className="w-full bg-gradient-to-r text-white py-3.5 rounded-xl font-black shadow-lg cursor-pointer">{isAr?'حفظ الأماكن الجديدة 💾':'Save New Positions 💾'}</button><button onClick={()=>{setMeasurePts(DEFAULT_MEASURE_PTS);}} className="w-full bg-amber-100 text-amber-800 py-2.5 rounded-xl font-black mt-2 text-xs cursor-pointer">{isAr?'🔄 استعادة الأماكن الافتراضية (11 نقطة)':'🔄 Reset Default 11 Points'}</button><button onClick={()=>setShowDotsEditor(false)} className="w-full bg-gray-200 text-gray-800 py-3 rounded-xl font-black mt-2 cursor-pointer">{isAr?'إلغاء ورجوع':'Cancel & Back'}</button></div></div>):!editingClient?(<div className="w-full max-w-full mx-auto pt-14 px-1 sm:px-3"><div className="flex flex-wrap justify-between items-center gap-2 mb-6 glass p-4 rounded-3xl sticky top-4 z-40"><h1 className="text-lg md:text-xl font-black text-brand flex items-center gap-2">👑 {isAr?'لوحة تحكم كابتن روان':'Coach Rawan Admin Panel'}</h1><div className="flex flex-wrap gap-1.5"><button onClick={()=>setShowAddClientModal(true)} className="bg-emerald-600 text-white px-3 py-2 rounded-xl font-black shadow-sm text-xs cursor-pointer hover:scale-105 transition">➕ {isAr?'إضافة عميلة يدوياً':'Add Client'}</button><button onClick={()=>setShowDotsEditor(true)} className="bg-blue-500 text-white px-3 py-2 rounded-xl font-bold shadow-sm text-xs cursor-pointer">📍 {isAr?'نقاط المقاسات':'Measure Points'}</button><button onClick={clearSystemCache} className="bg-amber-500 text-white px-3 py-2 rounded-xl font-black shadow-sm text-xs cursor-pointer" title={isAr?'مسح الكاش وتحديث البيانات':'Clear Cache'}>🧹 {isAr?'مسح الكاش':'Clear Cache'}</button><button onClick={logout} className="bg-red-500 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm text-xs cursor-pointer">{isAr?'خروج':'Logout'}</button></div></div><div className="flex flex-col md:flex-row gap-3 mb-4 relative z-30"><input type="text" placeholder={isAr?"🔍 بحث بالاسم أو الموبايل أو الوظيفة...":"🔍 Search name, phone, job..."} className="flex-1 p-3 rounded-2xl outline-none shadow-sm bg-white font-bold text-sm text-gray-800 border" value={srch} onChange={e=>setSrch(e.target.value)}/><div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border"><span className="text-xs font-bold text-gray-800">{isAr?'ترتيب:':'Sort:'}</span><select className="bg-transparent outline-none font-bold text-sm text-gray-800" value={srt} onChange={e=>setSrt(e.target.value)}><option value="date">{isAr?'الأحدث':'Latest'}</option><option value="name">{isAr?'أبجدي':'Alphabetical'}</option><option value="age">{isAr?'السن':'Age'}</option><option value="wt">{isAr?'الوزن':'Weight'}</option></select></div><button onClick={()=>setShowAdminSettings(!showAdminSettings)} className="bg-slate-900 text-brand-gold px-4 py-3 rounded-2xl font-black text-xs shadow-md border border-brand-gold flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] transition"><span>⚙️ {showAdminSettings?(isAr?'إخفاء الإعدادات العامة ▲':'Hide Settings ▲'):(isAr?'الإعدادات العامة والمواعيد والإعلانات ▼':'General Settings & Hours ▼')}</span></button></div><div className="flex flex-wrap gap-2 mb-4"><button onClick={()=>setAdminFilter('all')} className={`px-4 py-2 rounded-xl font-black text-xs transition cursor-pointer border ${adminFilter==='all'?'bg-brand text-white border-brand shadow':'bg-white text-gray-700'}`}>👥 {isAr?`كل العميلات (${allValidClients.length})`:`All (${allValidClients.length})`}</button><button onClick={()=>setAdminFilter('gym_now')} className={`px-4 py-2 rounded-xl font-black text-xs transition cursor-pointer border ${adminFilter==='gym_now'?'bg-blue-600 text-white border-blue-600 shadow':'bg-white text-gray-700'}`}>🏋️‍♀️ {isAr?`الموجودات بالجيم اليوم (${inGymTodayCount})`:`In Gym Today (${inGymTodayCount})`}</button><button onClick={()=>setAdminFilter('cycle_on')} className={`px-4 py-2 rounded-xl font-black text-xs transition cursor-pointer border ${adminFilter==='cycle_on'?'bg-pink-500 text-white border-pink-500 shadow':'bg-white text-gray-700'}`}>🌸 {isAr?`مفعلات الوضع الهادئ (${cycleActiveCount})`:`Cycle Mode (${cycleActiveCount})`}</button></div>{showAdminSettings&&(<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 animate-slide-up"><div className="bg-white p-4 rounded-3xl shadow-lg flex flex-col gap-3 border-2 border-brand-gold"><h3 className="font-black text-sm text-brand-gold">⚙️ {isAr?'الإعدادات العامة للمواعيد:':'General Schedule Settings:'}</h3><button onClick={()=>setShowHoursModal(true)} className="w-full bg-slate-800 text-brand-gold py-3 rounded-xl border border-brand-gold shadow-md hover:scale-[1.01] transition cursor-pointer font-black text-xs">📅 {isAr?'تحديد مواعيد كابتن روان بالجيم':'Set Coach Rawan Gym Hours'}</button><div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px] font-bold"><div><span className="block mb-1">{isAr?'وقت الصحيان العام:':'Default Wake-up Time:'}</span><TimeSelector12h value={sysConf.wake||'07:00'} onChange={v=>setSysConf({...sysConf,wake:v})} isAr={isAr}/></div><div><span className="block mb-1">{isAr?'وقت النوم العام:':'Default Sleep Time:'}</span><TimeSelector12h value={sysConf.sleep||'23:00'} onChange={v=>setSysConf({...sysConf,sleep:v})} isAr={isAr}/></div><div><span className="block mb-1">{isAr?'المياه اليومية (لتر):':'Daily Water (Liters):'}</span><input type="number" step="0.5" className="w-full p-2 border rounded-xl bg-input font-black" value={sysConf.water||''} onChange={e=>setSysConf({...sysConf,water:e.target.value})}/></div><div><span className="block mb-1">{isAr?'الفيتامينات العامة:':'Default Vitamins:'}</span><input type="text" className="w-full p-2 border rounded-xl bg-input font-black" value={sysConf.vits||''} onChange={e=>setSysConf({...sysConf,vits:e.target.value})}/></div><div><span className="block mb-1">{isAr?'آخر موعد للإفطار:':'Breakfast Deadline:'}</span><TimeSelector12h value={sysConf.mealDeadlines?.brk||'11:00'} onChange={v=>setSysConf({...sysConf,mealDeadlines:{...sysConf.mealDeadlines,brk:v}})} isAr={isAr}/></div><div><span className="block mb-1">{isAr?'آخر موعد للغداء:':'Lunch Deadline:'}</span><TimeSelector12h value={sysConf.mealDeadlines?.lun||'17:00'} onChange={v=>setSysConf({...sysConf,mealDeadlines:{...sysConf.mealDeadlines,lun:v}})} isAr={isAr}/></div><div className="sm:col-span-2"><span className="block mb-1">{isAr?'آخر موعد للعشاء:':'Dinner Deadline:'}</span><TimeSelector12h value={sysConf.mealDeadlines?.din||'23:00'} onChange={v=>setSysConf({...sysConf,mealDeadlines:{...sysConf.mealDeadlines,din:v}})} isAr={isAr}/></div></div><button onClick={savePts} className="w-full mt-1 bg-brand-gold text-white font-black py-2.5 rounded-xl cursor-pointer">{isAr?'حفظ الإعدادات 💾':'Save Settings 💾'}</button></div><div className="bg-brand text-white p-4 rounded-3xl shadow-lg flex flex-col justify-between gap-2"><div className="space-y-3"><div><span className="font-black text-sm block mb-1">📢 {isAr?'إعلان عام للعميلات:':'General Announcement:'}</span><input type="text" className="p-2.5 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 outline-none w-full text-xs font-bold" value={ann} onChange={e=>setAnn(e.target.value)} placeholder={isAr?"اكتبي إعلان يظهر بأعلى الصفحة...":"Write an announcement for clients..."}/></div><div><span className="font-black text-sm block mb-1">💡 {isAr?'نصيحة اليوم:':'Tip of the Day:'}</span><input type="text" className="p-2.5 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/70 outline-none w-full text-xs font-bold" value={tip} onChange={e=>setTip(e.target.value)} placeholder={isAr?"اكتبي نصيحة تشجيعية...":"Write a daily motivational tip..."}/></div></div><button onClick={updateAnn} className="bg-white text-brand font-black px-4 py-2.5 rounded-xl shadow-md mt-2 cursor-pointer">{isAr?'نشر الإعلان والنصيحة 🚀':'Publish Announcement & Tip 🚀'}</button></div></div>)}<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">{dispClients.map(c=>{const tdStr=new Date().toISOString().split('T')[0];const dLog=c.dailyLog?.[tdStr]||{};const doneCnt=Object.values(dLog).filter(x=>x&&x.state==='done').length;const failItems=Object.values(dLog).filter(x=>x&&x.state==='fail');const bday=isBirthdayToday(c.dob);const injTxt=c.injR||(c.injuries||[]).join(isAr?'، ':', ');return(<div key={c.ph||c.id} className={`glass-card p-4 rounded-3xl hover:scale-[1.01] transition shadow-sm relative flex flex-col justify-between ${bday?'ring-2 ring-brand-gold':''}`}><div>{bday&&<div className="bg-gradient-to-r text-white text-[10px] font-black px-3 py-1 rounded-full mb-2 text-center animate-pulse">🎂 {isAr?`عيد ميلادها اليوم! (${calcAge(c.dob)} سنة)`:`Birthday Today! (${calcAge(c.dob)}y)`} 🎉</div>}<div className="flex justify-between items-start mb-2"><div><h2 className="text-base font-black text-gray-800 flex items-center gap-1"><span>{c.avatar||'👑'}</span><span>{c.n}</span></h2><div className="flex flex-wrap gap-1 mt-1"><span className="bg-white text-[9px] px-2 py-0.5 rounded-full font-bold border text-gray-700">{formatLevel(c.lvl,isAr)}</span>{c.bType&&<span className="bg-rose-50 text-rose-700 border border-rose-200 text-[9px] px-2 py-0.5 rounded-full font-black">🩸 {c.bType}</span>}{c.cycleMode&&<span className="bg-pink-500 text-white text-[9px] px-2 py-0.5 rounded-full font-black animate-pulse">🌸 {isAr?'وضع الهدوء':'Gentle ON'}</span>}</div></div><div className="flex gap-1"><button onClick={()=>deleteClient(c.ph)} className="bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-sm cursor-pointer">🗑️</button><button onClick={()=>{setEditingClient({...c,_origPh:c.ph});setAdminTab('basic');window.history.pushState({v:'admin',s:1,mod:'edit'},'');}} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm cursor-pointer">⚙️ {isAr?'إدارة':'Manage'}</button></div></div><div className="grid grid-cols-2 gap-1 text-[10px] font-bold bg-white p-2 rounded-xl border text-gray-700 mb-2"><div>📱 {isAr?'موبايل:':'Phone:'} <span className="font-black">{c.ph}</span></div><div>🚨 {isAr?'طوارئ:':'Emergency:'} <span className="font-black text-rose-600">{c.emPh||(isAr?'غير مسجل':'None')}</span></div><div>💼 {isAr?'الوظيفة:':'Job:'} <span className="font-black">{c.job||(isAr?'غير مسجل':'None')}</span></div><div>🎂 {isAr?'الميلاد:':'DOB:'} <span className="font-black">{c.dob||'-'}</span></div></div><div className="grid grid-cols-3 gap-1.5 text-[10px] font-black bg-white p-2 rounded-2xl border text-gray-800 mb-2 text-center"><div className="bg-gray-50 p-1 rounded-lg">⚖️ {c.w}kg <span className="text-emerald-600 block text-[9px]">🎯 {isAr?'هدف:':'Goal:'} {c.iW||55}kg</span></div><div className="bg-gray-50 p-1 rounded-lg">🎂 {calcAge(c.dob)} {isAr?'سنة':'yr'}<span className="text-gray-400 block text-[9px]">📏 {c.h}cm</span></div><div className="bg-gray-50 p-1 rounded-lg text-brand">🔥 {(c.att||[]).length}/30<span className="text-gray-500 block text-[9px]">🗓️ {c.days}d/w</span></div></div><div className="grid grid-cols-2 gap-1.5 text-[10px] font-black mb-2"><div className="bg-purple-50 text-purple-800 border border-purple-200 px-2 py-1 rounded-xl flex justify-between"><span>🏆 {isAr?'اللياقة:':'Fitness:'}</span><span>{c.fitOverall||'Good'}</span></div><div className="bg-cyan-50 text-cyan-800 border border-cyan-200 px-2 py-1 rounded-xl flex justify-between"><span>🧘‍♀️ {isAr?'المرونة:':'Flex:'}</span><span>{c.flexOverall||'Good'}</span></div></div><div className="grid grid-cols-2 gap-1.5 mb-2 bg-pink-50/40 p-1.5 rounded-2xl border border-pink-200/60"><div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border"><img src={fastImg(`shape-${c.shp||'endomorph'}.jpg`,120)} onError={(e)=>handleImgError(e,`shape-${c.shp||'endomorph'}.jpg`)} className="w-8 h-8 object-contain rounded-lg bg-pink-50 shrink-0"/><div className="text-[9px] font-black leading-tight truncate"><span className="block text-gray-400 text-[8px]">{isAr?'طبيعة الحرق':'Metabolism'}</span><span className="text-brand">{BODY_METABOLISM.find(x=>x.id===(c.shp||'endomorph'))?.[isAr?'ar':'en']||c.shp}</span></div></div><div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border"><img src={fastImg(`shape-${(c.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`,120)} onError={(e)=>handleImgError(e,`shape-${(c.shpG||'Hourglass').toLowerCase().replace(' ','-')}.jpg`)} className="w-8 h-8 object-contain rounded-lg bg-pink-50 shrink-0"/><div className="text-[9px] font-black leading-tight truncate"><span className="block text-gray-400 text-[8px]">{isAr?'شكل الجسم':'Body Shape'}</span><span className="text-purple-700">{SHAPES_GEOMETRIC.find(x=>x.id===(c.shpG||'Hourglass'))?.[isAr?'ar':'en']||c.shpG}</span></div></div></div>
 {c.alg&&<div className="text-[10px] font-bold px-2 py-1 rounded-xl border mb-1.5 bg-amber-50 text-amber-800 border-amber-200">🥜 {isAr?'حساسية طعام:':'Allergies:'} {c.alg}</div>}<div className={`text-[10px] font-bold px-2.5 py-1.5 rounded-xl border mb-2 ${injTxt?'bg-red-50 text-red-700 border-red-200':'bg-emerald-50/60 text-emerald-700 border-emerald-200'}`}>🩺 {isAr?'إصابات:':'Injuries:'} {injTxt||(isAr?'لا توجد إصابات':'None')} | {isAr?'القوام:':'Posture:'} {c.pos||'normal'}</div></div><div>{c.inbodyUrl&&(<button onClick={()=>setPreviewInbUrl(c.inbodyUrl)} className="w-full bg-blue-50 text-blue-700 border border-blue-200 py-1.5 rounded-xl font-black text-[10px] flex items-center justify-center gap-1 hover:bg-blue-100 cursor-pointer mb-1.5">📄 {isAr?'معاينة InBody العميلة فوراً':'View Client InBody'}</button>)}{dLog.wakeTime&&<div className="mt-1 text-[10px] font-bold bg-yellow-50 p-1.5 rounded-lg border border-yellow-200 text-yellow-800">☀️ {dLog.wakeTime} ({dLog.wakeStatus})</div>}{dLog.gymTime&&<div className="mt-1 text-[10px] font-bold bg-blue-50 p-1.5 rounded-lg border border-blue-200 text-blue-800">🏋️‍♀️ {isAr?'حضرت بالجيم:':'In Gym:'} {dLog.gymTime}</div>}{dLog.waterCups>0&&<div className="mt-1 text-[10px] font-bold bg-cyan-50 p-1.5 rounded-lg border border-cyan-200 text-cyan-800">💧 {(dLog.waterCups*0.3).toFixed(1)}L</div>}{Object.keys(dLog).length>0&&<div className="mt-1 text-[10px] font-bold bg-emerald-50 p-1.5 rounded-lg border border-emerald-200 text-emerald-800 flex items-center gap-1"><GreenCheckIcon/> {isAr?'أنجزت اليوم:':'Done Today:'} {doneCnt}</div>}{failItems.length>0&&<div className="mt-1 text-[10px] font-bold bg-red-50 p-1.5 rounded-lg border border-red-200 text-red-700 max-h-14 overflow-y-auto">⚠️ {failItems.map(f=>f.reason).join(isAr?'، ':', ')}</div>}</div></div>);})}{dispClients.length===0&&<div className="col-span-full text-center py-10 font-bold text-gray-400">{isAr?'لا يوجد عميلات مطابقات للبحث.':'No matching clients found.'}</div>}</div></div>):(
-<div className="w-full max-w-full mx-auto pt-14 px-0.5 sm:px-3"><div className="glass p-2 sm:p-5 rounded-2xl sm:rounded-3xl w-full shadow-2xl"><div className="flex justify-between items-center mb-4"><div className="flex flex-wrap items-center gap-2"><h2 className="text-xl font-black text-brand">{isAr?'ملف العميلة:':'Client Profile:'} {editingClient.n}</h2>{editingClient.cycleMode&&<span className="bg-pink-500 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse">🌸 {isAr?'العميلة مفعلة وضع الهدوء حالياً':'Gentle Mode Active'}</span>}</div><div className="flex gap-2"><button onClick={()=>deleteClient(editingClient.ph)} className="bg-red-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer">🗑️ {isAr?'حذف':'Delete'}</button><button onClick={()=>{setEditingClient(null); window.history.back();}} className="bg-white px-3 py-1.5 rounded-xl shadow-sm text-gray-800 font-bold border cursor-pointer">✕ {isAr?'إغلاق':'Close'}</button></div></div>
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-4 bg-gray-50 dark:bg-slate-900 p-2 rounded-2xl border"><button onClick={()=>setAdminTab('basic')} className={`admin-sidebar-btn ${adminTab==='basic'?'active':''}`}><span>👤</span><span>{isAr?'بيانات و InBody':'Info & InBody'}</span></button><button onClick={()=>setAdminTab('fittest')} className={`admin-sidebar-btn ${adminTab==='fittest'?'active':''}`}><span>🏆</span><span>{isAr?'لياقة ومرونة':'Fitness & Flex'}</span></button><button onClick={()=>setAdminTab('cals')} className={`admin-sidebar-btn ${adminTab==='cals'?'active':''}`}><span>🥗</span><span>{isAr?'الدايت والسناكس':'Diet & Snacks'}</span></button><button onClick={()=>setAdminTab('work')} className={`admin-sidebar-btn ${adminTab==='work'?'active':''}`}><span>💪</span><span>{isAr?'جدول التمارين':'Workouts'}</span></button><button onClick={()=>setAdminTab('habits')} className={`admin-sidebar-btn ${adminTab==='habits'?'active':''}`}><span>⏰</span><span>{isAr?'عادات ومواعيد':'Habits & Time'}</span></button><button onClick={()=>setAdminTab('history')} className={`admin-sidebar-btn ${adminTab==='history'?'active':''}`}><span>📊</span><span>{isAr?'سجل الالتزام':'History Log'}</span></button></div>
+<div className="fixed inset-0 z-[150] bg-gray-50 dark:bg-[#0b1120] flex flex-col overflow-x-hidden overflow-y-auto w-full h-full custom-scroll pb-24">
+  <div className="sticky top-0 bg-white dark:bg-slate-900 shadow-sm z-50 px-3 py-3 border-b dark:border-slate-800 flex justify-between items-center">
+    <div className="flex items-center gap-2">
+      <h2 className="text-lg font-black text-brand truncate max-w-[200px]">{isAr?'ملف: ':'Profile: '} {editingClient.n}</h2>
+      {editingClient.cycleMode&&<span className="bg-pink-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse">🌸</span>}
+    </div>
+    <div className="flex gap-1.5">
+      <button onClick={()=>deleteClient(editingClient.ph)} className="bg-red-50 dark:bg-red-900/30 text-red-500 px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer hover:bg-red-500 hover:text-white transition">🗑️</button>
+      <button onClick={()=>{setEditingClient(null); window.history.back();}} className="bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl shadow-sm text-gray-800 dark:text-gray-200 font-black border dark:border-slate-700 cursor-pointer">✕ {isAr?'رجوع':'Back'}</button>
+    </div>
+  </div>
+  
+  <div className="p-2 sm:p-5 w-full max-w-7xl mx-auto space-y-4 mt-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border dark:border-slate-800 shadow-sm">
 <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 sm:p-4 min-h-[360px] shadow-inner w-full">
 {adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800">
 <InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
@@ -1098,7 +1110,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         const d=safeSch(editingClient.sch)[i]||{};
         const gKey=editingClient.goal||'loss';
         const dPool=DB_DIET_SMART[gKey]?.[dtBuilderType]||DB_DIET_SMART.loss.brk;
-                const appendMealToDay=(mealTypeKey,mealText)=>{
+                        const appendMealToDay=(mealTypeKey,mealText)=>{
           if(!mealText||!mealText.trim())return;
           const prefMap={brk:'• إفطار:',lun:'• غداء:',din:'• عشاء:',snk:'• سناك:'};
           const prefix=prefMap[mealTypeKey]||'• وجبة:';
@@ -1118,7 +1130,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
           setEditingClient(p=>({...p,sch:s}));
           setDtBuilderCustom('');
           setDtEditingIdx(null);
-          setDtBuilderDay(null); // لإغلاق القائمة بعد الإضافة
+          setDtBuilderDay(null); // السطر ده بيقفل القائمة ويرجعك لليوم
         };
         return(
           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.freeDay?'border-amber-400 bg-amber-50/30':'border-brand/30 bg-white'}`}>
@@ -1161,34 +1173,33 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
                   </div>
 
                   {/* في حال الضغط على اختيار وجبة جاهزة: تفتح قائمة الكروت */}
-                                    {dtMealSource==='list'&&(
-                    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-zoom-in">
-                      <div className="bg-white dark:bg-slate-900 w-full max-w-md h-[85vh] rounded-[2rem] flex flex-col shadow-2xl border-2 border-emerald-500/50 overflow-hidden">
-                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-emerald-50 dark:bg-slate-800">
-                          <span className="font-black text-emerald-700 dark:text-emerald-400 text-sm">{isAr?'📋 قائمة الوجبات الجاهزة':'📋 Pre-made Meals'}</span>
-                          <button onClick={()=>setDtMealSource('')} className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center">✕</button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scroll bg-gray-50/50 dark:bg-slate-900/50">
-                          {dPool.map((m,idx)=>{
-                            const cl=stripDietCalorieTags(m);
-                            const isSel=dtBuilderSelected===m;
-                            return(
-                              <div 
-                                key={idx} 
-                                onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} 
-                                className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow'}`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
-                                  <span className="text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed">{cl}</span>
-                                </div>
+                          {dtMealSource==='list'&&(
+                    <div className="fixed inset-0 z-[250] bg-white dark:bg-slate-900 flex flex-col animate-slide-up w-full h-full overflow-hidden">
+                      <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-emerald-50 dark:bg-slate-800 shadow-sm">
+                        <span className="font-black text-emerald-700 dark:text-emerald-400 text-base">📋 {isAr?'قائمة الوجبات الجاهزة':'📋 Pre-made Meals'}</span>
+                        <button onClick={()=>setDtMealSource('')} className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center text-lg shadow-sm">✕</button>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scroll bg-gray-50/40 dark:bg-slate-900/50">
+                        {dPool.map((m,idx)=>{
+                          const cl=stripDietCalorieTags(m);
+                          const isSel=dtBuilderSelected===m;
+                          return(
+                            <div 
+                              key={idx} 
+                              onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} 
+                              className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow-md'}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
+                                <span className="text-[11px] sm:text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{cl}</span>
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
+
 
                   {/* في حال الضغط على كتابة يدوي: يفتح مربع الإدخال */}
                   {dtMealSource==='manual'&&(
@@ -1409,6 +1420,28 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         const curPool=wkBuilderCat==='warmup'?ALL_WARMUPS_POOL:wkBuilderCat==='gym'?ALL_GYM_POOL:ALL_HOME_POOL;
         const appendExerciseToDay=(catKey,exText,gentleAltText)=>{
           if(!exText||!exText.trim())return;
+          const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
+          const gentleTag=gentleAltText&&gentleAltText.trim()?` {{بديل_الهدوء: ${gentleAltText.trim()}}}`:'';
+          const metricStr=wkMetricMode==='reps'?`(${wkSets}x${wkReps})`:`(${wkTimeVal} ${wkTimeUnit})`;
+          const cleanExName=exText.replace(/\s*\([^)]*\)\s*$/,'').trim();
+          const newLine=`${prefix} ${cleanExName} ${metricStr}${gentleTag}`;
+          let s=[...safeSch(editingClient.sch)];
+          let curWk=(s[i]?.workout||'').trim();
+          if(curWk.includes('يوم راحة')||curWk.includes('Rest & Recovery'))curWk='';
+          if(wkEditingIdx !== null) {
+            let lines = curWk.split('\n');
+            lines[wkEditingIdx] = newLine;
+            s[i]={...s[i], active:true, workout:lines.join('\n')};
+          } else {
+            s[i]={...s[i],active:true,workout:curWk?`${curWk}\n${newLine}`:newLine};
+          }
+          setEditingClient(p=>({...p,sch:s}));
+          setWkBuilderCustom('');
+          setWkBuilderGentleAlt('');
+          setWkEditingIdx(null);
+          setWkBuilderDay(null); // السطر ده هو اللي بيقفل القائمة ويرجعك لليوم 
+        };
+          if(!exText||!exText.trim())return;
 const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
           const gentleTag=gentleAltText&&gentleAltText.trim()?` {{بديل_الهدوء: ${gentleAltText.trim()}}}`:'';
           const metricStr=wkMetricMode==='reps'?`(${wkSets}x${wkReps})`:`(${wkTimeVal} ${wkTimeUnit})`;
@@ -1476,33 +1509,32 @@ const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
                   </div>
 
                   {/* في حال اختيار تمرين جاهز: تفتح القائمة */}
-                                    {wkExSource==='list'&&(
-                    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-zoom-in">
-                      <div className="bg-white dark:bg-slate-900 w-full max-w-md h-[85vh] rounded-[2rem] flex flex-col shadow-2xl border-2 border-brand/50 overflow-hidden">
-                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                          <span className="font-black text-brand text-sm">{isAr?'📋 قائمة التمارين المتاحة':'📋 Available Exercises'}</span>
-                          <button onClick={()=>setWkExSource('')} className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center">✕</button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scroll bg-gray-50/50 dark:bg-slate-900/50">
-                          {curPool.map((ex,idx)=>{
-                            const isSel=wkBuilderSelected===ex;
-                            return(
-                              <div 
-                                key={idx} 
-                                onClick={()=>{setWkBuilderSelected(ex);setWkBuilderCustom(ex.replace(/\s*\([^)]*\)\s*$/,'').trim()); setWkExSource('');}} 
-                                className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-brand bg-pink-50 dark:bg-pink-950/60 shadow-md ring-1 ring-brand':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand/50 hover:shadow'}`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-brand bg-brand text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
-                                  <span className="text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed">{ex}</span>
-                                </div>
+                    {wkExSource==='list'&&(
+                    <div className="fixed inset-0 z-[250] bg-white dark:bg-slate-900 flex flex-col animate-slide-up w-full h-full overflow-hidden">
+                      <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 shadow-sm">
+                        <span className="font-black text-brand text-base">📋 {isAr?'قائمة التمارين المتاحة':'📋 Available Exercises'}</span>
+                        <button onClick={()=>setWkExSource('')} className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center text-lg shadow-sm">✕</button>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scroll bg-gray-50/40 dark:bg-slate-900/50">
+                        {curPool.map((ex,idx)=>{
+                          const isSel=wkBuilderSelected===ex;
+                          return(
+                            <div 
+                              key={idx} 
+                              onClick={()=>{setWkBuilderSelected(ex);setWkBuilderCustom(ex.replace(/\s*\([^)]*\)\s*$/,'').trim()); setWkExSource('');}} 
+                              className={`p-4 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-brand bg-pink-50 dark:bg-pink-950/60 shadow-md ring-1 ring-brand':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand/50 hover:shadow-md'}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSel?'border-brand bg-brand text-white text-[10px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
+                                <span className="text-[11px] sm:text-xs font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{ex}</span>
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
+
 
                   {/* في حال اختيار كتابة يدوي: يفتح مربع الكتابة */}
                   {wkExSource==='manual'&&(
