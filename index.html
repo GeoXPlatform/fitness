@@ -575,7 +575,19 @@ const handlePopState=(event)=>{
   }
 };
 window.addEventListener('popstate',handlePopState);
-const handlePopState=(event)=>{if(event.state){setView(event.state.v||'login');setStep(event.state.s||1);if(!event.state.mod){setEditingClient(null);setShowDotsEditor(false);}}};
+const handlePopState=(event)=>{
+  if(event.state){
+    setView(event.state.v||'login');
+    if(event.state.v==='client'){
+      setClientTab(event.state.tab||'home');
+    }
+    setStep(event.state.s||1);
+    if(!event.state.mod){
+      setEditingClient(null);
+      setShowDotsEditor(false);
+    }
+  }
+};
 window.addEventListener('popstate',handlePopState);
 return()=>{unsub();unregAuth();window.removeEventListener('popstate',handlePopState);audioRef.current.pause();};
 },[]);
