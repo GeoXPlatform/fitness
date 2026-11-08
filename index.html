@@ -915,9 +915,17 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
   </div>
   
   <div className="p-2 sm:p-5 w-full max-w-7xl mx-auto space-y-4 mt-2">
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border dark:border-slate-800 shadow-sm">
-<div className="bg-white dark:bg-slate-900 rounded-2xl p-2 sm:p-4 min-h-[360px] shadow-inner w-full">
-{adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-4 bg-gray-50 dark:bg-slate-900 p-2 rounded-2xl border dark:border-slate-700 shadow-sm">
+      <button onClick={()=>setAdminTab('basic')} className={`admin-sidebar-btn ${adminTab==='basic'?'active':''}`}><span>👤</span><span>{isAr?'بيانات و InBody':'Info & InBody'}</span></button>
+      <button onClick={()=>setAdminTab('fittest')} className={`admin-sidebar-btn ${adminTab==='fittest'?'active':''}`}><span>🏆</span><span>{isAr?'لياقة ومرونة':'Fitness & Flex'}</span></button>
+      <button onClick={()=>setAdminTab('cals')} className={`admin-sidebar-btn ${adminTab==='cals'?'active':''}`}><span>🥗</span><span>{isAr?'الدايت والسناكس':'Diet & Snacks'}</span></button>
+      <button onClick={()=>setAdminTab('work')} className={`admin-sidebar-btn ${adminTab==='work'?'active':''}`}><span>💪</span><span>{isAr?'جدول التمارين':'Workouts'}</span></button>
+      <button onClick={()=>setAdminTab('habits')} className={`admin-sidebar-btn ${adminTab==='habits'?'active':''}`}><span>⏰</span><span>{isAr?'عادات ومواعيد':'Habits & Time'}</span></button>
+      <button onClick={()=>setAdminTab('history')} className={`admin-sidebar-btn ${adminTab==='history'?'active':''}`}><span>📊</span><span>{isAr?'سجل الالتزام':'History Log'}</span></button>
+    </div>
+    
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 sm:p-4 min-h-[360px] shadow-inner w-full">
+{adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800 dark:text-gray-200">
 <InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 <div className="col-span-2"><label className="text-[10px] font-bold">{isAr?'الاسم الثلاثي':'Full Name'}</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.n||''} onChange={e=>setEditingClient(p=>({...p,n:e.target.value}))}/></div>
@@ -1418,7 +1426,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         const d=safeSch(editingClient.sch)[i]||{};
         const spFound=d.split?SPLIT_PARTS.find(sp=>sp.id===d.split):null;
         const curPool=wkBuilderCat==='warmup'?ALL_WARMUPS_POOL:wkBuilderCat==='gym'?ALL_GYM_POOL:ALL_HOME_POOL;
-        const appendExerciseToDay=(catKey,exText,gentleAltText)=>{
+          const appendExerciseToDay=(catKey,exText,gentleAltText)=>{
           if(!exText||!exText.trim())return;
           const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
           const gentleTag=gentleAltText&&gentleAltText.trim()?` {{بديل_الهدوء: ${gentleAltText.trim()}}}`:'';
@@ -1439,30 +1447,9 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
           setWkBuilderCustom('');
           setWkBuilderGentleAlt('');
           setWkEditingIdx(null);
-          setWkBuilderDay(null); // السطر ده هو اللي بيقفل القائمة ويرجعك لليوم 
+          setWkBuilderDay(null); // إغلاق القائمة بعد الحفظ
         };
-          if(!exText||!exText.trim())return;
-const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
-          const gentleTag=gentleAltText&&gentleAltText.trim()?` {{بديل_الهدوء: ${gentleAltText.trim()}}}`:'';
-          const metricStr=wkMetricMode==='reps'?`(${wkSets}x${wkReps})`:`(${wkTimeVal} ${wkTimeUnit})`;
-          const cleanExName=exText.replace(/\s*\([^)]*\)\s*$/,'').trim();
-          const newLine=`${prefix} ${cleanExName} ${metricStr}${gentleTag}`;
-          let s=[...safeSch(editingClient.sch)];
-                    let curWk=(s[i]?.workout||'').trim();
-          if(curWk.includes('يوم راحة')||curWk.includes('Rest & Recovery'))curWk='';
-          if(wkEditingIdx !== null) {
-            let lines = curWk.split('\n');
-            lines[wkEditingIdx] = newLine;
-            s[i]={...s[i], active:true, workout:lines.join('\n')};
-          } else {
-            s[i]={...s[i],active:true,workout:curWk?`${curWk}\n${newLine}`:newLine};
-          }
-                    setEditingClient(p=>({...p,sch:s}));
-          setWkBuilderCustom('');
-          setWkBuilderGentleAlt('');
-          setWkEditingIdx(null);
-          setWkBuilderDay(null); // لإغلاق القائمة بعد الحفظ
-        };
+;
         return(
           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.active?'border-brand bg-white':'border-gray-200 bg-gray-50/50'}`}>
             <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-2.5">
