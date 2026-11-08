@@ -262,8 +262,13 @@ const formatWorkoutItemByLang=(text,isAr)=>{
      .replace(/🏠\s*بديل بالمنزل \(بدون أجهزة\):/g,'🏠 Home Exercise:')
      .replace(/🌸\s*\[بديل الهدوء[^\]]*\]/g,'🌸 [Gentle Cycle Alternative]')
      .replace(/🌸\s*\[تسخين لطيف[^\]]*\]/g,'🌸 [Gentle Cycle Warm-up]')
-     .replace(/🌸\s*\[مُعدّل لنظام الهدوء[^\]]*\]/g,'🌸 [Gentle Mode - 50% Load]');
+     .replace(/🌸\s*\[مُعدّل لنظام الهدوء[^\]]*\]/g,'🌸 [Gentle Mode - 50% Load]')
+     .replace(/دقيقة/g, 'min')
+     .replace(/دقيقه/g, 'min')
+     .replace(/ثانية/g, 'sec')
+     .replace(/ثواني/g, 'sec');
   if(s.includes(' - ')){
+
     const parts=s.split(' - ');
     const left=parts[0].trim();
     const right=parts.slice(1).join(' - ').trim();
@@ -1498,13 +1503,51 @@ const prefix=catKey==='warmup'?'🔥':catKey==='gym'?'🏋️‍♀️':'🏠';
 
 
 <div className="space-y-2 mt-3">
-  {(d?.workout||'').split('\n').filter(x=>x.trim()).map((line, lIdx) => (
-    <div key={lIdx} className="flex justify-between items-center bg-gray-50 border border-gray-200 p-2.5 rounded-xl shadow-sm hover:border-brand transition">
-      <span className="text-[11px] font-black text-gray-700 flex-1 leading-relaxed">{line.replace(/\{\{بديل_الهدوء:(.*?)\}\}/g, ' 🌸 (يوجد بديل هدوء)')}</span>
-      <button onClick={()=>{let s=[...safeSch(editingClient.sch)]; let lines=(s[i].workout||'').split('\n'); lines.splice(lIdx, 1); s[i].workout=lines.join('\n'); setEditingClient(p=>({...p,sch:s}));}} className="w-7 h-7 bg-red-100 text-red-500 rounded-lg flex items-center justify-center font-bold mr-2 hover:bg-red-500 hover:text-white transition cursor-pointer" title="مسح التمرين">✕</button>
+    {(d?.workout||'').split('\n').filter(x=>x.trim()).map((line, lIdx) => (
+    <div key={lIdx} className="flex justify-between items-center bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-2.5 rounded-xl shadow-sm hover:border-brand dark:hover:border-brand transition gap-2">
+      <span className="text-[11px] font-black text-gray-800 dark:text-gray-200 flex-1 leading-relaxed">{line.replace(/\{\{بديل_الهدوء:(.*?)\}\}/g, ' 🌸 (يوجد بديل هدوء)')}</span>
+      <div className="flex gap-1 shrink-0">
+        <button onClick={()=>{
+          let s=[...safeSch(editingClient.sch)];
+          let lines=(s[i].workout||'').split('\n').filter(x=>x.trim());
+          lines.splice(lIdx, 1);
+          s[i].workout=lines.join('\n');
+          setEditingClient(p=>({...p,sch:s}));
+          
+          let cat = 'gym';
+          if(line.includes('🔥')) cat = 'warmup';
+          else if(line.includes('🏠')) cat = 'home';
+          let rawName = line.replace(/^(🔥|🏋️‍♀️|🏠)/, '').trim();
+          let alt = '';
+          const altMatch = rawName.match(/\{\{بديل_الهدوء:(.*?)\}\}/);
+          if(altMatch) { alt = altMatch[1].trim(); rawName = rawName.replace(altMatch[0], '').trim(); }
+          let mode = 'reps', sets = '3', reps = '12', tVal = '45', tUnit = 'ثانية';
+          const metricMatch = rawName.match(/\(([^)]+)\)$/);
+          if(metricMatch) {
+            const metricStr = metricMatch[1];
+            rawName = rawName.replace(metricMatch[0], '').trim();
+            if(metricStr.includes('x') || metricStr.includes('×')) {
+              mode = 'reps';
+              const parts = metricStr.split(/x|×/);
+              sets = parts[0].trim();
+              reps = parts[1].trim();
+            } else {
+              mode = 'time';
+              const parts = metricStr.split(' ');
+              tVal = parts[0];
+              tUnit = parts.slice(1).join(' ') || 'ثانية';
+            }
+          }
+          setWkBuilderDay(i); setWkBuilderCat(cat); setWkExSource('manual');
+          setWkBuilderCustom(rawName); setWkMetricMode(mode);
+          setWkSets(sets); setWkReps(reps); setWkTimeVal(tVal); setWkTimeUnit(tUnit);
+          setWkBuilderGentleAlt(alt);
+        }} className="w-7 h-7 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center font-bold hover:bg-blue-500 hover:text-white transition cursor-pointer" title="تعديل التمرين">✏️</button>
+        <button onClick={()=>{let s=[...safeSch(editingClient.sch)]; let lines=(s[i].workout||'').split('\n').filter(x=>x.trim()); lines.splice(lIdx, 1); s[i].workout=lines.join('\n'); setEditingClient(p=>({...p,sch:s}));}} className="w-7 h-7 bg-red-100 dark:bg-red-900/40 text-red-500 dark:text-red-400 rounded-lg flex items-center justify-center font-bold hover:bg-red-500 hover:text-white transition cursor-pointer" title="مسح التمرين">✕</button>
+      </div>
     </div>
   ))}
-  {!(d?.workout||'').trim() && <div className="text-[10px] text-gray-400 text-center py-3 font-bold border-2 border-dashed rounded-xl">لم يتم إضافة تمارين بعد 📌</div>}
+  {!(d?.workout||'').trim() && <div className="text-[10px] text-gray-500 dark:text-gray-400 text-center py-3 font-bold border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl">لم يتم إضافة تمارين بعد 📌</div>}
 </div>
           </div>
         );
@@ -1784,7 +1827,7 @@ return(
     </div>
   </div>
   {!cLog.wakeTime && (
-    <button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr,activeCoachHours)} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer">صحيت الآن ☀️</button>
+<button onClick={()=>handleCheckIn('wake',tdStr,activeWake,isAr,activeCoachHours)} className="bg-gradient-to-r text-white px-3 py-1.5 rounded-xl font-black text-[10px] shadow cursor-pointer">{isAr ? 'صحيت الآن ☀️' : 'Woke up now ☀️'}</button>
   )}
 </div>
       <button onClick={()=>setMusicModal(true)} className="bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 text-white p-3 rounded-2xl shadow-[0_4px_18px_rgba(255,0,127,0.35)] flex items-center justify-between hover:scale-[1.01] transition cursor-pointer border border-white/30">
