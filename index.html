@@ -561,19 +561,6 @@ const unsub=db.collection('elite_clients').onSnapshot(s=>{
   }
 },()=>{console.warn('Firebase offline, relying on local DB');});
 const unregAuth=auth.onAuthStateChanged(user=>{if(user){if(ADMIN_EMAILS.includes(user.email)){sessionStorage.setItem('elite_phone',ADMIN_PHONE);setView('admin');if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission().catch(()=>{});}}else{auth.signOut();alert(isAr?'غير مصرح لكِ بالدخول كأدمن.':'Not authorized.');}}});
-const handlePopState=(event)=>{
-  if(event.state){
-    setView(event.state.v||'login');
-    if(event.state.v==='client'){
-      setClientTab(event.state.tab||'home');
-    }
-    setStep(event.state.s||1);
-    if(!event.state.mod){
-      setEditingClient(null);
-      setShowDotsEditor(false);
-    }
-  }
-};
 window.addEventListener('popstate',handlePopState);
 const handlePopState=(event)=>{
   if(event.state){
