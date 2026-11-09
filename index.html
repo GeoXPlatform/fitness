@@ -1691,7 +1691,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
           <div key={idx} onClick={()=>{setWkBuilderSelected(ex);setWkBuilderCustom(ex.replace(/\s*\([^)]*\)\s*$/,'').trim()); setWkExSource('');}} className={`p-5 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-brand bg-pink-50 dark:bg-pink-900/40 shadow-md ring-1 ring-brand':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand/50 hover:shadow-md'}`}>
             <div className="flex items-center gap-3">
               <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-brand bg-brand text-white text-[12px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
-              <span className="text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{ex}</span>
+<span className="text-xs sm:text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words w-full">{ex}</span>
             </div>
           </div>
         );
@@ -1714,7 +1714,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
           <div key={idx} onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} className={`p-5 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow-md'}`}>
             <div className="flex items-center gap-3">
               <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[12px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
-              <span className="text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words">{cl}</span>
+<span className="text-xs sm:text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words w-full">{cl}</span>
             </div>
           </div>
         );
@@ -1953,7 +1953,7 @@ return(
           const val = currentUser.msr?.[pt.id];
           return(
             <div key={pt.id} className="w-[18%] bg-slate-50 dark:bg-slate-900/50 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center h-10">
-              <span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
+<span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
               <span className={`block font-black text-[10px] font-english mt-0.5 leading-tight ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
             </div>
           );
@@ -1962,7 +1962,7 @@ return(
           const val = currentUser.msr?.[pt.id];
           return(
             <div key={pt.id} className="w-[15%] bg-slate-50 dark:bg-slate-900/50 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center h-10">
-              <span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
+<span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
               <span className={`block font-black text-[10px] font-english mt-0.5 leading-tight ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
             </div>
           );
