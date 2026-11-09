@@ -1110,31 +1110,35 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
 </div>)}
 {adminTab==='cals'&&(
   <div className="animate-slide-up text-gray-800">
-        {(()=>{const cData=getMacs(editingClient,isAr);return(
-      <div className="bg-gradient-to-r text-white p-2.5 rounded-xl mb-3 shadow-md relative overflow-hidden flex flex-col sm:flex-row justify-between items-center gap-2">
-        {cData.source.includes('InBody') && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">{isAr?'مربوط بالـ InBody':'InBody Synced'}</div>}
+    {(()=>{const cData=getMacs(editingClient,isAr);return(
+      <div className="bg-gradient-to-r text-white p-2 rounded-xl mb-3 shadow-md relative overflow-hidden flex flex-wrap sm:flex-nowrap items-center gap-2 border border-white/20">
+        {cData.source.includes('InBody') && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">{isAr?'InBody':'InBody'}</div>}
         
-        <div className="flex-1 w-full mt-2 sm:mt-0">
-          <div className="flex justify-between items-center mb-1">
-            <h3 className="text-[10px] font-black">📊 {isAr?`السعرات والماكروز للهدف (${editingClient.iW||60}kg)`:`Macros for Target (${editingClient.iW||60}kg)`}</h3>
+        <div className="flex-1 w-full sm:w-auto">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-[10px] font-black">📊 {isAr?`سعرات الهدف (${editingClient.iW||60}kg)`:`Target Macros (${editingClient.iW||60}kg)`}</h3>
             <span className="text-[8px] bg-black/30 px-1.5 py-0.5 rounded-full font-bold">{cData.state}</span>
           </div>
-          <div className="text-[8px] font-bold text-white/80 flex items-center gap-1 mb-1.5"><span>🧠 {isAr?'الحساب:':'Method:'}</span><span className="bg-white/20 px-1 rounded">{cData.source}</span></div>
-          
-          <div className="flex justify-between text-center bg-black/20 p-1.5 rounded-lg">
-            <div><span className="block text-[7px] opacity-75">BMI</span><span className="font-black text-[9px]">{cData.bmi||'-'}</span></div>
-            <div><span className="block text-[7px] opacity-75">PBF%</span><span className="font-black text-[9px]">{cData.pbf?'~'+cData.pbf+'%':'-'}</span></div>
-            <div><span className="block text-[7px] opacity-75">BMR</span><span className="font-black text-[9px]">{cData.bmr||'-'}</span></div>
-            <div><span className="block text-[7px] opacity-75">TDEE</span><span className="font-black text-[9px]">{cData.tdee||'-'}</span></div>
+          <div className="text-[8px] font-bold text-white/80 bg-black/10 px-1.5 py-0.5 rounded inline-block truncate max-w-full">
+            🧠 {cData.source}
           </div>
         </div>
 
-        <div className="flex justify-around sm:flex-col sm:justify-center w-full sm:w-24 gap-1 border-t sm:border-t-0 sm:border-r border-white/20 pt-1.5 sm:pt-0 sm:pr-2">
-          <div className="text-center bg-white/10 rounded px-1 py-0.5"><span className="block text-[8px]">{isAr?'🔥 السعرات':'Calories'}</span><span className="font-black text-brand-gold text-xs">{cData.c}</span></div>
-          <div className="flex gap-1.5 text-[9px] justify-center font-bold">
-            <span title="Protein">🥩 {cData.p}g</span>
-            <span title="Carbs">🍞 {cData.cr}g</span>
-            <span title="Fat">🧈 {cData.f}g</span>
+        <div className="flex bg-black/20 rounded-lg p-1 gap-2 text-center w-full sm:w-auto shrink-0 justify-around">
+          <div><span className="block text-[7px] text-white/70">BMI</span><span className="font-black text-[9px]">{cData.bmi||'-'}</span></div>
+          <div><span className="block text-[7px] text-white/70">PBF%</span><span className="font-black text-[9px]">{cData.pbf?'~'+cData.pbf+'%':'-'}</span></div>
+          <div><span className="block text-[7px] text-white/70">BMR</span><span className="font-black text-[9px]">{cData.bmr||'-'}</span></div>
+        </div>
+
+        <div className="flex bg-white/10 rounded-lg p-1.5 gap-2.5 items-center w-full sm:w-auto shrink-0 justify-center">
+          <div className="text-center border-l border-white/20 pl-2">
+            <span className="block text-[7px] text-brand-gold font-bold">🔥 {isAr?'سعرات':'Cal'}</span>
+            <span className="font-black text-brand-gold text-xs leading-none">{cData.c}</span>
+          </div>
+          <div className="flex gap-1.5 text-[9px] font-black">
+            <span className="text-blue-200">🥩{cData.p}g</span>
+            <span className="text-amber-200">🍞{cData.cr}g</span>
+            <span className="text-pink-200">🧈{cData.f}g</span>
           </div>
         </div>
       </div>
@@ -1924,26 +1928,26 @@ return(
 
     <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
 
-    {/* شريط مقاسات الجسم التفصيلية */}
-    <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-brand/25 space-y-2">
+    {/* شبكة مقاسات الجسم التفصيلية */}
+    <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-brand/25 space-y-2.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-6 h-6 rounded-lg bg-pink-500/15 text-brand flex items-center justify-center text-xs">📏</span>
-          <h4 className="font-black text-xs text-brand">{isAr?'شريط مقاسات الجسم (cm)':'Body Measurements (cm)'}</h4>
+          <h4 className="font-black text-xs text-brand">{isAr?'مقاسات الجسم التفصيلية (cm)':'Detailed Body Measurements'}</h4>
         </div>
         <span className="text-[9px] font-bold text-gray-400">
-          {Object.keys(currentUser.msr||{}).filter(k=>currentUser.msr[k]).length}/{measurePts.length} {isAr?'مسجل':'Recorded'}
+          {Object.keys(currentUser.msr||{}).filter(k=>currentUser.msr[k]).length}/{measurePts.length} {isAr?'مُسجل':'Recorded'}
         </span>
       </div>
       
-      <div className="flex gap-2 overflow-x-auto custom-scroll pb-1.5 pt-0.5">
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
         {measurePts.map(pt=>{
           const val = currentUser.msr?.[pt.id];
           return(
-            <div key={pt.id} className="min-w-[82px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-gray-200 dark:border-slate-700 text-center shadow-sm">
-              <span className="block text-[8.5px] font-bold text-gray-500 dark:text-gray-400 truncate mb-1">{isAr?pt.ar:pt.en}</span>
-              <span className={`block font-black text-xs font-english ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>
-                {val ? `${val} cm` : '--'}
+            <div key={pt.id} className="bg-slate-50 dark:bg-slate-900/80 p-1.5 rounded-xl border border-gray-200 dark:border-slate-700 text-center shadow-sm">
+              <span className="block text-[8.5px] font-bold text-gray-500 dark:text-gray-400 truncate mb-0.5">{isAr?pt.ar.replace(/\(.*\)/, '') : pt.en.replace(/\(.*\)/, '')}</span>
+              <span className={`block font-black text-[11px] font-english ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>
+                {val ? val : '--'}
               </span>
             </div>
           );
