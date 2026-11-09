@@ -1948,25 +1948,32 @@ return(
         </span>
       </div>
       
-      <div className="flex flex-wrap justify-center gap-1">
-        {measurePts.slice(0, 5).map(pt=>{
-          const val = currentUser.msr?.[pt.id];
-          return(
-            <div key={pt.id} className="w-[18%] bg-slate-50 dark:bg-slate-900/50 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center h-10">
-<span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
-              <span className={`block font-black text-[10px] font-english mt-0.5 leading-tight ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
-            </div>
-          );
-        })}
-        {measurePts.slice(5).map(pt=>{
-          const val = currentUser.msr?.[pt.id];
-          return(
-            <div key={pt.id} className="w-[15%] bg-slate-50 dark:bg-slate-900/50 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center h-10">
-<span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 truncate leading-tight">{isAr?pt.ar:pt.en}</span>
-              <span className={`block font-black text-[10px] font-english mt-0.5 leading-tight ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
-            </div>
-          );
-        })}
+      <div className="flex flex-col gap-1.5 w-full">
+        {/* الصف الأول (5 مقاسات) */}
+        <div className="flex justify-center gap-1 w-full">
+          {measurePts.slice(0, 5).map(pt=>{
+            const val = currentUser.msr?.[pt.id];
+            return(
+              <div key={pt.id} className="flex-1 bg-slate-50 dark:bg-slate-900/50 p-0.5 sm:p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center min-h-[44px]">
+                <span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 leading-tight whitespace-normal break-words">{isAr?pt.ar:pt.en}</span>
+                <span className={`block font-black text-[10px] font-english mt-0.5 leading-none ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* الصف الثاني (6 مقاسات) */}
+        <div className="flex justify-center gap-1 w-full">
+          {measurePts.slice(5).map(pt=>{
+            const val = currentUser.msr?.[pt.id];
+            return(
+              <div key={pt.id} className="flex-1 bg-slate-50 dark:bg-slate-900/50 p-0.5 sm:p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-center shadow-sm flex flex-col justify-center min-h-[44px]">
+                <span className="block text-[7.5px] font-bold text-gray-500 dark:text-gray-400 leading-tight whitespace-normal break-words">{isAr?pt.ar:pt.en}</span>
+                <span className={`block font-black text-[10px] font-english mt-0.5 leading-none ${val?'text-brand':'text-gray-300 dark:text-gray-600'}`}>{val ? val : '--'}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
 
