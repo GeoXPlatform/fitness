@@ -405,41 +405,98 @@ const isBirthdayToday=(dob)=>{if(!dob)return false;const parts=dob.split('-').ma
 const safeSch=(arr)=>(Array.isArray(arr)&&arr.length===7)?arr.map(x=>x&&typeof x==='object'?x:{}):[{},{},{},{},{},{},{}];
 const calcSleep=(wake,sleep)=>{if(!wake||!sleep)return{h:8,m:0};const w=wake.split(':').map(Number);const s=sleep.split(':').map(Number);let wMins=w[0]*60+(w[1]||0);let sMins=s[0]*60+(s[1]||0);if(wMins<=sMins)wMins+=24*60;const diff=wMins-sMins;return{h:Math.floor(diff/60),m:diff%60};};
 const getMacs=(u,isAr=true)=>{
-  if(u.customMacs&&u.customMacs.c){
-    const st=u.customMacs.state||(isAr?'مخصص':'Custom');
-    return{...u.customMacs,state:st,source:isAr?'تعديل يدوي':'Manual'};
-  }
-  let a=calcAge(u.dob); let w=Number(u.w)||65,h=Number(u.h)||160;
-  let iW=Number(u.iW)||(h>105?h-105:60); let bmi=w/((h/100)*(h/100));
+  let a=calcAge(u.dob);
+  let h=Number(u.h)||160;
+  let iW=Number(u.iW)||(h>105?h-105:60);
 
   const hist=Array.isArray(u.inbodyHistory)&&u.inbodyHistory.length>0?u.inbodyHistory:null;
   const latestInb=hist?hist[hist.length-1]:null;
-  const inbPBF=latestInb&&latestInb.pbf?Number(latestInb.pbf):null;
-  const inbBMR=latestInb&&latestInb.bmr?Number(latestInb.bmr):null;
+  let w=(latestInb&&Number(latestInb.w)>=30)?Number(latestInb.w):(Number(u.w)||65);
+  let bmi=w/((h/100)*(h/100));
 
-  let pbf=inbPBF||((1.20*bmi)+(0.23*a)-5.4);
-  let lbm=w-(w*(pbf/100));
+  const inbSMM=latestInb&&Number(latestInb.smm)>=8?Number(latestInb.smm):null;
+  const inbBFM=latestInb&&Number(latestInb.bfm)>=3?Number(latestInb.bfm):null;
+  const inbPBF=latestInb&&Number(latestInb.pbf)>=5?Number(latestInb.pbf):(inbBFM?Number(((inbBFM/w)*100).toFixed(1)):null);
+  const inbBMR=latestInb&&Number(latestInb.bmr)>=800?Number(latestInb.bmr):null;
 
-  let bmr=0; let src='';
-  if(inbBMR){bmr=inbBMR;src=isAr?'مربوط بجهاز الـ InBody 🟢':'InBody Synced 🟢';}
-  else if(inbPBF){bmr=370+(21.6*lbm);src=isAr?'معادلة InBody الدقيقة 🔵':'InBody Math 🔵';}
-  else{bmr=(10*w)+(6.25*h)-(5*a)-161;src=isAr?'حسابات تقريبية قياسية ⚪':'Standard Math ⚪';}
+  let pbf=inbPBF!==null?inbPBF:Math.max(12,Math.min(55,(1.20*bmi)+(0.23*a)-5.4));
+  let lbm=w*(1-(pbf/100));
 
-  let act=(u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.35:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.55:1.75;
-  let tdee=bmr*act;
+  let bmrCurr=0; let src='';
+  if(inbBMR){bmrCurr=inbBMR;src=isAr?'مربوط بـ InBody + الهدف 🟢':'InBody + Target Synced 🟢';}
+  else if(inbPBF!==null||inbSMM!==null){bmrCurr=370+(21.6*lbm);src=isAr?'معادلة InBody والهدف 🔵':'InBody & Target Math 🔵';}
+  else{bmrCurr=(10*w)+(6.25*h)-(5*a)-161;src=isAr?'معادلة الهدف القياسية ⚪':'Target Standard Math ⚪';}
+
+  // ربط مباشر بالوزن المثالي (iW) بحيث يتغير كل شيء فوراً عند تعديله
+  let bmrIdeal=(10*iW)+(6.25*h)-(5*a)-161;
+  if(inbPBF!==null){
+    let idealLBM=iW*0.78;
+    bmrIdeal=370+(21.6*idealLBM);
+  }
+  let bmrBlended=(bmrCurr*0.55)+(bmrIdeal*0.45);
+  let act=(u.lvl||'').includes('مبتدئ')||(u.lvl||'').includes('Beg')?1.32:(u.lvl||'').includes('متوسط')||(u.lvl||'').includes('Int')?1.45:1.60;
+  
+  let rawMaint=bmrBlended*act+(iW-w)*14;
+  let cMaint=Math.round(Math.max(1250,Math.min(2700,rawMaint))/50)*50;
+  let cLoss=Math.max(1150,cMaint-150);
+  let cGain=cMaint+150;
+
+  let g=u.goal||(w>iW+2?'loss':w<iW-2?'gain':'maint');
+  let cal=g==='loss'?cLoss:g==='gain'?cGain:cMaint;
+
   let stateAr=bmi<18.5?"نحافة":bmi<25?"وزن مثالي":bmi<30?"وزن زائد":"سمنة";
   let stateEn=bmi<18.5?"Underweight":bmi<25?"Normal Weight":bmi<30?"Overweight":"Obese";
-  let g=u.goal||(w>iW+2?'loss':w<iW-2?'gain':'maint');
 
-  let cal=tdee;
-  if(g==='loss')cal=Math.max(1200,tdee*0.80);
-  else if(g==='gain')cal=tdee*1.15;
+  // حساب الماكروز بناءً على الوزن المثالي ونسبة الدهون في الـ InBody
+  let refW=(iW*0.65)+(w*0.35);
+  let smmFactor=inbSMM?(inbSMM*0.35):0;
+  let pMult=g==='loss'?(pbf>30?2.1:1.95):g==='gain'?2.0:1.8;
+  let pro=Math.round((refW*pMult)+(smmFactor*0.2));
+  pro=Math.max(65,Math.min(185,pro));
 
-  let pTarget=g==='loss'?2.2:g==='gain'?2.0:1.8; let pro=w*pTarget;
-  let fatPct=g==='loss'?0.25:g==='gain'?0.30:0.25; let fat=(cal*fatPct)/9;
-  let carb=(cal-(pro*4)-(fat*9))/4;
+  let fatPct=pbf>32?0.23:pbf<22?0.28:0.25;
+  if(g==='gain')fatPct=0.28;
+  let fat=Math.round((cal*fatPct)/9);
+  fat=Math.max(30,Math.min(95,fat));
 
-  return{bmi:bmi.toFixed(1),pbf:pbf.toFixed(1),bmr:Math.round(bmr),tdee:Math.round(tdee),c:Math.round(cal),p:Math.round(pro),cr:Math.round(carb),f:Math.round(fat),state:isAr?stateAr:stateEn,goal:g,source:src};
+  let carb=Math.round((cal-(pro*4)-(fat*9))/4);
+  if(carb<50){
+    carb=50;
+    cal=(pro*4)+(carb*4)+(fat*9);
+  }
+
+  const baseRes={
+    bmi:bmi.toFixed(1),
+    pbf:Number(pbf).toFixed(1),
+    bmr:Math.round(bmrCurr),
+    tdee:Math.round(bmrCurr*act),
+    c:Math.round(cal),
+    p:pro,
+    cr:carb,
+    f:fat,
+    cLoss,
+    cMaint,
+    cGain,
+    minAllowed:cLoss,
+    avgAllowed:cMaint,
+    maxAllowed:cGain,
+    iW,
+    state:isAr?stateAr:stateEn,
+    goal:g,
+    source:src
+  };
+
+  if(u.customMacs&&(u.customMacs.c!==''||u.customMacs.p!==''||u.customMacs.cr!==''||u.customMacs.f!=='')){
+    return{
+      ...baseRes,
+      c:u.customMacs.c!==''&&u.customMacs.c!==undefined?Number(u.customMacs.c):baseRes.c,
+      p:u.customMacs.p!==''&&u.customMacs.p!==undefined?Number(u.customMacs.p):baseRes.p,
+      cr:u.customMacs.cr!==''&&u.customMacs.cr!==undefined?Number(u.customMacs.cr):baseRes.cr,
+      f:u.customMacs.f!==''&&u.customMacs.f!==undefined?Number(u.customMacs.f):baseRes.f,
+      source:isAr?'معدل يدوياً + InBody ⚙️':'Custom + InBody ⚙️'
+    };
+  }
+  return baseRes;
 };
 const estimateSmartInbody=(u)=>({date:new Date().toISOString().split('T')[0],w:u?.w||'',smm:'',bfm:'',pbf:'',bmr:'',vfl:''});
 const DateSelector=({value,onChange,isAr})=>{const parts=(value||'2000-01-01').split('-');const yr=parseInt(parts[0],10)||2000;const mo=parseInt(parts[1],10)||1;const dy=parseInt(parts[2],10)||1;const years=[];const curY=new Date().getFullYear();for(let y=curY-8;y>=1960;y--)years.push(y);const monthsAr=['يناير (1)','فبراير (2)','مارس (3)','أبريل (4)','مايو (5)','يونيو (6)','يوليو (7)','أغسطس (8)','سبتمبر (9)','أكتوبر (10)','نوفمبر (11)','ديسمبر (12)'];const monthsEn=['Jan (1)','Feb (2)','Mar (3)','Apr (4)','May (5)','Jun (6)','Jul (7)','Aug (8)','Sep (9)','Oct (10)','Nov (11)','Dec (12)'];const daysInMonth=new Date(yr,mo,0).getDate();const days=Array.from({length:daysInMonth},(_,i)=>i+1);const update=(nY,nM,nD)=>{const maxD=new Date(nY,nM,0).getDate();const safeD=Math.min(nD,maxD);onChange(`${nY}-${String(nM).padStart(2,'0')}-${String(safeD).padStart(2,'0')}`);};return(<div className="grid grid-cols-3 gap-2"><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'اليوم':'Day'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={dy} onChange={e=>update(yr,mo,Number(e.target.value))}>{days.map(d=><option key={d} value={d}>{d}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'الشهر':'Month'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={mo} onChange={e=>update(yr,Number(e.target.value),dy)}>{(isAr?monthsAr:monthsEn).map((m,idx)=><option key={idx+1} value={idx+1}>{m}</option>)}</select></div><div><span className="block text-[9px] font-bold text-gray-400 mb-0.5 text-center">{isAr?'السنة':'Year'}</span><select className="w-full p-2.5 rounded-xl border font-black text-xs bg-input text-center outline-none cursor-pointer" value={yr} onChange={e=>update(Number(e.target.value),mo,dy)}>{years.map(y=><option key={y} value={y}>{y}</option>)}</select></div></div>);};
@@ -799,7 +856,173 @@ const togInj=(i)=>uF('injuries',fData.injuries.includes(i)?fData.injuries.filter
 const logout=()=>{sessionStorage.removeItem('elite_phone');audioRef.current.pause();if(auth.currentUser)auth.signOut().then(()=>window.location.reload());else window.location.reload();};
 const deleteClient=(ph)=>{if(window.confirm(isAr?'هل أنتِ متأكدة من حذف هذه العميلة نهائياً؟':'Are you sure you want to delete this client?')){let delList=JSON.parse(localStorage.getItem('gg_deleted_clients')||'[]');if(!delList.includes(ph)){delList.push(ph);localStorage.setItem('gg_deleted_clients',JSON.stringify(delList));}db.collection('elite_clients').doc(ph).delete().catch(()=>{});let localDB=JSON.parse(localStorage.getItem('gg_local_clients_db')||'[]');localDB=localDB.filter(c=>c.ph!==ph);localStorage.setItem('gg_local_clients_db',JSON.stringify(localDB));setClients(localDB);if(editingClient&&editingClient.ph===ph){setEditingClient(null);}}};
 
-const genSmartDietOnly=()=>{const macs=getMacs(editingClient,isAr);const gKey=editingClient.goal||macs.goal||'loss';const dDB=DB_DIET_SMART[gKey]||DB_DIET_SMART.loss;const targetCal=Number(macs.c)||1500;const baseRef=gKey==='loss'?1400:gKey==='gain'?2500:1850;const ratio=targetCal/baseRef;const scalePortionNotice=ratio>1.12?` (💡 أضيفي +${Math.round((ratio-1)*100)}% للكميات لتغطية ${targetCal} سعرة)`:ratio<0.88?` (💡 قللي الكمية بنسبة ${Math.round((1-ratio)*100)}% لضبط ${targetCal} سعرة)`:'';const algStr=(editingClient.alg||'').trim();let dIdx=0;let s=safeSch(editingClient.sch).map((day)=>{if(day?.freeDay)return day;const isWorkDay=!!day?.active;const spId=day?.split||'full';const spName=SPLIT_PARTS.find(p=>p.id===spId)?.n||'تمرين';let b=dDB.brk[dIdx%dDB.brk.length];let l=dDB.lun[dIdx%dDB.lun.length]+scalePortionNotice;let d=dDB.din[dIdx%dDB.din.length];let sn=dDB.snk[dIdx%dDB.snk.length];if(algStr){if(/سمك|تونة|جمبري|بحر|fish|tuna/i.test(algStr)){l=l.replace(/2 سمكة بلطي.*?\(260 Cal\)|علبة تونة.*?\(185 Cal\)|سمكة ماكريل.*?\(340 Cal\)|سمك سلمون.*?\(420 Cal\)/g,'180 جرام صدور دجاج مشوية صافي (بديل آمن للحساسية)');d=d.replace(/سلطة تونة/g,'سلطة صدور دجاج مشوية');}if(/لبن|ألبان|حليب|جبن|زبادي|لاكتوز|milk|dairy/i.test(algStr)){b=b.replace(/جبنة قريش|كوب حليب/g,'بياض بيض مسلوق أو حليب لوز/شوفان نباتي');d=d.replace(/علبة زبادي.*?\)|جبنة قريش/g,'2 بيضة مسلوقة + خضار طازج (خالي من اللاكتوز)');}if(/مكسرات|لوز|فول سوداني|nuts/i.test(algStr)){sn=sn.replace(/لوز|مكسرات|زبدة فول سوداني/g,'بذور شيا وشوفان وفواكه طازجة (آمن للحساسية)');}}const workoutSyncTag=isWorkDay?`⚡ [وجبة يوم تمرين (${spName}): تناولي السناك قبل التمرين بـ 45 دقيقة للطاقة، والغداء الغني بالبروتين بعد التمرين للاستشفاء العضلي]`:`🌿 [يوم راحة واستشفاء: تقليل النشويات مساءً وشرب ${editingClient.water||sysConf.water||3} لتر مياه لتعزيز الحرق]`;dIdx++;return{...day,diet:`🎯 نظام اليوم: ${workoutSyncTag}\n• إفطار: ${b}\n• غداء: ${l}\n• عشاء: ${d}\n• سناك: ${sn}\n📊 إجمالي الخطة اليومية مضبوط على احتياجك: ~${macs.c} Cal (${macs.p}g Pro | ${macs.cr}g Carb | ${macs.f}g Fat)`,snacks:sn};});setEditingClient(p=>({...p,sch:s}));alert(isAr?`تم توليد جدول الدايت الذكي لـ ${macs.c} سعرة (${macs.p}g بروتين)! اضغطي حفظ بالأسفل لاعتماده 🥗`:`Smart Diet Generated for ${macs.c} Cal (${macs.p}g Protein)! Click Save below 🥗`);};
+const EGY_INGREDIENTS={
+  brk_pro:[
+    {id:'eggs_koraish',p:21,cr:3,f:11,c:195,fmt:(m)=>`${Math.max(1,Math.round(2*m))} بيضة مسلوقة + ${Math.round((60*m)/10)*10}g جبنة قريش 🥚🧀`},
+    {id:'foul_egg',p:18,cr:22,f:6,c:214,fmt:(m)=>`${Math.max(3,Math.round(5*m))} ملاعق فول مدمس بالليمون والكمون + ${Math.max(1,Math.round(1*m))} بيضة مسلوقة 🫘🥚`},
+    {id:'omelet_veggie',p:19,cr:4,f:12,c:200,fmt:(m)=>`أومليت (${Math.max(2,Math.round(2*m))} بيضة بالمشروم والسبانخ والفلفل الرومي) + ${Math.round((40*m)/10)*10}g جبنة لايت 🍳`},
+    {id:'koraish_flax',p:22,cr:5,f:6,c:162,fmt:(m)=>`${Math.round((150*m)/10)*10}g جبنة قريش بالزعتر والطماطم + بياض بيضتين مسلوق 🧀`},
+    {id:'turkey_eggs',p:24,cr:2,f:9,c:185,fmt:(m)=>`${Math.round((60*m)/10)*10}g صدور رومي مدخن + ${Math.max(1,Math.round(2*m))} بيضة عيون بطاسة تيفال 🥩🍳`},
+    {id:'greek_eggs',p:22,cr:6,f:10,c:202,fmt:(m)=>`علبة زبادي يوناني (${Math.round((140*m)/10)*10}g) + ${Math.max(1,Math.round(2*m))} بيضة مسلوقة 🥛🥚`},
+    {id:'areesh_foul',p:20,cr:18,f:5,c:197,fmt:(m)=>`${Math.round((100*m)/10)*10}g جبنة قريش + ${Math.max(3,Math.round(4*m))} ملاعق فول مدمس بالليمون 🧀🫘`}
+  ],
+  brk_carb:[
+    {id:'baladi',p:4,cr:28,f:1,c:137,fmt:(m)=>m<=0.6?'ربع رغيف بلدي':m<=1.15?'نصف رغيف بلدي':m<=1.65?'ثلاثة أرباع رغيف بلدي':'رغيف بلدي كامل'},
+    {id:'toast',p:3.5,cr:13,f:1,c:75,fmt:(m)=>`${Math.max(1,Math.round(2*m))} شريحة توست أسمر أو شوفان`},
+    {id:'oats_milk',p:8,cr:27,f:3,c:167,fmt:(m)=>`${Math.max(3,Math.round(4*m))} ملاعق شوفان بالحليب خالي الدسم بالقرفة`},
+    {id:'bran_bread',p:5,cr:24,f:1,c:125,fmt:(m)=>m<=0.85?'نصف رغيف سن (ردة)':'رغيف عيش سن (ردة)'},
+    {id:'sweet_pot_brk',p:2,cr:24,f:0.2,c:105,fmt:(m)=>`${Math.round((120*m)/10)*10}g بطاطا حلوة مشوية بالقرفة`}
+  ],
+  brk_fat:[
+    {id:'avocado',p:1,cr:3,f:8,c:88,fmt:(m)=>`${Math.round((50*m)/10)*10}g شرائح أفوكادو طازج 🥑`},
+    {id:'olive_oil',p:0,cr:0,f:7,c:63,fmt:(m)=>`ملعقة صغيرة زيت زيتون بكر على الجبنة أو الفول 🫒`},
+    {id:'almonds_brk',p:2,cr:2,f:6,c:70,fmt:(m)=>`${Math.max(5,Math.round(7*m))} حبات لوز ني + خيار وخس وجرجير 🥒`},
+    {id:'peanut_b',p:3.5,cr:3,f:8,c:98,fmt:(m)=>`ملعقة صغيرة زبدة فول سوداني طبيعية + خيار وجرجير 🥜`}
+  ],
+  lun_pro:[
+    {id:'chicken_breast',p:46,cr:0,f:5.5,c:248,fmt:(m)=>`${Math.round((150*m)/10)*10}g صدور دجاج مشوية متبلة بالأعشاب والليمون 🍗`},
+    {id:'tilapia_fish',p:45,cr:0,f:5,c:225,fmt:(m)=>`${Math.round((180*m)/10)*10}g سمك بلطي مشوي بالردة والكمون والليمون 🐟`},
+    {id:'lean_kofta',p:38,cr:3,f:14,c:290,fmt:(m)=>`${Math.round((150*m)/10)*10}g كفتة لحم بقري صافي مشوية بالفرن أو الجريل 🥩`},
+    {id:'tuna_can',p:40,cr:0,f:3,c:187,fmt:(m)=>`علبة تونة مصفاة ومغسولة بالخل والليمون والفلفل الملون (${Math.round((140*m)/10)*10}g) 🥫`},
+    {id:'shish_tawook',p:44,cr:3,f:7,c:251,fmt:(m)=>`${Math.round((160*m)/10)*10}g شيش طاووق صدور مشوي مع البصل والفلفل الألوان 🍢`},
+    {id:'grilled_beef',p:42,cr:0,f:11,c:267,fmt:(m)=>`${Math.round((150*m)/10)*10}g ستيك لحم بقري مشوي قليل الدهن مع خضار سوتيه 🥩`},
+    {id:'salmon_fillet',p:38,cr:0,f:13,c:269,fmt:(m)=>`${Math.round((170*m)/10)*10}g فيليه سمك مشوي أو سلمون بالليمون والشبت 🐟`},
+    {id:'charcoal_liver',p:41,cr:3,f:9,c:257,fmt:(m)=>`${Math.round((160*m)/10)*10}g كبدة بقري مشوية على الجريل بالثوم والكمون والليمون 🥩`}
+  ],
+  lun_carb:[
+    {id:'basmati_rice',p:3.5,cr:28,f:0.5,c:130,fmt:(m)=>`${Math.max(3,Math.round(6*m))} ملاعق أرز بسمتي مسلوق (${Math.round((110*m)/10)*10}g)`},
+    {id:'freekeh',p:5,cr:28,f:1,c:140,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق فريك أو برغل مطبوخ بطريقة صحية (${Math.round((110*m)/10)*10}g)`},
+    {id:'baked_potato',p:3,cr:30,f:0.2,c:134,fmt:(m)=>`${Math.round((150*m)/10)*10}g بطاطس مسلوقة أو مشوية في الإيرفراير بالأعشاب`},
+    {id:'brown_pasta',p:5.5,cr:30,f:1,c:151,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق مكرونة شوفان أو قمح كامل مسلوقة (${Math.round((105*m)/10)*10}g)`},
+    {id:'molokhia_rice',p:5,cr:27,f:2,c:146,fmt:(m)=>`طبق ملوخية خضراء دايت + ${Math.max(3,Math.round(5*m))} ملاعق أرز أبيض مسلوق`},
+    {id:'lentil_rice',p:7,cr:29,f:1.5,c:158,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق أرز بالشعرية أو كشري بيتي خفيف قليل الزيت`}
+  ],
+  din_meals:[
+    {id:'greek_berries',p:18,cr:12,f:4,c:156,fmt:(m)=>`علبة زبادي يوناني (${Math.round((150*m)/10)*10}g) + عصره ليمون ورشة قرفة + ${Math.max(4,Math.round(6*m))} حبات لوز ني وخيارتين 🥛🥒`},
+    {id:'koraish_egg_din',p:24,cr:6,f:7,c:183,fmt:(m)=>`${Math.round((120*m)/10)*10}g جبنة قريش بالبقدونس وزيت الزيتون + بيضة مسلوقة + طبق خس وخيار 🧀🥚`},
+    {id:'chicken_salad_din',p:29,cr:8,f:5,c:193,fmt:(m)=>`سلطة سيزر دايت (${Math.round((100*m)/10)*10}g شرائح صدر دجاج مشوي + خس وكابوتشا وذرة حلوة وليمون) 🥗`},
+    {id:'tuna_salad_din',p:26,cr:7,f:4,c:168,fmt:(m)=>`سلطة تونة لايت (${Math.round((90*m)/10)*10}g تونة مصفاة + فلفل ألوان وخيار وجرجير وليمون بدون خبز) 🥗`},
+    {id:'eggs_yogurt_din',p:20,cr:9,f:11,c:215,fmt:(m)=>`${Math.max(1,Math.round(2*m))} بيضة مسلوقة + كوب زبادي لايت (${Math.round((120*m)/10)*10}g) + شريحة توست أسمر وخيار 🥚🥛`},
+    {id:'cottage_avocado_din',p:19,cr:8,f:8,c:180,fmt:(m)=>`${Math.round((130*m)/10)*10}g جبنة قريش + شرائح أفوكادو أو زيتون أخضر + طماطم وفلفل رومي 🧀🥑`},
+    {id:'lentil_soup_din',p:16,cr:22,f:3,c:179,fmt:(m)=>`بولة شوربة عدس أصفر بيتي بالكمون والليمون (${Math.round((220*m)/10)*10}ml) + ${Math.round((60*m)/10)*10}g جبنة قريش وجرجير 🥣`}
+  ],
+  snk_meals:[
+    {id:'apple_almonds',p:4,cr:21,f:7,c:163,fmt:(m)=>`ثمرة تفاح أخضر أو أحمر + ${Math.max(6,Math.round(10*m))} حبات لوز ني + شاي أخضر بالنعناع 🍏🥜`},
+    {id:'popcorn_fruit',p:4,cr:24,f:3,c:139,fmt:(m)=>`${Math.max(1,Math.round(2*m))} كوب فشار منفوش بالهواء بدون زيت + ثمرة برتقال أو جوافة 🍿🍊`},
+    {id:'dark_choc_coffee',p:4,cr:14,f:9,c:153,fmt:(m)=>`${Math.max(1,Math.round(2*m))} مربع شوكولاتة داكنة 70% + فنجان قهوة بالحليب خالي الدسم + 5 حبات عين جمل 🍫☕`},
+    {id:'banana_pb',p:5,cr:27,f:8,c:200,fmt:(m)=>`ثمرة موز متوسطة + ملعقة زبدة فول سوداني طبيعية (${Math.round((15*m))}g) + رشة قرفة 🍌🥜`},
+    {id:'strawberries_yogurt',p:9,cr:16,f:2,c:118,fmt:(m)=>`طبق فراولة أو كنتالوب (${Math.round((150*m)/10)*10}g) + علبة زبادي لايت ببذور الشيا 🍓🥛`},
+    {id:'sweet_potato_snk',p:3,cr:26,f:1,c:125,fmt:(m)=>`بطاطا حلوة مشوية متوسطة (${Math.round((130*m)/10)*10}g) بالقرفة والسمسم + مشروب ينسون أو قرفة بالزنجبيل 🍠`},
+    {id:'dates_walnuts',p:4,cr:25,f:7,c:179,fmt:(m)=>`${Math.max(3,Math.round(3*m))} تمرات محشية لوز وعين جمل + فنجان قهوة عربي أو شاي أخضر 🌴🥜`}
+  ]
+};
+
+const genSmartDietOnly=()=>{
+  const macs=getMacs(editingClient,isAr);
+  const targetCal=Number(macs.c)||1400;
+  const targetPro=Number(macs.p)||110;
+  const targetCarb=Number(macs.cr)||130;
+  const targetFat=Number(macs.f)||45;
+  const algStr=(editingClient.alg||'').trim();
+
+  const hasFishAlg=/سمك|تونة|جمبري|بحر|fish|tuna/i.test(algStr);
+  const hasDairyAlg=/لبن|ألبان|حليب|جبن|زبادي|لاكتوز|milk|dairy/i.test(algStr);
+  const hasNutsAlg=/مكسرات|لوز|فول سوداني|nuts/i.test(algStr);
+
+  const filterPool=(arr)=>arr.filter(item=>{
+    if(hasFishAlg&&/fish|tuna|tilapia|salmon/i.test(item.id))return false;
+    if(hasDairyAlg&&/koraish|greek|yogurt|cottage|milk/i.test(item.id))return false;
+    if(hasNutsAlg&&/almond|peanut|walnut|pb/i.test(item.id))return false;
+    return true;
+  });
+
+  const brkProPool=filterPool(EGY_INGREDIENTS.brk_pro);
+  const brkCarbPool=filterPool(EGY_INGREDIENTS.brk_carb);
+  const brkFatPool=filterPool(EGY_INGREDIENTS.brk_fat);
+  const lunProPool=filterPool(EGY_INGREDIENTS.lun_pro);
+  const lunCarbPool=filterPool(EGY_INGREDIENTS.lun_carb);
+  const dinPool=filterPool(EGY_INGREDIENTS.din_meals);
+  const snkPool=filterPool(EGY_INGREDIENTS.snk_meals);
+
+  // توزيع ذكي ومختلف لكل يوم من أيام الأسبوع الـ 7 بدون تكرار
+  const offset=Math.floor(Math.random()*7);
+  let s=safeSch(editingClient.sch).map((day,idx)=>{
+    if(day?.freeDay)return day;
+    const isWorkDay=!!day?.active;
+    const spId=day?.split||'full';
+    const spName=SPLIT_PARTS.find(p=>p.id===spId)?.n||'تمرين';
+    const dStep=idx+offset;
+
+    // 1. تركيب وجبة الإفطار (حوالي 27% من احتياج اليوم)
+    const bp=brkProPool[dStep%brkProPool.length]||EGY_INGREDIENTS.brk_pro[0];
+    const bc=brkCarbPool[(dStep*2)%brkCarbPool.length]||EGY_INGREDIENTS.brk_carb[0];
+    const bf=brkFatPool[(dStep*3)%brkFatPool.length]||EGY_INGREDIENTS.brk_fat[0];
+
+    const brkProMult=Math.max(0.7,Math.min(1.6,(targetPro*0.26)/(bp.p+bc.p)));
+    const brkCarbMult=Math.max(0.6,Math.min(1.8,((targetCarb*0.30)-(bp.cr*brkProMult))/Math.max(10,bc.cr)));
+    const brkFatMult=Math.max(0.6,Math.min(1.5,(targetFat*0.28)/Math.max(5,bf.f)));
+
+    const brkCal=Math.round((bp.c*brkProMult)+(bc.c*brkCarbMult)+(bf.c*brkFatMult));
+    const brkProG=Math.round((bp.p*brkProMult)+(bc.p*brkCarbMult)+(bf.p*brkFatMult));
+    const brkCarbG=Math.round((bp.cr*brkProMult)+(bc.cr*brkCarbMult)+(bf.cr*brkFatMult));
+    const brkFatG=Math.round((bp.f*brkProMult)+(bc.f*brkCarbMult)+(bf.f*brkFatMult));
+    const brkLine=`${bp.fmt(brkProMult)} + ${bc.fmt(brkCarbMult)} + ${bf.fmt(brkFatMult)} [🔥 ${brkCal} Cal | 🥩 ${brkProG}g P | 🍞 ${brkCarbG}g C | 🧈 ${brkFatG}g F]`;
+
+    // 2. تركيب وجبة الغداء (حوالي 42% من احتياج اليوم)
+    const lp=lunProPool[(dStep+1)%lunProPool.length]||EGY_INGREDIENTS.lun_pro[0];
+    const lc=lunCarbPool[(dStep*2+1)%lunCarbPool.length]||EGY_INGREDIENTS.lun_carb[0];
+
+    const lunProMult=Math.max(0.75,Math.min(1.75,(targetPro*0.44)/Math.max(25,lp.p)));
+    const lunCarbMult=Math.max(0.6,Math.min(1.9,(targetCarb*0.42)/Math.max(20,lc.cr)));
+
+    const saladCal=45;
+    const lunCal=Math.round((lp.c*lunProMult)+(lc.c*lunCarbMult)+saladCal);
+    const lunProG=Math.round((lp.p*lunProMult)+(lc.p*lunCarbMult)+1);
+    const lunCarbG=Math.round((lp.cr*lunProMult)+(lc.cr*lunCarbMult)+6);
+    const lunFatG=Math.round((lp.f*lunProMult)+(lc.f*lunCarbMult)+2);
+    const lunLine=`${lp.fmt(lunProMult)} + ${lc.fmt(lunCarbMult)} + طبق سلطة خضراء كبير بالليمون والجرجير 🥗 [🔥 ${lunCal} Cal | 🥩 ${lunProG}g P | 🍞 ${lunCarbG}g C | 🧈 ${lunFatG}g F]`;
+
+    // 3. تركيب السناك (حوالي 13% من احتياج اليوم)
+    const sn=snkPool[(dStep+2)%snkPool.length]||EGY_INGREDIENTS.snk_meals[0];
+    const snkMult=Math.max(0.7,Math.min(1.5,(targetCal*0.12)/Math.max(100,sn.c)));
+    const snkCal=Math.round(sn.c*snkMult);
+    const snkProG=Math.round(sn.p*snkMult);
+    const snkCarbG=Math.round(sn.cr*snkMult);
+    const snkFatG=Math.round(sn.f*snkMult);
+    const snkLine=`${sn.fmt(snkMult)} [🔥 ${snkCal} Cal | 🥩 ${snkProG}g P | 🍞 ${snkCarbG}g C | 🧈 ${snkFatG}g F]`;
+
+    // 4. تركيب وجبة العشاء لضبط باقي سعرات وماكروز اليوم بدقة
+    const dm=dinPool[(dStep+3)%dinPool.length]||EGY_INGREDIENTS.din_meals[0];
+    const remCal=Math.max(150,targetCal-(brkCal+lunCal+snkCal));
+    const dinMult=Math.max(0.7,Math.min(1.6,remCal/Math.max(140,dm.c)));
+    const dinCal=Math.round(dm.c*dinMult);
+    const dinProG=Math.round(dm.p*dinMult);
+    const dinCarbG=Math.round(dm.cr*dinMult);
+    const dinFatG=Math.round(dm.f*dinMult);
+    const dinLine=`${dm.fmt(dinMult)} [🔥 ${dinCal} Cal | 🥩 ${dinProG}g P | 🍞 ${dinCarbG}g C | 🧈 ${dinFatG}g F]`;
+
+    const totalDayCal=brkCal+lunCal+dinCal+snkCal;
+    const totalDayPro=brkProG+lunProG+dinProG+snkProG;
+    const totalDayCarb=brkCarbG+lunCarbG+dinCarbG+snkCarbG;
+    const totalDayFat=brkFatG+lunFatG+dinFatG+snkFatG;
+
+    const workoutSyncTag=isWorkDay
+      ?`⚡ [يوم تمرين (${spName}): السناك قبل التمرين بـ 45 دقيقة للطاقة، والغداء بعد التمرين للاستشفاء]`
+      :`🌿 [يوم راحة واستشفاء: شرب ${editingClient.water||sysConf.water||3} لتر مياه وتقليل النشويات ليلاً]`;
+
+    return{
+      ...day,
+      diet:`🎯 نظام اليوم: ${workoutSyncTag}\n• إفطار: ${brkLine}\n• غداء: ${lunLine}\n• عشاء: ${dinLine}\n• سناك: ${snkLine}\n📊 إجمالي اليوم المحسوب ذكياً: ${totalDayCal} Cal (${totalDayPro}g Pro | ${totalDayCarb}g Carb | ${totalDayFat}g Fat)`,
+      snacks:snkLine
+    };
+  });
+
+  setEditingClient(p=>({...p,sch:s}));
+  alert(isAr
+    ?`تم تركيب وتوليد جدول دايت مصري متكامل بالجرامات لـ ${targetCal} سعرة (${targetPro}g بروتين | ${targetCarb}g كارب | ${targetFat}g دهون)! اضغطي حفظ بالأسفل 🥗`
+    :`Smart Egyptian Diet Plan generated for ${targetCal} Cal (${targetPro}g Pro | ${targetCarb}g Carb | ${targetFat}g Fat)! 🥗`
+  );
+};
 const genSmartWorkoutOnly=()=>{const isBeg=(editingClient.lvl||'').includes('مبتدئ')||(editingClient.lvl||'').includes('Beg');const isAdv=(editingClient.lvl||'').includes('متقدم')||(editingClient.lvl||'').includes('Adv')||(editingClient.lvl||'').includes('نخبة');const gymCount=isBeg?4:isAdv?6:5;const homeCount=isBeg?4:5;const injAll=((editingClient.injR||'')+' '+(editingClient.injuries||[]).join(' ')).trim();const hasKnee=/ركب|Knee/i.test(injAll);const hasBack=/ظهر|فقر|عمود|Back|Disc/i.test(injAll)||editingClient.pos==='lordosis'||editingClient.pos==='kyphosis'||editingClient.pos==='scoliosis';const hasShoulder=/كتف|رقب|Shoulder|Neck/i.test(injAll);const adaptForInjury=(exLine)=>{let out=exLine;if(hasKnee&&/Jump|Lunges|Bulgarian|Leg Extension|Box/i.test(out)){out=out.replace(/Walking Lunges.*|Bulgarian Split Squat.*|Alternating Reverse Lunges.*|Curtsy Lunges.*/g,'Seated Hip Abduction Machine - جهاز الفراشة الخارجي للأرداف آمن تماماً على مفصل الركبة (4x15)').replace(/Leg Extension Machine.*/g,'Seated Leg Curl Machine - جهاز خلفيات الأرجل لدعم الركبة بدون احتكاك (4x12)');}if(hasBack&&/Deadlift|RDL|Bent-Over Row|Barbell Back Squat|Sit-Ups/i.test(out)){out=out.replace(/Romanian Deadlift.*|Barbell Back Squat.*/g,'Leg Press Machine - دفع الأرجل بالجهاز مدعوم الظهر لحماية الفقرات القطنية (4x12)').replace(/Bent-Over Row.*/g,'Seated Cable Row - سحب ظهر جالس مسنود لحماية أسفل الظهر (4x12)');}if(hasShoulder&&/Overhead|Shoulder Press|Pike Push-Ups|Dips/i.test(out)){out=out.replace(/Seated Dumbbell.*|Pike Push-Ups.*|Overhead.*/g,'Face Pull Rope - سحب الحبل للوجه لتقوية الكتف بأمان بدون ضغط علوي (3x15)');}return out;};let s=safeSch(editingClient.sch).map(day=>{if(day.active){const rawSplit=(day.split||'full').replace('loss_ shred','loss_shred');const spDB=SPLIT_EX_DB[rawSplit]||SPLIT_EX_DB.full;const spTitle=SPLIT_PARTS.find(p=>p.id===rawSplit)?.n||'تمرين شامل';const warmList=spDB.warmup||SPLIT_EX_DB.full.warmup;const gPick=spDB.gym.slice(0,gymCount).map(adaptForInjury);const hPick=spDB.home.slice(0,homeCount).map(adaptForInjury);const shpNote=editingClient.shp==='endomorph'?'🔥 طبيعة الجسم (Endomorph): راحة قصيرة 30-45 ثانية بين المجموعات لرفع معدل الحرق':editingClient.shp==='ectomorph'?'🍑 طبيعة الجسم (Ectomorph): تركيز على الأوزان والتكرار الهادئ لبناء الكتلة العضلية والمنحنيات':'✨ طبيعة الجسم (Mesomorph): توازن مثالي بين الأوزان وشد القوام';const injNotice=(hasKnee||hasBack||hasShoulder)?[`🩺 تنبيه التأهيل الطبي: تم تعديل التمارين تلقائياً لمراعاة (${injAll||editingClient.pos}) وحماية المفاصل`]:[];const wLines=[`🎯 تركيز اليوم: ${spTitle} | ${shpNote}`,...injNotice,...warmList.map(w=>`🔥 ${w}`),...gPick.map(g=>`🏋️‍♀️ ${g}`),...hPick.map(h=>`🏠 ${h}`)];return{...day,split:rawSplit,workout:wLines.join('\n')};}else{return{...day,workout:isAr?'يوم راحة واستشفاء عضلي 🌿':'Rest & Recovery Day 🌿'};}});setEditingClient(p=>({...p,sch:s}));alert(isAr?'تم توليد جدول التمارين الذكي بنجاح! اضغطي حفظ بالأسفل لاعتماده 💪':'Smart Workout Plan Generated! Click Save below 💪');};
 
 const tdStrGlobal=new Date().toISOString().split('T')[0];
@@ -1114,36 +1337,21 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
   <div className="animate-slide-up text-gray-800">
     {(()=>{const cData=getMacs(editingClient,isAr);return(
       <div className="bg-gradient-to-r text-white p-2.5 rounded-xl mb-3 shadow-md relative overflow-hidden border border-white/20">
-        {cData.source.includes('InBody') && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">{isAr?'InBody':'InBody'}</div>}
-        
-        <div className="flex justify-between items-center mb-1.5">
+        {cData.source.includes('InBody') && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">InBody</div>}
+        <div className="flex flex-wrap justify-between items-center gap-1 mb-1.5">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-[10px] font-black">📊 {isAr?`سعرات الهدف (${editingClient.iW||60}kg)`:`Target Macros (${editingClient.iW||60}kg)`}</h3>
+            <h3 className="text-[10px] font-black">📊 {isAr?`سعرات الهدف (${cData.iW}kg)`:`Target (${cData.iW}kg)`}</h3>
             <span className="text-[8px] bg-black/30 px-1.5 py-0.5 rounded-full font-bold">{cData.state}</span>
+            <span className="text-[8px] bg-white/20 px-1.5 py-0.5 rounded font-black">{isAr?`المسموح: ${cData.minAllowed} ~ ${cData.maxAllowed} Cal`:`Range: ${cData.minAllowed}-${cData.maxAllowed}`}</span>
           </div>
-          <div className="text-[8px] font-bold text-white/80 bg-black/10 px-1.5 py-0.5 rounded">
-            🧠 {cData.source}
-          </div>
+          <div className="text-[8px] font-bold text-white/90 bg-black/15 px-1.5 py-0.5 rounded">🧠 {cData.source}</div>
         </div>
-
         <div className="grid grid-cols-5 gap-1.5 text-center">
-          <div className="bg-black/20 rounded-lg p-1">
-            <span className="block text-[7px] text-white/70">BMI</span>
-            <span className="font-black text-[9px]">{cData.bmi||'-'}</span>
-          </div>
-          <div className="bg-black/20 rounded-lg p-1">
-            <span className="block text-[7px] text-white/70">PBF%</span>
-            <span className="font-black text-[9px]">{cData.pbf?'~'+cData.pbf+'%':'-'}</span>
-          </div>
-          <div className="bg-black/20 rounded-lg p-1">
-            <span className="block text-[7px] text-white/70">BMR</span>
-            <span className="font-black text-[9px]">{cData.bmr||'-'}</span>
-          </div>
-          <div className="bg-white/10 rounded-lg p-1 col-span-2 flex justify-around items-center">
-            <div>
-              <span className="block text-[7px] text-brand-gold font-bold">🔥 {isAr?'سعرات':'Cal'}</span>
-              <span className="font-black text-brand-gold text-[10px] leading-none">{cData.c}</span>
-            </div>
+          <div className="bg-black/20 rounded-lg p-1"><span className="block text-[7px] text-white/70">BMI</span><span className="font-black text-[9px]">{cData.bmi||'-'}</span></div>
+          <div className="bg-black/20 rounded-lg p-1"><span className="block text-[7px] text-white/70">PBF%</span><span className="font-black text-[9px]">{cData.pbf?`${cData.pbf}%`:'-'}</span></div>
+          <div className="bg-black/20 rounded-lg p-1"><span className="block text-[7px] text-white/70">BMR</span><span className="font-black text-[9px]">{cData.bmr||'-'}</span></div>
+          <div className="bg-white/15 rounded-lg p-1 col-span-2 flex justify-around items-center">
+            <div><span className="block text-[7px] text-brand-gold font-bold">🔥 {isAr?'سعرات':'Cal'}</span><span className="font-black text-brand-gold text-xs leading-none">{cData.c}</span></div>
             <div className="flex flex-col gap-0.5 text-[8px] font-black text-right">
                <span className="text-blue-200">🥩 {cData.p}g</span>
                <span className="text-amber-200">🍞 {cData.cr}g</span>
@@ -1155,24 +1363,76 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
     );})()}
 
     <div className="space-y-4 max-h-[460px] overflow-y-auto px-1 custom-scroll">
-      <div className="p-3.5 rounded-2xl border-2 border-brand/30 bg-pink-50/30">
-        <label className="block font-black text-xs text-brand mb-2">🎯 {isAr?'حددي هدف الدايت لتوليد الجدول الذكي والسعرات:':'Select Diet Goal to Generate Smart Plan:'}</label>
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          {[{id:'loss',nAr:'🔥 حرق دهون وتخسيس',nEn:'🔥 Fat Loss'},{id:'maint',nAr:'⚖️ ثبات وتنشيف',nEn:'⚖️ Maintenance & Toning'},{id:'gain',nAr:'💪 زيادة وزن وعضل',nEn:'💪 Weight & Muscle Gain'}].map(g=>(
-            <button key={g.id} onClick={()=>setEditingClient(p=>({...p,goal:g.id}))} className={`py-2 px-2 rounded-xl font-black text-[11px] border cursor-pointer transition ${(editingClient.goal||'loss')===g.id?'bg-brand text-white border-brand shadow':'bg-white'}`}>{isAr?g.nAr:g.nEn}</button>
-          ))}
+      {(()=>{const cData=getMacs(editingClient,isAr);return(
+        <>
+        <div className="p-3.5 rounded-2xl border-2 border-brand/30 bg-pink-50/30 dark:bg-slate-800/60">
+          <div className="flex flex-wrap justify-between items-center gap-1 mb-2">
+            <label className="font-black text-xs text-brand">🎯 {isAr?'حددي هدف الدايت (مربوط بالـ InBody والوزن المثالي):':'Select Diet Goal (InBody & Target Linked):'}</label>
+            <span className="text-[9px] font-black bg-brand/10 text-brand px-2 py-0.5 rounded-full">
+              {isAr?`المدى الآمن للهدف (${cData.iW}kg): ${cData.cLoss} إلى ${cData.cGain} سعرة`:`Safe Range: ${cData.cLoss} - ${cData.cGain} Cal`}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[
+              {id:'loss',nAr:'🔥 حرق دهون وتخسيس',nEn:'🔥 Fat Loss',subAr:`الأدنى: ${cData.cLoss} Cal`,subEn:`Min: ${cData.cLoss} Cal`},
+              {id:'maint',nAr:'⚖️ ثبات وتنشيف',nEn:'⚖️ Toning',subAr:`المتوسط: ${cData.cMaint} Cal`,subEn:`Avg: ${cData.cMaint} Cal`},
+              {id:'gain',nAr:'💪 زيادة وزن وعضل',nEn:'💪 Muscle Gain',subAr:`الأقصى: ${cData.cGain} Cal`,subEn:`Max: ${cData.cGain} Cal`}
+            ].map(g=>(
+              <button key={g.id} onClick={()=>setEditingClient(p=>({...p,goal:g.id,customMacs:null}))} className={`py-2 px-1.5 rounded-xl font-black text-[10px] border cursor-pointer transition flex flex-col items-center justify-center gap-0.5 ${(editingClient.goal||'loss')===g.id?'bg-brand text-white border-brand shadow':'bg-white dark:bg-slate-800'}`}>
+                <span>{isAr?g.nAr:g.nEn}</span>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${(editingClient.goal||'loss')===g.id?'bg-black/25 text-brand-gold':'bg-gray-100 dark:bg-slate-700 text-brand'}`}>{isAr?g.subAr:g.subEn}</span>
+              </button>
+            ))}
+          </div>
+          <button onClick={genSmartDietOnly} className="w-full bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition">🥗 {isAr?`توليد جدول دايت مصري متكامل بالجرامات (${cData.c} Cal) ⚡`:`Generate Smart Egyptian Diet (${cData.c} Cal) ⚡`}</button>
         </div>
-        <button onClick={genSmartDietOnly} className="w-full bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition">🥗 {isAr?'توليد جدول الدايت والسناكس الذكي فقط ⚡':'Generate Smart Diet & Snacks Plan ⚡'}</button>
-      </div>
-      <div className="bg-gray-50 p-3 rounded-xl border">
-        <h4 className="font-bold text-xs mb-2">{isAr?'تعديل السعرات والماكروز يدوياً (اختياري):':'Manual Calories & Macros Override (Optional):'}</h4>
-        <div className="grid grid-cols-4 gap-2">
-          <input placeholder="Cal" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.c??''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),c:e.target.value===''?'':Number(e.target.value)}}))}/>
-          <input placeholder="Pro (g)" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.p??''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),p:e.target.value===''?'':Number(e.target.value)}}))}/>
-          <input placeholder="Carb (g)" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.cr??''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),cr:e.target.value===''?'':Number(e.target.value)}}))}/>
-          <input placeholder="Fat (g)" type="number" className="p-2 border rounded font-bold text-xs" value={editingClient.customMacs?.f??''} onChange={e=>setEditingClient(p=>({...p,customMacs:{...(p.customMacs||{}),f:e.target.value===''?'':Number(e.target.value)}}))}/>
+
+        <div className="bg-gray-50 dark:bg-slate-800/80 p-3 rounded-xl border dark:border-slate-700">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-bold text-xs text-gray-800 dark:text-gray-200">{isAr?'تعديل السعرات والماكروز يدوياً (الأرقام المحسوبة ساقطة جاهزة للتعديل):':'Manual Calories & Macros Override:'}</h4>
+            {editingClient.customMacs&&(<button onClick={()=>setEditingClient(p=>({...p,customMacs:null}))} className="text-[9px] font-black bg-red-100 text-red-600 px-2 py-0.5 rounded-lg cursor-pointer">{isAr?'🔄 استعادة الحسبة الذكية':'🔄 Reset Auto'}</button>)}
+          </div>
+          {(()=>{
+            const autoM=getMacs({...editingClient,customMacs:null},isAr);
+            const curC=editingClient.customMacs?.c!==undefined?editingClient.customMacs.c:autoM.c;
+            const curP=editingClient.customMacs?.p!==undefined?editingClient.customMacs.p:autoM.p;
+            const curCr=editingClient.customMacs?.cr!==undefined?editingClient.customMacs.cr:autoM.cr;
+            const curF=editingClient.customMacs?.f!==undefined?editingClient.customMacs.f:autoM.f;
+            const setField=(field,val)=>{
+              setEditingClient(p=>({
+                ...p,
+                customMacs:{
+                  c:field==='c'?(val===''?'':Number(val)):curC,
+                  p:field==='p'?(val===''?'':Number(val)):curP,
+                  cr:field==='cr'?(val===''?'':Number(val)):curCr,
+                  f:field==='f'?(val===''?'':Number(val)):curF
+                }
+              }));
+            };
+            return(
+              <div className="grid grid-cols-4 gap-2 text-center">
+                <div>
+                  <span className="block text-[9px] font-black text-brand mb-0.5">🔥 Cal</span>
+                  <input type="number" className="w-full p-2 border rounded-lg font-black text-xs text-center" value={curC} onChange={e=>setField('c',e.target.value)}/>
+                </div>
+                <div>
+                  <span className="block text-[9px] font-black text-blue-600 dark:text-blue-400 mb-0.5">🥩 Pro (g)</span>
+                  <input type="number" className="w-full p-2 border rounded-lg font-black text-xs text-center" value={curP} onChange={e=>setField('p',e.target.value)}/>
+                </div>
+                <div>
+                  <span className="block text-[9px] font-black text-amber-600 dark:text-amber-400 mb-0.5">🍞 Carb (g)</span>
+                  <input type="number" className="w-full p-2 border rounded-lg font-black text-xs text-center" value={curCr} onChange={e=>setField('cr',e.target.value)}/>
+                </div>
+                <div>
+                  <span className="block text-[9px] font-black text-pink-600 dark:text-pink-400 mb-0.5">🧈 Fat (g)</span>
+                  <input type="number" className="w-full p-2 border rounded-lg font-black text-xs text-center" value={curF} onChange={e=>setField('f',e.target.value)}/>
+                </div>
+              </div>
+            );
+          })()}
         </div>
-      </div>
+        </>
+      );})()}
       <div>
         <label className="font-bold text-xs block mb-1">📝 {isAr?'ملاحظات الكابتن على الـ InBody والنظام الغذائي:':'Coach Notes on InBody & Nutrition:'}</label>
         <textarea placeholder={isAr?"اكتبي ملاحظاتك عن الحرق أو النصائح هنا...":"Write notes or tips here..."} className="w-full text-xs p-3 border rounded-xl font-bold outline-none" rows="2" value={editingClient.inbodyNotes||''} onChange={e=>setEditingClient(p=>({...p,inbodyNotes:e.target.value}))}/>
@@ -2460,4 +2720,4 @@ const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
 </body>
-  </html>
+</html>
