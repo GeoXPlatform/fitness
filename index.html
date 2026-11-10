@@ -884,7 +884,7 @@ return(
       </div>
     </div>
     <div className="flex items-center gap-1">
-      {onEditMetrics&&(<button onClick={()=>{setInbDraft({w:latest.w||userObj.w||'',smm:latest.smm||'',bfm:latest.bfm||'',pbf:latest.pbf||'',bmr:latest.bmr||'',vfl:latest.vfl||''});setInbFormModal(true);}} className="text-[10px] font-black bg-blue-600 text-white hover:bg-blue-500 px-2.5 py-1 rounded-lg shadow-sm cursor-pointer transition">✏️ {isAr?'تعديل':'Edit'}</button>)}
+      {onEditMetrics&&(<button onClick={()=>{if(typeof onEditMetrics==='function') onEditMetrics(latest);}} className="text-[10px] font-black bg-blue-600 text-white hover:bg-blue-500 px-2.5 py-1 rounded-lg shadow-sm cursor-pointer transition">✏️ {isAr?'تعديل':'Edit'}</button>)}
       {userObj.inbodyUrl&&(<button onClick={()=>setPreviewInbUrl(userObj.inbodyUrl)} className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black text-[10px] shadow-sm cursor-pointer">👁️ {isAr?'الصورة':'Image'}</button>)}
       <label className="bg-gradient-to-r text-white px-2.5 py-1 rounded-lg font-black text-[9px] cursor-pointer shadow-sm">
         {uploadingInb?(isAr?'جاري القراءة...':'Reading...'):(isAr?'📤 رفع InBody':'📤 Upload')}
@@ -962,7 +962,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
     
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 sm:p-4 min-h-[360px] shadow-inner w-full">
 {adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800 dark:text-gray-200">
-<InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
+<InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={(latest)=>{setInbDraft({w:latest.w||editingClient.w||'',smm:latest.smm||'',bfm:latest.bfm||'',pbf:latest.pbf||'',bmr:latest.bmr||'',vfl:latest.vfl||''});setInbFormModal(true);}} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 <div className="col-span-2"><label className="text-[10px] font-bold">{isAr?'الاسم الثلاثي':'Full Name'}</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.n||''} onChange={e=>setEditingClient(p=>({...p,n:e.target.value}))}/></div>
 <div><label className="text-[10px] font-bold">{isAr?'الأيقونة (الإيموجي)':'Avatar Emoji'}</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm text-center bg-white" value={editingClient.avatar||''} onChange={e=>setEditingClient(p=>({...p,avatar:e.target.value}))}/></div>
@@ -1934,7 +1934,7 @@ return(
       );
     })()}
 
-    <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={true} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
+    <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={(latest)=>{setInbDraft({w:latest.w||currentUser.w||'',smm:latest.smm||'',bfm:latest.bfm||'',pbf:latest.pbf||'',bmr:latest.bmr||'',vfl:latest.vfl||''});setInbFormModal(true);}} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
 
     {/* شبكة مقاسات الجسم التفصيلية - صفين (5 و 6) */}
     <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl shadow-sm border border-brand/25 space-y-2">
