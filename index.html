@@ -537,6 +537,8 @@ const[wkTimeVal,setWkTimeVal]=useState('45');
 const[wkTimeUnit,setWkTimeUnit]=useState('ثانية');
 const[wkExSource,setWkExSource]=useState('');
 const[dtMealSource,setDtMealSource]=useState('');
+const[copiedWorkout,setCopiedWorkout]=useState(null);
+const[copiedDiet,setCopiedDiet]=useState(null);
 const[sysConf,setSysConf]=useState({coachHours:['10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','إجازة','10:00 - 20:00'],wake:'07:00',sleep:'23:00',water:3,vits:'Omega 3, Vit C',mealDeadlines:{brk:'11:00',lun:'17:00',din:'23:00'}});
 const audioRef=useRef(new Audio());
 const lastNotifTsRef=useRef(Number(localStorage.getItem('gg_last_gym_notif_ts')||'0'));
@@ -962,7 +964,7 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
     
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 sm:p-4 min-h-[360px] shadow-inner w-full">
 {adminTab==='basic'&&(<div className="space-y-4 animate-slide-up text-gray-800 dark:text-gray-200">
-<InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={(latest)=>{setInbDraft({w:latest.w||editingClient.w||'',smm:latest.smm||'',bfm:latest.bfm||'',pbf:latest.pbf||'',bmr:latest.bmr||'',vfl:latest.vfl||''});setInbFormModal(true);}} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
+<InbodySectionCard userObj={editingClient} isEditable={true} isAr={isAr} onEditMetrics={(latest)=>{setInbDraft({w:latest?.w||editingClient.w||'', smm:latest?.smm||'', bfm:latest?.bfm||'', pbf:latest?.pbf||'', bmr:latest?.bmr||'', vfl:latest?.vfl||''}); setInbFormModal(true);}} onUploadNew={e=>handleFileUp(e,editingClient,(url,entry)=>{const hist=[...(editingClient.inbodyHistory||[]),entry];const updated={...editingClient,inbodyUrl:url,inbodyHistory:hist};setEditingClient(updated);updateDB(updated);})}/>
 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 <div className="col-span-2"><label className="text-[10px] font-bold">{isAr?'الاسم الثلاثي':'Full Name'}</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm bg-white" value={editingClient.n||''} onChange={e=>setEditingClient(p=>({...p,n:e.target.value}))}/></div>
 <div><label className="text-[10px] font-bold">{isAr?'الأيقونة (الإيموجي)':'Avatar Emoji'}</label><input type="text" className="w-full p-2 rounded-lg border font-bold text-sm text-center bg-white" value={editingClient.avatar||''} onChange={e=>setEditingClient(p=>({...p,avatar:e.target.value}))}/></div>
@@ -1203,9 +1205,16 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         };
         return(
           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.freeDay?'border-amber-400 bg-amber-50/30':'border-brand/30 bg-white'}`}>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5 border-b pb-2.5">
-              <span className="font-black text-base text-brand flex items-center gap-1.5">📅 {txt.dWs[i]} {d?.freeDay?(isAr?'🍕 (يوم فري مفتوح)':'🍕 (Free Cheat Day)'):''}</span>
+             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5 border-b pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-base text-brand flex items-center gap-1.5">📅 {txt.dWs[i]} {d?.freeDay?(isAr?'🍕 (يوم فري مفتوح)':'🍕 (Free Cheat Day)'):''}</span>
+                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+                  <button onClick={()=>{setCopiedDiet(d?.diet||''); alert(isAr?'تم نسخ الوجبات بنجاح! 📋':'Meals copied! 📋');}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">نسخ 📋</button>
+                  <button onClick={()=>{if(!copiedDiet)return alert(isAr?'لا يوجد شيء منسوخ!':'Nothing copied!'); let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], diet:copiedDiet}; setEditingClient(p=>({...p,sch:s}));}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">لصق 📋</button>
+                </div>
+              </div>
               <div className="flex gap-2 w-full sm:w-auto">
+
                 <button onClick={()=>setDtBuilderDay(dtBuilderDay===i?null:i)} className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-md cursor-pointer hover:scale-[1.01] transition">➕ {isAr?'إضافة وجبة أو سناك':'Add Meal / Snack'}</button>
                 <button onClick={()=>{let s=[...safeSch(editingClient.sch)];const nextFree=!s[i]?.freeDay;s[i]={...s[i],freeDay:nextFree,diet:nextFree?'• إفطار: وجبة مفتوحة (يوم فري 🎉)\n• غداء: وجبة فري مفتوحة من اختياركِ 🍕🍔\n• عشاء: كوب زبادي لايت بالليمون للهضم\n• سناك: حلويات أو فاكهة مفضلة 🍰':s[i]?.diet||''};setEditingClient(p=>({...p,sch:s}));}} className={`py-2.5 px-3 rounded-xl font-black text-xs cursor-pointer transition shrink-0 ${d?.freeDay?'bg-amber-500 text-white shadow':'bg-gray-100 text-gray-700 border'}`}>🍕 {d?.freeDay?(isAr?'إلغاء الفري':'Cancel Free'):(isAr?'يوم فري':'Free Day')}</button>
               </div>
@@ -1485,11 +1494,18 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         };
 ;
         return(
-          <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.active?'border-brand bg-white':'border-gray-200 bg-gray-50/50'}`}>
+           <div key={i} className={`p-4 rounded-3xl border-2 space-y-3 overflow-hidden shadow-sm ${d?.active?'border-brand bg-white dark:bg-slate-800':'border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50'}`}>
             <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-2.5">
-              <span className="font-black text-base text-brand">📅 {txt.dWs[i]} {d?.active?(isAr?'💪 (يوم تمرين)':'💪 (Workout Day)'):(isAr?'🌿 (يوم راحة)':'🌿 (Rest Day)')}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-base text-brand">📅 {txt.dWs[i]} {d?.active?(isAr?'💪 (يوم تمرين)':'💪 (Workout Day)'):(isAr?'🌿 (يوم راحة)':'🌿 (Rest Day)')}</span>
+                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+                  <button onClick={()=>{setCopiedWorkout({w:d?.workout||'', s:d?.split||'', c:d?.customSplit||'', a:d?.active||false}); alert(isAr?'تم نسخ التمارين بنجاح! 📋':'Workout copied! 📋');}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">نسخ 📋</button>
+                  <button onClick={()=>{if(!copiedWorkout)return alert(isAr?'لا يوجد شيء منسوخ!':'Nothing copied!'); let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], workout:copiedWorkout.w, split:copiedWorkout.s, customSplit:copiedWorkout.c, active:copiedWorkout.a}; setEditingClient(p=>({...p,sch:s}));}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">لصق 📋</button>
+                </div>
+              </div>
               {d?.active&&(d?.customSplit||d?.split)&&<span className="text-xs font-black bg-brand/10 text-brand px-3 py-1 rounded-full">{d?.customSplit||(isAr?spFound?.ar:spFound?.en)}</span>}
             </div>
+
 
                         <div className="grid grid-cols-3 gap-2">
               <button onClick={()=>{setWkBuilderDay(wkBuilderDay===i&&wkBuilderCat==='warmup'?null:i);setWkBuilderCat('warmup');setWkBuilderSelected('');setWkExSource('');setWkEditingIdx(null);}} className={`py-2.5 px-2 rounded-xl font-black text-xs shadow cursor-pointer transition text-center ${wkBuilderDay===i&&wkBuilderCat==='warmup'?'bg-orange-600 text-white ring-2 ring-orange-300':'bg-orange-500 text-white'}`}>🔥 {isAr?'+ إطالات':'+ Warm-up'}</button>
