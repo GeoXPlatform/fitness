@@ -1935,7 +1935,6 @@ return(
     })()}
 
     <InbodySectionCard userObj={currentUser} isEditable={true} isAr={isAr} onEditMetrics={(latest)=>{setInbDraft({w:latest.w||currentUser.w||'',smm:latest.smm||'',bfm:latest.bfm||'',pbf:latest.pbf||'',bmr:latest.bmr||'',vfl:latest.vfl||''});setInbFormModal(true);}} onUploadNew={e=>handleFileUp(e,currentUser,(url,entry)=>{const hist=[...(currentUser.inbodyHistory||[]),entry];const nU={...currentUser,inbodyUrl:url,inbodyHistory:hist};setCurrentUser(nU);updateDB(nU);})}/>
-
     {/* شبكة مقاسات الجسم التفصيلية - صفين (5 و 6) */}
     <div className="bg-white dark:bg-slate-800 p-2.5 rounded-2xl shadow-sm border border-brand/25 space-y-2">
       <div className="flex items-center justify-between border-b dark:border-slate-700 pb-1.5">
