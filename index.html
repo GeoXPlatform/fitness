@@ -921,24 +921,16 @@ const EGY_INGREDIENTS={
 
 const drawMealIllustration=(ctx,x,y,size,mealText)=>{
   ctx.save();
-  // خلفية الطبق الدائري الشيك (ألوان أفتح)
-  const grad=ctx.createLinearGradient(x,y,x+size,y+size);
-  grad.addColorStop(0,'rgba(56, 189, 248, 0.15)'); // لون سماوي خفيف
-  grad.addColorStop(1,'rgba(255, 0, 127, 0.15)');  // لون زهري خفيف
-  ctx.fillStyle=grad;
+  // إطار خفيف جداً يحدد الأيقونات فقط بدون تظليم
   ctx.beginPath();
   ctx.roundRect(x,y,size,size,16);
+  ctx.fillStyle='rgba(255,255,255,0.03)';
   ctx.fill();
-  ctx.strokeStyle='rgba(255,0,127,0.35)';
-  ctx.lineWidth=1.5;
+  ctx.strokeStyle='rgba(255,255,255,0.1)';
+  ctx.lineWidth=1;
   ctx.stroke();
 
-  // دائرة الطبق الداخلي
-  const cx=x+size/2, cy=y+size/2, r=size*0.38;
-  ctx.fillStyle='rgba(255,255,255,0.06)';
-  ctx.beginPath();
-  ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.fill();
+  const cx=x+size/2, cy=y+size/2;
 
   // تحليل مكونات الوجبة لرسم الأيقونات المعبرة عنها داخل الطبق
   const icons=[];
@@ -1139,15 +1131,31 @@ const exportWeeklyDietPoster=async()=>{
         ctx.roundRect(48,curY+12,W-96,46,14);
         ctx.fill();
 
-        ctx.textAlign='right';
+                ctx.textAlign='right';
         ctx.fillStyle='#ffffff';
         ctx.font='900 20px Cairo, sans-serif';
         ctx.fillText(`📅 ${pd.dayName}`,W-68,curY+42);
 
         ctx.fillStyle='#38bdf8';
         ctx.font='700 14px Cairo, sans-serif';
-        const shortFocus=pd.focusLine.length>85?pd.focusLine.slice(0,85)+'...':pd.focusLine;
-        ctx.fillText(shortFocus,W-200,curY+41);
+        
+        // استخراج الماكروز إن وجدت
+        let cleanFocus = pd.focusLine;
+        let dayMacBadge = '';
+        if(cleanFocus.includes('📊')){
+          const parts = cleanFocus.split('📊');
+          cleanFocus = parts[0].trim();
+          dayMacBadge = parts[1].trim();
+        }
+        const shortFocus=cleanFocus.length>75?cleanFocus.slice(0,75)+'...':cleanFocus;
+        ctx.fillText(shortFocus,W-185,curY+41);
+
+        if(dayMacBadge){
+           ctx.textAlign='left';
+           ctx.fillStyle='#fbbf24';
+           ctx.font='900 12px Montserrat, sans-serif';
+           ctx.fillText(`📊 ${dayMacBadge}`,68,curY+42);
+        }
 
         let mY=curY+68;
         if(pd.meals.length===0){
@@ -1192,25 +1200,18 @@ const exportWeeklyDietPoster=async()=>{
           });
         }
 
-        if(pd.totalLine){
-          ctx.textAlign='left';
-          ctx.fillStyle='#34d399';
-          ctx.font='900 13px Cairo, sans-serif';
-          ctx.fillText(`📊 ${pd.totalLine}`,68,curY+41);
-        }
-
         curY+=cardH+18;
       });
 
-            // فوتر الصورة مقسم لسطرين
+      // فوتر الصورة (المياه والفيتامينات في سطر، والاسم في سطر منفصل تحت)
       ctx.textAlign='center';
-      ctx.fillStyle='#38bdf8'; // لون سماوي مميز
-      ctx.font='700 16px Cairo, sans-serif';
-      ctx.fillText(`💧 هدف المياه اليومي: ${editingClient.water||sysConf.water||3} لتر   |   💊 الفيتامينات: ${editingClient.vits||sysConf.vits||'Omega 3, Vit C'}`,W/2,totalH-45);
+      ctx.fillStyle='#38bdf8';
+      ctx.font='700 17px Cairo, sans-serif';
+      ctx.fillText(`💧 هدف المياه اليومي: ${editingClient.water||sysConf.water||3} لتر   |   💊 الفيتامينات: ${editingClient.vits||sysConf.vits||'Omega 3, Vit C'}`, W/2, totalH-40);
       
-      ctx.fillStyle='#f472b6'; // لون وردي لاسمك
-      ctx.font='900 18px Cairo, sans-serif';
-      ctx.fillText(`💖 Glow & Grit By Coach Rawan`,W/2,totalH-20);
+      ctx.fillStyle='#f472b6';
+      ctx.font='900 16px Cairo, sans-serif';
+      ctx.fillText(`💖 Glow & Grit By Coach Rawan`, W/2, totalH-15);
 
       setDietPosterUrl(canvas.toDataURL('image/png'));
     }catch(err){
@@ -1313,12 +1314,11 @@ const genSmartDietOnly=()=>{
       ?`⚡ [يوم تمرين (${spName}): السناك قبل التمرين بـ 45 دقيقة، والغداء بعد التمرين]`
       :`🌿 [يوم راحة واستشفاء: شرب ${editingClient.water||sysConf.water||3} لتر مياه وتقليل النشويات ليلاً]`;
 
-    return{
+        return{
       ...day,
-      diet:`🎯 نظام اليوم: ${workoutSyncTag}\n• إفطار: ${brkLine}\n• غداء: ${lunLine}\n• عشاء: ${dinLine}\n• سناك: ${snkLine}\n📊 [إجمالي اليوم: ${totalDayCal} Cal | ${totalDayPro}g Pro | ${totalDayCarb}g Carb | ${totalDayFat}g Fat]`,
+      diet:`🎯 ${workoutSyncTag} 📊 [${totalDayCal} Cal | ${totalDayPro}g Pro | ${totalDayCarb}g Carb | ${totalDayFat}g Fat]\n• إفطار: ${brkLine}\n• غداء: ${lunLine}\n• عشاء: ${dinLine}\n• سناك: ${snkLine}`,
       snacks:snkLine
     };
-
   });
 
   setEditingClient(p=>({...p,sch:s}));
@@ -3082,4 +3082,4 @@ const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
 </body>
-  </html>
+</html>
