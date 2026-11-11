@@ -1846,38 +1846,42 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
         </button>
 
         <button
-          onClick={async()=>{
+          onClick={()=>{
             const cleanName=(editingClient.n||'Client').trim().replace(/\s+/g,'_');
-            try{
-              if(dietPdfBlob){
-                const pdfFile=new File([dietPdfBlob],`Diet_${cleanName}.pdf`,{type:'application/pdf'});
-                if(navigator.canShare&&navigator.canShare({files:[pdfFile]})){
-                  await navigator.share({
-                    files:[pdfFile],
-                    title:`جدول دايت ${editingClient.n}`,
-                    text:`أهلاً يا ${editingClient.n} 💖 ده ملف الـ PDF لجدول الدايت الأسبوعي الخاص بيكِ (${cData.c} سعرة) من كابتن روان 🥗💪`
-                  });
-                  return;
-                }
-              }
-            }catch(e){}
-            // في حال عدم دعم المشاركة المباشرة للملف يقوم بتنزيله أولاً ثم يفتح محادثة العميلة على واتساب
+            
+            // تنزيل الملف على جهازك الأول عشان تبعتهولها
             if(dietPdfBlob){
               const url=URL.createObjectURL(dietPdfBlob);
               const a=document.createElement('a');
               a.href=url;
               a.download=`Diet_${cleanName}_${cData.c}Cal.pdf`;
               a.click();
+              setTimeout(()=>URL.revokeObjectURL(url), 3000);
+            }else if(dietPosterUrl){
+              const a=document.createElement('a');
+              a.href=dietPosterUrl;
+              a.download=`Diet_${cleanName}_${cData.c}Cal.jpg`;
+              a.click();
             }
+
+            // فتح الواتساب مباشرة على رقم العميلة
             const cleanPh=String(editingClient.ph||'').replace(/\D/g,'');
             const waPh=cleanPh.startsWith('0')?`2${cleanPh}`:cleanPh;
             const msg=`أهلاً يا ${editingClient.n} 💖\nده ملف الـ PDF لنظام الدايت الأسبوعي بتاعك مضبوط على هدفك (${cData.c} سعرة | ${cData.p}g بروتين) 🥗💪`;
-            window.open(`https://wa.me/${waPh}?text=${encodeURIComponent(msg)}`,'_blank');
+            
+            // استخدام رابط Intent لضمان فتح الواتساب بيزنس أو العادي مباشرة بدون شاشة اختيار
+            const waIntent = `intent://send?phone=${waPh}&text=${encodeURIComponent(msg)}#Intent;package=com.whatsapp.w4b;scheme=whatsapp;end;`;
+            
+            // نحاول فتح واتساب بيزنس، ولو فشل يفتح الرابط العادي اللي بيوجه لشات العميلة فوراً
+            const newWindow = window.open(waIntent, '_blank');
+            if(!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined'){
+               window.open(`https://wa.me/${waPh}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
           }}
           className="bg-[#25D366] text-white py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition cursor-pointer"
         >
           <span>💬</span>
-          <span>{isAr?`إرسال PDF للعميلة واتساب (${editingClient.ph})`:`Send PDF via WhatsApp`}</span>
+          <span>{isAr?`إرسال للعميلة واتساب (${editingClient.ph})`:`Send via WhatsApp`}</span>
         </button>
       </div>
     </div>
