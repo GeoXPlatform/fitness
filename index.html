@@ -921,10 +921,10 @@ const EGY_INGREDIENTS={
 
 const drawMealIllustration=(ctx,x,y,size,mealText)=>{
   ctx.save();
-  // خلفية الطبق الدائري الشيك
+  // خلفية الطبق الدائري الشيك (ألوان أفتح)
   const grad=ctx.createLinearGradient(x,y,x+size,y+size);
-  grad.addColorStop(0,'#1e293b');
-  grad.addColorStop(1,'#0f172a');
+  grad.addColorStop(0,'rgba(56, 189, 248, 0.15)'); // لون سماوي خفيف
+  grad.addColorStop(1,'rgba(255, 0, 127, 0.15)');  // لون زهري خفيف
   ctx.fillStyle=grad;
   ctx.beginPath();
   ctx.roundRect(x,y,size,size,16);
@@ -1202,11 +1202,15 @@ const exportWeeklyDietPoster=async()=>{
         curY+=cardH+18;
       });
 
-      // فوتر الصورة
+            // فوتر الصورة مقسم لسطرين
       ctx.textAlign='center';
-      ctx.fillStyle='#f472b6';
-      ctx.font='900 17px Cairo, sans-serif';
-      ctx.fillText(`💧 هدف المياه اليومي: ${editingClient.water||sysConf.water||3} لتر   |   💊 الفيتامينات: ${editingClient.vits||sysConf.vits||'Omega 3, Vit C'}   |   💖 Glow & Grit By Coach Rawan`,W/2,totalH-32);
+      ctx.fillStyle='#38bdf8'; // لون سماوي مميز
+      ctx.font='700 16px Cairo, sans-serif';
+      ctx.fillText(`💧 هدف المياه اليومي: ${editingClient.water||sysConf.water||3} لتر   |   💊 الفيتامينات: ${editingClient.vits||sysConf.vits||'Omega 3, Vit C'}`,W/2,totalH-45);
+      
+      ctx.fillStyle='#f472b6'; // لون وردي لاسمك
+      ctx.font='900 18px Cairo, sans-serif';
+      ctx.fillText(`💖 Glow & Grit By Coach Rawan`,W/2,totalH-20);
 
       setDietPosterUrl(canvas.toDataURL('image/png'));
     }catch(err){
@@ -1265,7 +1269,7 @@ const genSmartDietOnly=()=>{
     const brkProG=Math.round((bp.p*brkProMult)+(bc.p*brkCarbMult)+(bf.p*brkFatMult));
     const brkCarbG=Math.round((bp.cr*brkProMult)+(bc.cr*brkCarbMult)+(bf.cr*brkFatMult));
     const brkFatG=Math.round((bp.f*brkProMult)+(bc.f*brkCarbMult)+(bf.f*brkFatMult));
-    const brkLine=`${bp.fmt(brkProMult)} + ${bc.fmt(brkCarbMult)} + ${bf.fmt(brkFatMult)} [🔥 ${brkCal} Cal | 🥩 ${brkProG}g P | 🍞 ${brkCarbG}g C | 🧈 ${brkFatG}g F]`;
+        const brkLine=`${bp.fmt(brkProMult)} + ${bc.fmt(brkCarbMult)} + ${bf.fmt(brkFatMult)} [🔥 ${brkCal} Cal | 🥩 ${brkProG}g Pro | 🍞 ${brkCarbG}g Carb | 🧈 ${brkFatG}g Fat]`;
 
     // 2. تركيب وجبة الغداء (حوالي 42% من احتياج اليوم)
     const lp=lunProPool[(dStep+1)%lunProPool.length]||EGY_INGREDIENTS.lun_pro[0];
@@ -1279,7 +1283,7 @@ const genSmartDietOnly=()=>{
     const lunProG=Math.round((lp.p*lunProMult)+(lc.p*lunCarbMult)+1);
     const lunCarbG=Math.round((lp.cr*lunProMult)+(lc.cr*lunCarbMult)+6);
     const lunFatG=Math.round((lp.f*lunProMult)+(lc.f*lunCarbMult)+2);
-    const lunLine=`${lp.fmt(lunProMult)} + ${lc.fmt(lunCarbMult)} + طبق سلطة خضراء كبير بالليمون والجرجير 🥗 [🔥 ${lunCal} Cal | 🥩 ${lunProG}g P | 🍞 ${lunCarbG}g C | 🧈 ${lunFatG}g F]`;
+    const lunLine=`${lp.fmt(lunProMult)} + ${lc.fmt(lunCarbMult)} + طبق سلطة خضراء كبير بالليمون والجرجير 🥗 [🔥 ${lunCal} Cal | 🥩 ${lunProG}g Pro | 🍞 ${lunCarbG}g Carb | 🧈 ${lunFatG}g Fat]`;
 
     // 3. تركيب السناك (حوالي 13% من احتياج اليوم)
     const sn=snkPool[(dStep+2)%snkPool.length]||EGY_INGREDIENTS.snk_meals[0];
@@ -1288,7 +1292,7 @@ const genSmartDietOnly=()=>{
     const snkProG=Math.round(sn.p*snkMult);
     const snkCarbG=Math.round(sn.cr*snkMult);
     const snkFatG=Math.round(sn.f*snkMult);
-    const snkLine=`${sn.fmt(snkMult)} [🔥 ${snkCal} Cal | 🥩 ${snkProG}g P | 🍞 ${snkCarbG}g C | 🧈 ${snkFatG}g F]`;
+    const snkLine=`${sn.fmt(snkMult)} [🔥 ${snkCal} Cal | 🥩 ${snkProG}g Pro | 🍞 ${snkCarbG}g Carb | 🧈 ${snkFatG}g Fat]`;
 
     // 4. تركيب وجبة العشاء لضبط باقي سعرات وماكروز اليوم بدقة
     const dm=dinPool[(dStep+3)%dinPool.length]||EGY_INGREDIENTS.din_meals[0];
@@ -1298,7 +1302,7 @@ const genSmartDietOnly=()=>{
     const dinProG=Math.round(dm.p*dinMult);
     const dinCarbG=Math.round(dm.cr*dinMult);
     const dinFatG=Math.round(dm.f*dinMult);
-    const dinLine=`${dm.fmt(dinMult)} [🔥 ${dinCal} Cal | 🥩 ${dinProG}g P | 🍞 ${dinCarbG}g C | 🧈 ${dinFatG}g F]`;
+    const dinLine=`${dm.fmt(dinMult)} [🔥 ${dinCal} Cal | 🥩 ${dinProG}g Pro | 🍞 ${dinCarbG}g Carb | 🧈 ${dinFatG}g Fat]`;
 
     const totalDayCal=brkCal+lunCal+dinCal+snkCal;
     const totalDayPro=brkProG+lunProG+dinProG+snkProG;
@@ -1306,14 +1310,15 @@ const genSmartDietOnly=()=>{
     const totalDayFat=brkFatG+lunFatG+dinFatG+snkFatG;
 
     const workoutSyncTag=isWorkDay
-      ?`⚡ [يوم تمرين (${spName}): السناك قبل التمرين بـ 45 دقيقة للطاقة، والغداء بعد التمرين للاستشفاء]`
+      ?`⚡ [يوم تمرين (${spName}): السناك قبل التمرين بـ 45 دقيقة، والغداء بعد التمرين]`
       :`🌿 [يوم راحة واستشفاء: شرب ${editingClient.water||sysConf.water||3} لتر مياه وتقليل النشويات ليلاً]`;
 
     return{
       ...day,
-      diet:`🎯 نظام اليوم: ${workoutSyncTag}\n• إفطار: ${brkLine}\n• غداء: ${lunLine}\n• عشاء: ${dinLine}\n• سناك: ${snkLine}\n📊 إجمالي اليوم المحسوب ذكياً: ${totalDayCal} Cal (${totalDayPro}g Pro | ${totalDayCarb}g Carb | ${totalDayFat}g Fat)`,
+      diet:`🎯 نظام اليوم: ${workoutSyncTag}\n• إفطار: ${brkLine}\n• غداء: ${lunLine}\n• عشاء: ${dinLine}\n• سناك: ${snkLine}\n📊 [إجمالي اليوم: ${totalDayCal} Cal | ${totalDayPro}g Pro | ${totalDayCarb}g Carb | ${totalDayFat}g Fat]`,
       snacks:snkLine
     };
+
   });
 
   setEditingClient(p=>({...p,sch:s}));
@@ -3077,4 +3082,4 @@ const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
 </body>
-</html>
+  </html>
