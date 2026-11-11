@@ -19,6 +19,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Montserrat:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
 <script>
 tailwind.config={darkMode:'class',theme:{extend:{colors:{brand:{light:'#fce7f3',DEFAULT:'#ff007f',dark:'#00e5ff',gold:'#fbbf24'},darkbg:'#0f172a',darkcard:'#1e293b'},fontFamily:{arabic:['Cairo','sans-serif'],english:['Montserrat','sans-serif']},animation:{'slide-up':'slideUp 0.3s ease-out forwards','zoom-in':'zoomIn 0.25s ease-out forwards','pulse-slow':'pulse 2.5s infinite'},keyframes:{slideUp:{'0%':{opacity:'0',transform:'translateY(12px)'},'100%':{opacity:'1',transform:'translateY(0)'}},zoomIn:{'0%':{opacity:'0',transform:'scale(0.95)'},'100%':{opacity:'1',transform:'scale(1)'}}}}}}
@@ -597,6 +598,7 @@ const[dtMealSource,setDtMealSource]=useState('');
 const[copiedWorkout,setCopiedWorkout]=useState(null);
 const[copiedDiet,setCopiedDiet]=useState(null);
 const[dietPosterUrl,setDietPosterUrl]=useState(null);
+const[dietPdfBlob,setDietPdfBlob]=useState(null);
 const[generatingPoster,setGeneratingPoster]=useState(false);
 const[sysConf,setSysConf]=useState({coachHours:['10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','10:00 - 20:00','إجازة','10:00 - 20:00'],wake:'07:00',sleep:'23:00',water:3,vits:'Omega 3, Vit C',mealDeadlines:{brk:'11:00',lun:'17:00',din:'23:00'}});
 const audioRef=useRef(new Audio());
@@ -921,18 +923,34 @@ const EGY_INGREDIENTS={
 
 const drawMealIllustration=(ctx,x,y,size,mealText)=>{
   ctx.save();
-  // إطار خفيف جداً يحدد الأيقونات فقط بدون تظليم
+  ctx.filter='none';
+  ctx.globalAlpha=1.0;
+
+  // خلفية الكارت الخارجي للطبق (أبيض كريمي منور بدون أي تغميق)
+  const bgGrad=ctx.createLinearGradient(x,y,x+size,y+size);
+  bgGrad.addColorStop(0,'#ffffff');
+  bgGrad.addColorStop(1,'#fce7f3');
+  ctx.fillStyle=bgGrad;
   ctx.beginPath();
-  ctx.roundRect(x,y,size,size,16);
-  ctx.fillStyle='rgba(255,255,255,0.03)';
+  ctx.roundRect(x,y,size,size,18);
   ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,0.1)';
-  ctx.lineWidth=1;
+
+  // إطار خارجي وردي/ذهبي واضح
+  ctx.strokeStyle='#ff007f';
+  ctx.lineWidth=2;
   ctx.stroke();
 
-  const cx=x+size/2, cy=y+size/2;
+  // حافة الطبق الدائري البورسلين بالداخل
+  const cx=x+size/2, cy=y+size/2, r=size*0.41;
+  ctx.fillStyle='#f8fafc';
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle='#cbd5e1';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
 
-  // تحليل مكونات الوجبة لرسم الأيقونات المعبرة عنها داخل الطبق
+  // استخراج مكونات الوجبة لرسمها بوضوح تام وألوان صريحة
   const icons=[];
   if(/بيض|أومليت|egg|omelet/i.test(mealText))icons.push('🍳');
   if(/فول|عدس|حمص|fava|beans/i.test(mealText))icons.push('🫘');
@@ -944,38 +962,42 @@ const drawMealIllustration=(ctx,x,y,size,mealText)=>{
   if(/أرز|فريك|برغل|كشري|rice/i.test(mealText))icons.push('🍚');
   if(/مكرونة|pasta/i.test(mealText))icons.push('🍝');
   if(/رغيف|عيش|توست|خبز|bread|toast/i.test(mealText))icons.push('🥖');
-  if(/بطاطس|بطاطا|potato/i.test(mealText))icons.push('🥔');
+  if(/بطاطس|بطاطا|potato/i.test(mealText))icons.push('🍠');
   if(/شوفان|شيا|oats/i.test(mealText))icons.push('🥣');
   if(/أفوكادو|avocado/i.test(mealText))icons.push('🥑');
   if(/زبادي|حليب|لبن|yogurt|milk/i.test(mealText))icons.push('🥛');
   if(/سلطة|خيار|خس|جرجير|خضار|salad/i.test(mealText))icons.push('🥗');
-  if(/تفاح|برتقال|فراولة|موز|فواكه|تمر|apple|banana/i.test(mealText))icons.push('🍎');
+  if(/تفاح|برتقال|فراولة|موز|فواكه|تمر|apple|banana/i.test(mealText))icons.push('🍓');
   if(/لوز|مكسرات|فول سوداني|عين جمل|nuts/i.test(mealText))icons.push('🥜');
   if(/فشار|popcorn/i.test(mealText))icons.push('🍿');
   if(/شوكولاتة|choc/i.test(mealText))icons.push('🍫');
   if(icons.length===0)icons.push('🍽️','🥗');
 
   const topIcons=icons.slice(0,4);
+  ctx.fillStyle='#000000';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,0.12)';
+  ctx.shadowBlur=3;
+
   if(topIcons.length===1){
-    ctx.font='30px Cairo, sans-serif';
-    ctx.fillText(topIcons[0],cx,cy);
+    ctx.font='34px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    ctx.fillText(topIcons[0],cx,cy+1);
   }else if(topIcons.length===2){
-    ctx.font='22px Cairo, sans-serif';
-    ctx.fillText(topIcons[0],cx-11,cy-6);
-    ctx.fillText(topIcons[1],cx+11,cy+8);
+    ctx.font='25px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    ctx.fillText(topIcons[0],cx-13,cy-7);
+    ctx.fillText(topIcons[1],cx+13,cy+9);
   }else if(topIcons.length===3){
-    ctx.font='19px Cairo, sans-serif';
-    ctx.fillText(topIcons[0],cx,cy-12);
-    ctx.fillText(topIcons[1],cx-13,cy+10);
-    ctx.fillText(topIcons[2],cx+13,cy+10);
+    ctx.font='22px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    ctx.fillText(topIcons[0],cx,cy-13);
+    ctx.fillText(topIcons[1],cx-14,cy+11);
+    ctx.fillText(topIcons[2],cx+14,cy+11);
   }else{
-    ctx.font='18px Cairo, sans-serif';
-    ctx.fillText(topIcons[0],cx-12,cy-11);
-    ctx.fillText(topIcons[1],cx+12,cy-11);
-    ctx.fillText(topIcons[2],cx-12,cy+12);
-    ctx.fillText(topIcons[3],cx+12,cy+12);
+    ctx.font='20px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    ctx.fillText(topIcons[0],cx-13,cy-12);
+    ctx.fillText(topIcons[1],cx+13,cy-12);
+    ctx.fillText(topIcons[2],cx-13,cy+13);
+    ctx.fillText(topIcons[3],cx+13,cy+13);
   }
   ctx.restore();
 };
@@ -1005,9 +1027,9 @@ const exportWeeklyDietPoster=async()=>{
       const cData=getMacs(editingClient,isAr);
       const sch=safeSch(editingClient.sch);
       const dayNames=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-      const W=1120;
+      const W=1160;
 
-      // تجهيز بيانات الأيام لحساب الارتفاع بدقة
+      // تجهيز بيانات الأيام الـ 7
       const parsedDays=DAYS_ORDER.map(dIdx=>{
         const dObj=sch[dIdx]||{};
         const rawLines=String(dObj.diet||'').split('\n').map(l=>l.trim()).filter(Boolean);
@@ -1019,9 +1041,13 @@ const exportWeeklyDietPoster=async()=>{
           else if(l.includes('📊'))totalLine=l.replace('📊','').trim();
           else meals.push(l.replace(/^[•\-]\s*/,''));
         });
-        if(!focusLine){
-          const spName=(dObj?.customSplit&&dObj.customSplit.trim())?dObj.customSplit.trim():(SPLIT_PARTS.find(p=>p.id===(dObj?.split||'full'))?.n||'تمرين');
-          focusLine=dObj?.freeDay?'🍕 يوم فري مفتوح':(dObj?.active?`⚡ يوم تمرين (${spName})`:'🌿 يوم راحة واستشفاء');
+        const spName=(dObj?.customSplit&&dObj.customSplit.trim())?dObj.customSplit.trim():(SPLIT_PARTS.find(p=>p.id===(dObj?.split||'full'))?.n||'تمرين');
+        if(!focusLine||focusLine.includes('شامل لكل الجسم')){
+          focusLine=dObj?.freeDay
+            ?'🍕 يوم فري مفتوح (استمتعي بوجبتك المفضلة)'
+            :(dObj?.active
+              ?`⚡ يوم تمرين (${spName}): السناك قبل التمرين بـ 45 دقيقة للطاقة، والغداء بعد التمرين للاستشفاء`
+              :`🌿 يوم راحة واستشفاء: شرب ${editingClient.water||sysConf.water||3} لتر مياه وتقليل النشويات ليلاً`);
         }
         if(meals.length===0&&dObj?.freeDay){
           meals.push('إفطار: وجبة مفتوحة (يوم فري 🎉)','غداء: وجبة فري مفتوحة من اختيارك 🍕','عشاء: زبادي لايت بالليمون 🥛');
@@ -1032,9 +1058,9 @@ const exportWeeklyDietPoster=async()=>{
       let totalH=340;
       parsedDays.forEach(pd=>{
         const mealRows=Math.max(1,pd.meals.length);
-        totalH+=95+(mealRows*92)+28;
+        totalH+=98+(mealRows*102)+24;
       });
-      totalH+=90;
+      totalH+=215; // مساحة كارت المياه والفيتامينات المتبروز + الفوتر
 
       const canvas=document.createElement('canvas');
       canvas.width=W;
@@ -1042,23 +1068,23 @@ const exportWeeklyDietPoster=async()=>{
       const ctx=canvas.getContext('2d');
       ctx.direction='rtl';
 
-      // الخلفية الفخمة
+      // الخلفية الأساسية
       const bgGrad=ctx.createLinearGradient(0,0,W,totalH);
       bgGrad.addColorStop(0,'#090d16');
-      bgGrad.addColorStop(0.5,'#160d24');
+      bgGrad.addColorStop(0.5,'#150d26');
       bgGrad.addColorStop(1,'#090d16');
       ctx.fillStyle=bgGrad;
       ctx.fillRect(0,0,W,totalH);
 
-      // إطار مضيء خارجي
+      // الإطار العام
       ctx.strokeStyle='#ff007f';
       ctx.lineWidth=4;
       ctx.beginPath();
       ctx.roundRect(14,14,W-28,totalH-28,32);
       ctx.stroke();
 
-      // بانر الهيدر العلوي
-      const hdrGrad=ctx.createLinearGradient(40,40,W-40,180);
+      // الهيدر العلوي
+      const hdrGrad=ctx.createLinearGradient(36,36,W-36,175);
       hdrGrad.addColorStop(0,'#ff007f');
       hdrGrad.addColorStop(1,'#00b4d8');
       ctx.fillStyle=hdrGrad;
@@ -1075,7 +1101,7 @@ const exportWeeklyDietPoster=async()=>{
       const goalTitle=(editingClient.goal||'loss')==='loss'?'🔥 حرق دهون وتخسيس':(editingClient.goal||'loss')==='gain'?'💪 زيادة وزن وعضل':'⚖️ ثبات وتنشيف';
       ctx.fillText(`Glow & Grit - By Coach Rawan  |  الهدف: ${goalTitle}  |  الوزن الحالي: ${editingClient.w}kg ⬅ الهدف: ${cData.iW}kg`,W-65,135);
 
-      // بطاقة سعرات الهدف والماكروز والـ InBody
+      // شريط الماكروز والـ InBody العلوي
       ctx.fillStyle='rgba(30,41,59,0.95)';
       ctx.beginPath();
       ctx.roundRect(36,188,W-72,115,22);
@@ -1095,133 +1121,218 @@ const exportWeeklyDietPoster=async()=>{
       statBoxes.forEach((sb,idx)=>{
         const bx=W-56-((idx+1)*boxW)+(idx*8);
         const by=202;
-        ctx.fillStyle='rgba(15,23,42,0.85)';
+        ctx.fillStyle='rgba(15,23,42,0.9)';
         ctx.beginPath();
         ctx.roundRect(bx,by,boxW-8,88,16);
         ctx.fill();
         ctx.textAlign='center';
-        ctx.fillStyle='#9ca3af';
+        ctx.fillStyle='#cbd5e1';
         ctx.font='700 13px Cairo, sans-serif';
         ctx.fillText(sb.lbl,bx+(boxW-8)/2,by+24);
+        ctx.save();
+        ctx.direction='ltr';
         ctx.fillStyle=sb.col;
-        ctx.font='900 22px Cairo, sans-serif';
+        ctx.font='900 22px Montserrat, Cairo, sans-serif';
         ctx.fillText(sb.val,bx+(boxW-8)/2,by+53);
-        ctx.fillStyle='#cbd5e1';
+        ctx.restore();
+        ctx.fillStyle='#94a3b8';
         ctx.font='700 11px Cairo, sans-serif';
         ctx.fillText(sb.sub,bx+(boxW-8)/2,by+75);
       });
 
-      // رسم أيام الأسبوع الـ 7 والوجبات مع الصور المولدة
+      // رسم كروت الأيام الـ 7
       let curY=322;
       parsedDays.forEach(pd=>{
         const mealRows=Math.max(1,pd.meals.length);
-        const cardH=85+(mealRows*92);
+        const cardH=88+(mealRows*102);
 
-        ctx.fillStyle='rgba(15,23,42,0.92)';
+        ctx.fillStyle='rgba(15,23,42,0.94)';
         ctx.beginPath();
         ctx.roundRect(36,curY,W-72,cardH,24);
         ctx.fill();
-        ctx.strokeStyle=pd.freeDay?'#f59e0b':pd.active?'#ff007f':'rgba(148,163,184,0.3)';
+        ctx.strokeStyle=pd.freeDay?'#f59e0b':pd.active?'#ff007f':'rgba(148,163,184,0.35)';
         ctx.lineWidth=2;
         ctx.stroke();
 
-        // شريط عنوان اليوم
-        ctx.fillStyle=pd.freeDay?'rgba(245,158,11,0.18)':pd.active?'rgba(255,0,127,0.18)':'rgba(51,65,85,0.5)';
+        // هيدر اليوم (يعرض الجملة كاملة بدون أي قص)
+        ctx.fillStyle=pd.freeDay?'rgba(245,158,11,0.18)':pd.active?'rgba(255,0,127,0.18)':'rgba(51,65,85,0.55)';
         ctx.beginPath();
-        ctx.roundRect(48,curY+12,W-96,46,14);
+        ctx.roundRect(48,curY+12,W-96,54,14);
         ctx.fill();
 
-                ctx.textAlign='right';
+        let cleanFocus=pd.focusLine.replace(/📊.*$/,'').replace(/^نظام اليوم:\s*/,'').trim();
+        ctx.textAlign='right';
         ctx.fillStyle='#ffffff';
         ctx.font='900 20px Cairo, sans-serif';
-        ctx.fillText(`📅 ${pd.dayName}`,W-68,curY+42);
+        ctx.fillText(`📅 ${pd.dayName}`,W-65,curY+45);
 
         ctx.fillStyle='#38bdf8';
-        ctx.font='700 14px Cairo, sans-serif';
-        
-        // استخراج الماكروز إن وجدت
-        let cleanFocus = pd.focusLine;
-        let dayMacBadge = '';
-        if(cleanFocus.includes('📊')){
-          const parts = cleanFocus.split('📊');
-          cleanFocus = parts[0].trim();
-          dayMacBadge = parts[1].trim();
-        }
-        const shortFocus=cleanFocus.length>75?cleanFocus.slice(0,75)+'...':cleanFocus;
-        ctx.fillText(shortFocus,W-185,curY+41);
-
-        if(dayMacBadge){
-           ctx.textAlign='left';
-           ctx.fillStyle='#fbbf24';
-           ctx.font='900 12px Montserrat, sans-serif';
-           ctx.fillText(`📊 ${dayMacBadge}`,68,curY+42);
+        ctx.font='700 13.5px Cairo, sans-serif';
+        const focusWrapped=wrapCanvasLines(ctx,cleanFocus,W-255);
+        if(focusWrapped.length===1){
+          ctx.fillText(focusWrapped[0],W-195,curY+44);
+        }else{
+          ctx.fillText(focusWrapped[0],W-195,curY+33);
+          ctx.fillText(focusWrapped.slice(1).join(' '),W-195,curY+54);
         }
 
-        let mY=curY+68;
+        let mY=curY+76;
         if(pd.meals.length===0){
           ctx.fillStyle='#9ca3af';
           ctx.font='700 16px Cairo, sans-serif';
-          ctx.fillText('لم يتم إدراج وجبات لهذا اليوم بعد.',W-75,mY+40);
+          ctx.fillText('لم يتم إدراج وجبات لهذا اليوم بعد.',W-75,mY+42);
         }else{
           pd.meals.forEach(mStr=>{
-            // خلفية سطر الوجبة
-            ctx.fillStyle='rgba(30,41,59,0.9)';
+            ctx.fillStyle='rgba(30,41,59,0.92)';
             ctx.beginPath();
-            ctx.roundRect(52,mY,W-104,82,16);
+            ctx.roundRect(52,mY,W-104,94,16);
             ctx.fill();
-            ctx.strokeStyle='rgba(255,255,255,0.07)';
+            ctx.strokeStyle='rgba(255,255,255,0.08)';
             ctx.lineWidth=1;
             ctx.stroke();
 
-            // توليد رسم الطبق التوضيحي على اليمين
-            drawMealIllustration(ctx,W-136,mY+6,70,mStr);
+            // رسم الطبق البورسلين المنور على اليمين
+            drawMealIllustration(ctx,W-144,mY+9,76,mStr);
 
-            // استخراج الماكروز من آخر السطر إن وجدت
-            const macMatch=mStr.match(/\[🔥[^\]]+\]/);
-            const macBadge=macMatch?macMatch[0]:'';
+            // فصل السعرات عن الماكروز لمنع انعكاس الكلمات الإنجليزية مع العربي
             const cleanMeal=mStr.replace(/\[🔥[^\]]+\]/g,'').trim();
+            const calVal=mStr.match(/(\d+)\s*Cal/i)?.[1]||'';
+            const proVal=mStr.match(/(\d+)\s*g\s*(?:Pro|P\b)/i)?.[1]||'';
+            const carbVal=mStr.match(/(\d+)\s*g\s*(?:Carb|C\b)/i)?.[1]||'';
+            const fatVal=mStr.match(/(\d+)\s*g\s*(?:Fat|F\b)/i)?.[1]||'';
 
             ctx.textAlign='right';
-            ctx.fillStyle='#f8fafc';
-            ctx.font='700 15px Cairo, sans-serif';
-            const lines=wrapCanvasLines(ctx,cleanMeal,W-240);
-            ctx.fillText(lines[0]||'',W-152,mY+30);
+            ctx.fillStyle='#ffffff';
+            ctx.font='700 15.5px Cairo, sans-serif';
+            const lines=wrapCanvasLines(ctx,cleanMeal,W-235);
+            ctx.fillText(lines[0]||'',W-160,mY+28);
             if(lines[1]){
-              ctx.fillStyle='#cbd5e1';
+              ctx.fillStyle='#e2e8f0';
               ctx.font='700 14px Cairo, sans-serif';
-              ctx.fillText(lines.slice(1).join(' '),W-152,mY+52);
+              ctx.fillText(lines.slice(1).join(' '),W-160,mY+50);
             }
-            if(macBadge){
+
+            // رسم كبسولة الماكروز في جنب وكبسولة السعرات في الجنب الآخر باتجاه LTR مضبوط 100%
+            if(calVal||proVal){
+              ctx.save();
+              ctx.direction='ltr';
+              ctx.textAlign='left';
+
+              // 1. كبسولة السعرات الإجمالية للوجبة (على اليسار)
+              const calText=`🔥 ${calVal} kcal`;
+              ctx.fillStyle='rgba(251,191,36,0.18)';
+              ctx.beginPath();
+              ctx.roundRect(68,mY+60,135,26,8);
+              ctx.fill();
+              ctx.strokeStyle='rgba(251,191,36,0.5)';
+              ctx.lineWidth=1;
+              ctx.stroke();
               ctx.fillStyle='#fbbf24';
-              ctx.font='900 13px Cairo, sans-serif';
-              ctx.fillText(macBadge,W-152,mY+72);
+              ctx.font='900 13px Montserrat, Cairo, sans-serif';
+              ctx.fillText(calText,80,mY+77);
+
+              // 2. كبسولة تفصيل البروتين والكارب والدهون (بجانبها بترتيب ثابت لا ينعكس)
+              const macText=`🥩 Pro: ${proVal}g   |   🍞 Carb: ${carbVal}g   |   🧈 Fat: ${fatVal}g`;
+              ctx.fillStyle='rgba(56,189,248,0.14)';
+              ctx.beginPath();
+              ctx.roundRect(212,mY+60,375,26,8);
+              ctx.fill();
+              ctx.strokeStyle='rgba(56,189,248,0.35)';
+              ctx.lineWidth=1;
+              ctx.stroke();
+              ctx.fillStyle='#38bdf8';
+              ctx.font='900 12.5px Montserrat, Cairo, sans-serif';
+              ctx.fillText(macText,226,mY+77);
+
+              ctx.restore();
             }
-            mY+=90;
+
+            mY+=102;
           });
         }
 
-        curY+=cardH+18;
+        curY+=cardH+20;
       });
 
-      // فوتر الصورة (المياه والفيتامينات في سطر، والاسم في سطر منفصل تحت)
-      ctx.textAlign='center';
-      ctx.fillStyle='#38bdf8';
-      ctx.font='700 17px Cairo, sans-serif';
-      ctx.fillText(`💧 هدف المياه اليومي: ${editingClient.water||sysConf.water||3} لتر   |   💊 الفيتامينات: ${editingClient.vits||sysConf.vits||'Omega 3, Vit C'}`, W/2, totalH-40);
-      
-      ctx.fillStyle='#f472b6';
-      ctx.font='900 16px Cairo, sans-serif';
-      ctx.fillText(`💖 Glow & Grit By Coach Rawan`, W/2, totalH-15);
+      // برواز سفلي فخم ومقسم للمياه والفيتامينات
+      const footY=curY+4;
+      ctx.fillStyle='rgba(30,41,59,0.96)';
+      ctx.beginPath();
+      ctx.roundRect(36,footY,W-72,112,24);
+      ctx.fill();
+      ctx.strokeStyle='#00e5ff';
+      ctx.lineWidth=2;
+      ctx.stroke();
 
-      setDietPosterUrl(canvas.toDataURL('image/png'));
+      const halfW=(W-108)/2;
+      const waterL=editingClient.water||sysConf.water||3;
+      const vitsStr=editingClient.vits||sysConf.vits||'Omega 3, Vit C';
+
+      // بوكس المياه (يمين)
+      ctx.fillStyle='rgba(2,132,199,0.2)';
+      ctx.beginPath();
+      ctx.roundRect(W-48-halfW,footY+14,halfW,84,16);
+      ctx.fill();
+      ctx.strokeStyle='rgba(56,189,248,0.4)';
+      ctx.stroke();
+      ctx.textAlign='right';
+      ctx.fillStyle='#38bdf8';
+      ctx.font='900 18px Cairo, sans-serif';
+      ctx.fillText(`💧 هدف شرب المياه اليومي: ${waterL} لتر (${Math.round(waterL/0.25)} أكواب)`,W-68,footY+48);
+      ctx.fillStyle='#cbd5e1';
+      ctx.font='700 13px Cairo, sans-serif';
+      ctx.fillText('وزعي شرب المياه على مدار اليوم وقبل كل وجبة بنصف ساعة لرفع الحرق.',W-68,footY+78);
+
+      // بوكس الفيتامينات والمكملات (يسار)
+      ctx.fillStyle='rgba(245,158,11,0.16)';
+      ctx.beginPath();
+      ctx.roundRect(48,footY+14,halfW,84,16);
+      ctx.fill();
+      ctx.strokeStyle='rgba(251,191,36,0.4)';
+      ctx.stroke();
+      ctx.textAlign='right';
+      ctx.fillStyle='#fbbf24';
+      ctx.font='900 18px Cairo, sans-serif';
+      ctx.fillText('💊 الفيتامينات والمكملات اليومية:',48+halfW-20,footY+46);
+      ctx.save();
+      ctx.direction='ltr';
+      ctx.textAlign='center';
+      ctx.fillStyle='#ffffff';
+      ctx.font='900 15px Montserrat, Cairo, sans-serif';
+      ctx.fillText(vitsStr,48+halfW/2,footY+76);
+      ctx.restore();
+
+      // شريط توقيع البرنامج المستقل في الأسفل
+      ctx.textAlign='center';
+      ctx.fillStyle='#f472b6';
+      ctx.font='900 18px Cairo, sans-serif';
+      ctx.fillText('💖 Glow & Grit - By Coach Rawan  |  خطة تغذية مصممة خصيصاً لهدفك',W/2,totalH-26);
+
+      const imgData=canvas.toDataURL('image/jpeg',0.95);
+      setDietPosterUrl(imgData);
+
+      // تحويلها لملف PDF عالي الدقة باسم العميلة
+      if(window.jspdf&&window.jspdf.jsPDF){
+        const pdfW=210;
+        const pdfH=Math.round((totalH*pdfW)/W);
+        const pdf=new window.jspdf.jsPDF({
+          orientation:'p',
+          unit:'mm',
+          format:[pdfW,pdfH]
+        });
+        pdf.addImage(imgData,'JPEG',0,0,pdfW,pdfH,undefined,'FAST');
+        const blob=pdf.output('blob');
+        setDietPdfBlob(blob);
+      }
     }catch(err){
       console.error(err);
-      alert('حدث خطأ أثناء توليد الصورة');
+      alert('حدث خطأ أثناء تجهيز ملف الـ PDF');
     }finally{
       setGeneratingPoster(false);
     }
   },80);
 };
+            
 const genSmartDietOnly=()=>{
   const macs=getMacs(editingClient,isAr);
   const targetCal=Number(macs.c)||1400;
@@ -1691,8 +1802,8 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
   <button onClick={genSmartDietOnly} className="w-full bg-gradient-to-r text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition">🥗 {isAr?`توليد جدول دايت مصري بالجرامات (${cData.c} Cal) ⚡`:`Generate Smart Diet (${cData.c} Cal) ⚡`}</button>
   <button onClick={exportWeeklyDietPoster} disabled={generatingPoster} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-black text-xs shadow-md cursor-pointer hover:scale-[1.01] transition flex items-center justify-center gap-1.5">
-    <span>📸</span>
-    <span>{generatingPoster?(isAr?'جاري تصميم ورسم الوجبات...':'Generating Poster...'):(isAr?'تصدير صورة الدايت الأسبوعي (مع صور الوجبات)':'Export Weekly Diet Image')}</span>
+    <span>📄</span>
+    <span>{generatingPoster?(isAr?'جاري تجهيز ملف الـ PDF...':'Generating PDF...'):(isAr?'تصدير جدول الدايت PDF (باسم العميلة)':'Export Weekly Diet PDF')}</span>
   </button>
 </div>
 
@@ -1700,48 +1811,73 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
   <div className="fixed inset-0 bg-black/90 z-[999] flex flex-col items-center justify-center p-3 sm:p-5 animate-zoom-in">
     <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-4 shadow-2xl border-2 border-brand flex flex-col max-h-[92vh]">
       <div className="flex justify-between items-center border-b dark:border-slate-700 pb-2.5 mb-3">
-        <h3 className="font-black text-sm text-brand">📸 {isAr?`صورة جدول الدايت الأسبوعي (${editingClient.n})`:`Weekly Diet Image (${editingClient.n})`}</h3>
-        <button onClick={()=>setDietPosterUrl(null)} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 font-black flex items-center justify-center cursor-pointer">✕</button>
+        <h3 className="font-black text-sm text-brand">📄 {isAr?`ملف دايت العميلة PDF (${editingClient.n})`:`Client Diet PDF (${editingClient.n})`}</h3>
+        <button onClick={()=>{setDietPosterUrl(null);setDietPdfBlob(null);}} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 font-black flex items-center justify-center cursor-pointer">✕</button>
       </div>
 
       <div className="flex-1 overflow-y-auto rounded-2xl border dark:border-slate-700 bg-slate-950 p-1.5 mb-3 custom-scroll">
-        <img src={dietPosterUrl} className="w-full h-auto rounded-xl block" alt="Weekly Diet Plan"/>
+        <img src={dietPosterUrl} className="w-full h-auto rounded-xl block" alt="Weekly Diet PDF Preview"/>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <a
-          href={dietPosterUrl}
-          download={`Diet_${editingClient.n||'Client'}_${cData.c}Cal.png`}
+        <button
+          onClick={()=>{
+            const cleanName=(editingClient.n||'Client').trim().replace(/\s+/g,'_');
+            if(dietPdfBlob){
+              const url=URL.createObjectURL(dietPdfBlob);
+              const a=document.createElement('a');
+              a.href=url;
+              a.download=`Diet_${cleanName}_${cData.c}Cal.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              setTimeout(()=>URL.revokeObjectURL(url),3000);
+            }else{
+              const a=document.createElement('a');
+              a.href=dietPosterUrl;
+              a.download=`Diet_${cleanName}_${cData.c}Cal.jpg`;
+              a.click();
+            }
+          }}
           className="bg-brand text-white py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition cursor-pointer text-center"
         >
           <span>📥</span>
-          <span>{isAr?'حفظ وتنزيل الصورة على الموبايل':'Download Image to Phone'}</span>
-        </a>
+          <span>{isAr?`تنزيل PDF باسم (${editingClient.n})`:`Download PDF (${editingClient.n})`}</span>
+        </button>
 
         <button
           onClick={async()=>{
+            const cleanName=(editingClient.n||'Client').trim().replace(/\s+/g,'_');
             try{
-              const res=await fetch(dietPosterUrl);
-              const blob=await res.blob();
-              const file=new File([blob],`Diet_${editingClient.n}.png`,{type:'image/png'});
-              if(navigator.canShare&&navigator.canShare({files:[file]})){
-                await navigator.share({
-                  files:[file],
-                  title:`جدول دايت ${editingClient.n}`,
-                  text:`أهلاً يا ${editingClient.n} 💖 ده جدول الدايت الأسبوعي الخاص بيكِ (${cData.c} سعرة) من كابتن روان 🥗💪`
-                });
-                return;
+              if(dietPdfBlob){
+                const pdfFile=new File([dietPdfBlob],`Diet_${cleanName}.pdf`,{type:'application/pdf'});
+                if(navigator.canShare&&navigator.canShare({files:[pdfFile]})){
+                  await navigator.share({
+                    files:[pdfFile],
+                    title:`جدول دايت ${editingClient.n}`,
+                    text:`أهلاً يا ${editingClient.n} 💖 ده ملف الـ PDF لجدول الدايت الأسبوعي الخاص بيكِ (${cData.c} سعرة) من كابتن روان 🥗💪`
+                  });
+                  return;
+                }
               }
             }catch(e){}
+            // في حال عدم دعم المشاركة المباشرة للملف يقوم بتنزيله أولاً ثم يفتح محادثة العميلة على واتساب
+            if(dietPdfBlob){
+              const url=URL.createObjectURL(dietPdfBlob);
+              const a=document.createElement('a');
+              a.href=url;
+              a.download=`Diet_${cleanName}_${cData.c}Cal.pdf`;
+              a.click();
+            }
             const cleanPh=String(editingClient.ph||'').replace(/\D/g,'');
             const waPh=cleanPh.startsWith('0')?`2${cleanPh}`:cleanPh;
-            const msg=`أهلاً يا ${editingClient.n} 💖\nده نظام الدايت الأسبوعي بتاعك مضبوط على هدفك (${cData.c} سعرة | ${cData.p}g بروتين) 🥗💪\n(مرفق صورة الجدول بالتفصيل 📸)`;
+            const msg=`أهلاً يا ${editingClient.n} 💖\nده ملف الـ PDF لنظام الدايت الأسبوعي بتاعك مضبوط على هدفك (${cData.c} سعرة | ${cData.p}g بروتين) 🥗💪`;
             window.open(`https://wa.me/${waPh}?text=${encodeURIComponent(msg)}`,'_blank');
           }}
           className="bg-[#25D366] text-white py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition cursor-pointer"
         >
           <span>💬</span>
-          <span>{isAr?`إرسال للعميلة واتساب (${editingClient.ph})`:`Send via WhatsApp (${editingClient.ph})`}</span>
+          <span>{isAr?`إرسال PDF للعميلة واتساب (${editingClient.ph})`:`Send PDF via WhatsApp`}</span>
         </button>
       </div>
     </div>
