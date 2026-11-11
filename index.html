@@ -2014,15 +2014,15 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
 
                   {/* في حال الضغط على اختيار وجبة جاهزة: تفتح قائمة الكروت */}
 
-                  {/* في حال الضغط على كتابة يدوي: يفتح مربع الإدخال */}
+                  {/* في حال الضغط على كتابة يدوي: يفتح مربع الإدخال الواسع */}
                   {dtMealSource==='manual'&&(
                     <div className="space-y-1 animate-slide-up">
                       <span className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-300">{isAr?'اكتب تفاصيل الوجبة أو السناك بحرية:':'Type meal details:'}</span>
-                      <input 
-                        type="text" 
+                      <textarea 
                         autoFocus
-                        placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا بحرية...":"Type meal details..."} 
-                        className="w-full p-3 rounded-xl border-2 border-emerald-400 text-xs font-bold bg-white dark:bg-slate-900 outline-none shadow-sm" 
+                        rows="4"
+                        placeholder={isAr?"اكتبي تفاصيل الوجبة أو السناك هنا بحرية... (مثال: مكونات، سعرات، بروتين)":"Type meal details here..."} 
+                        className="w-full p-3 rounded-xl border-2 border-emerald-400 text-[11px] font-bold bg-white dark:bg-slate-900 outline-none shadow-sm resize-none custom-scroll leading-relaxed" 
                         value={dtBuilderCustom} 
                         onChange={e=>{setDtBuilderCustom(e.target.value);setDtBuilderSelected('');}}
                       />
@@ -2310,15 +2310,15 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
                   {/* في حال اختيار تمرين جاهز: تفتح القائمة */}
 
 
-                  {/* في حال اختيار كتابة يدوي: يفتح مربع الكتابة */}
+                  {/* في حال اختيار كتابة يدوي: يفتح مربع الكتابة الواسع */}
                   {wkExSource==='manual'&&(
                     <div className="space-y-1 animate-slide-up">
                       <span className="block text-[10px] font-bold text-brand">{isAr?'اكتب اسم التمرين بحرية:':'Type exercise name:'}</span>
-                      <input 
-                        type="text" 
+                      <textarea 
                         autoFocus
-                        placeholder={isAr?"اكتب اسم التمرين هنا (مثلاً: رفرفة جانبي، ضغط صدر، إلخ)...":"Type exercise name..."} 
-                        className="w-full p-3 rounded-xl border-2 border-brand/50 text-xs font-bold bg-white dark:bg-slate-900 outline-none shadow-sm" 
+                        rows="3"
+                        placeholder={isAr?"اكتبي اسم وتفاصيل التمرين هنا...":"Type exercise details here..."} 
+                        className="w-full p-3 rounded-xl border-2 border-brand/50 text-[11px] font-bold bg-white dark:bg-slate-900 outline-none shadow-sm resize-none custom-scroll leading-relaxed" 
                         value={wkBuilderCustom} 
                         onChange={e=>{setWkBuilderCustom(e.target.value);setWkBuilderSelected('');}}
                       />
