@@ -2485,18 +2485,79 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
       <button onClick={()=>setDtMealSource('')} className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center text-lg shadow-sm cursor-pointer hover:bg-red-500 hover:text-white transition">✕</button>
     </div>
     <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/40 dark:bg-slate-900/50 custom-scroll">
-      {((editingClient.goal||'loss')==='loss'?DB_DIET_SMART.loss[dtBuilderType]:(editingClient.goal||'loss')==='maint'?DB_DIET_SMART.maint[dtBuilderType]:DB_DIET_SMART.gain[dtBuilderType]).map((m,idx)=>{
-        const cl=stripDietCalorieTags(m);
-        const isSel=dtBuilderSelected===m;
-        return(
-          <div key={idx} onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} className={`p-5 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow-md'}`}>
-            <div className="flex items-center gap-3">
-              <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[12px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
-<span className="text-xs sm:text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words w-full">{cl}</span>
+      {(()=>{
+        const macs = getMacs({...editingClient, customMacs:null}, isAr);
+        const targetCal = Number(macs.c) || 1400;
+        const targetPro = Number(macs.p) || 110;
+        const targetCarb = Number(macs.cr) || 130;
+        const targetFat = Number(macs.f) || 45;
+        
+        let pool = [];
+        if (dtBuilderType === 'brk') {
+            const brkProMult = Math.max(0.7, Math.min(1.6, (targetPro * 0.26) / 20));
+            const brkCarbMult = Math.max(0.6, Math.min(1.8, ((targetCarb * 0.30) - (5 * brkProMult)) / 20));
+            const brkFatMult = Math.max(0.6, Math.min(1.5, (targetFat * 0.28) / 8));
+            
+            EGY_INGREDIENTS.brk_pro.forEach((bp, idx) => {
+                const bc = EGY_INGREDIENTS.brk_carb[idx % EGY_INGREDIENTS.brk_carb.length];
+                const bf = EGY_INGREDIENTS.brk_fat[idx % EGY_INGREDIENTS.brk_fat.length];
+                const brkCal = Math.round((bp.c * brkProMult) + (bc.c * brkCarbMult) + (bf.c * brkFatMult));
+                const brkProG = Math.round((bp.p * brkProMult) + (bc.p * brkCarbMult) + (bf.p * brkFatMult));
+                const brkCarbG = Math.round((bp.cr * brkProMult) + (bc.cr * brkCarbMult) + (bf.cr * brkFatMult));
+                const brkFatG = Math.round((bp.f * brkProMult) + (bc.f * brkCarbMult) + (bf.f * brkFatMult));
+                pool.push(`${bp.fmt(brkProMult)} + ${bc.fmt(brkCarbMult)} + ${bf.fmt(brkFatMult)} [🔥 ${brkCal} Cal | 🥩 ${brkProG}g Pro | 🍞 ${brkCarbG}g Carb | 🧈 ${brkFatG}g Fat]`);
+            });
+        } else if (dtBuilderType === 'lun') {
+            const lunProMult = Math.max(0.75, Math.min(1.75, (targetPro * 0.44) / 40));
+            const lunCarbMult = Math.max(0.6, Math.min(1.9, (targetCarb * 0.42) / 28));
+            
+            EGY_INGREDIENTS.lun_pro.forEach((lp, idx) => {
+                const lc = EGY_INGREDIENTS.lun_carb[idx % EGY_INGREDIENTS.lun_carb.length];
+                const saladCal = 45;
+                const lunCal = Math.round((lp.c * lunProMult) + (lc.c * lunCarbMult) + saladCal);
+                const lunProG = Math.round((lp.p * lunProMult) + (lc.p * lunCarbMult) + 1);
+                const lunCarbG = Math.round((lp.cr * lunProMult) + (lc.cr * lunCarbMult) + 6);
+                const lunFatG = Math.round((lp.f * lunProMult) + (lc.f * lunCarbMult) + 2);
+                pool.push(`${lp.fmt(lunProMult)} + ${lc.fmt(lunCarbMult)} + طبق سلطة خضراء كبير بالليمون والجرجير 🥗 [🔥 ${lunCal} Cal | 🥩 ${lunProG}g Pro | 🍞 ${lunCarbG}g Carb | 🧈 ${lunFatG}g Fat]`);
+            });
+        } else if (dtBuilderType === 'din') {
+            const brkCal = Math.round(targetCal * 0.27);
+            const lunCal = Math.round(targetCal * 0.42);
+            const snkCal = Math.round(targetCal * 0.13);
+            const remCal = Math.max(150, targetCal - (brkCal + lunCal + snkCal));
+            
+            EGY_INGREDIENTS.din_meals.forEach(dm => {
+                const dinMult = Math.max(0.7, Math.min(1.6, remCal / Math.max(140, dm.c)));
+                const dinCal = Math.round(dm.c * dinMult);
+                const dinProG = Math.round(dm.p * dinMult);
+                const dinCarbG = Math.round(dm.cr * dinMult);
+                const dinFatG = Math.round(dm.f * dinMult);
+                pool.push(`${dm.fmt(dinMult)} [🔥 ${dinCal} Cal | 🥩 ${dinProG}g Pro | 🍞 ${dinCarbG}g Carb | 🧈 ${dinFatG}g Fat]`);
+            });
+        } else if (dtBuilderType === 'snk') {
+            EGY_INGREDIENTS.snk_meals.forEach(sn => {
+                const snkMult = Math.max(0.7, Math.min(1.5, (targetCal * 0.12) / Math.max(100, sn.c)));
+                const snkCal = Math.round(sn.c * snkMult);
+                const snkProG = Math.round(sn.p * snkMult);
+                const snkCarbG = Math.round(sn.cr * snkMult);
+                const snkFatG = Math.round(sn.f * snkMult);
+                pool.push(`${sn.fmt(snkMult)} [🔥 ${snkCal} Cal | 🥩 ${snkProG}g Pro | 🍞 ${snkCarbG}g Carb | 🧈 ${snkFatG}g Fat]`);
+            });
+        }
+
+        return pool.map((m, idx) => {
+          const cl = stripDietCalorieTags(m);
+          const isSel = dtBuilderSelected === m;
+          return(
+            <div key={idx} onClick={()=>{setDtBuilderSelected(m);setDtBuilderCustom(cl); setDtMealSource('');}} className={`p-5 rounded-2xl border-2 cursor-pointer transition text-start ${isSel?'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 shadow-md ring-1 ring-emerald-600':'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-400 hover:shadow-md'}`}>
+              <div className="flex items-center gap-3">
+                <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel?'border-emerald-600 bg-emerald-600 text-white text-[12px]':'border-gray-300 dark:border-slate-600'}`}>{isSel?'✓':''}</span>
+                <span className="text-xs sm:text-sm font-black text-gray-800 dark:text-gray-200 leading-relaxed whitespace-normal break-words w-full">{cl}</span>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        });
+      })()}
     </div>
   </div>
 )}
@@ -3022,18 +3083,80 @@ return(
     </div>
   )}
 
-  {swapModalMeal&&(()=>{
+   {swapModalMeal&&(()=>{
     const mealStr=typeof swapModalMeal==='string'?swapModalMeal:(swapModalMeal.text||'');
     const prefixMatch=mealStr.match(/^(•\s*(?:إفطار|غداء|عشاء|سناك)\s*:)/);
     const mealPrefix=prefixMatch?prefixMatch[1]:(mealStr.includes('إفطار')?'• إفطار:':mealStr.includes('غداء')?'• غداء:':mealStr.includes('عشاء')?'• عشاء:':mealStr.includes('سناك')?'• سناك:':'• وجبة:');
-    const gKey=currentUser.goal||macs.goal||'loss';
-    const dDB=DB_DIET_SMART[gKey]||DB_DIET_SMART.loss;
     let catKey='lun';let catLabelAr='وجبة الغداء 🍲';let catLabelEn='Lunch 🍲';
-    if(mealStr.includes('إفطار')||mealStr.toLowerCase().includes('breakfast')){catKey='brk';catLabelAr='وجبة الإفطار 🌅';catLabelEn='Breakfast 🌅';}
-    else if(mealStr.includes('غداء')||mealStr.toLowerCase().includes('lunch')){catKey='lun';catLabelAr='وجبة الغداء 🍲';catLabelEn='Lunch 🍲';}
-    else if(mealStr.includes('عشاء')||mealStr.toLowerCase().includes('dinner')){catKey='din';catLabelAr='وجبة العشاء 🌙';catLabelEn='Dinner 🌙';}
-    else if(mealStr.includes('سناك')||mealStr.toLowerCase().includes('snack')){catKey='snk';catLabelAr='السناك 🍿';catLabelEn='Snack 🍿';}
-    const pool=dDB[catKey]||dDB.brk;
+    
+    let dtBuilderType = 'lun';
+    if(mealStr.includes('إفطار')||mealStr.toLowerCase().includes('breakfast')){catKey='brk';catLabelAr='وجبة الإفطار 🌅';catLabelEn='Breakfast 🌅'; dtBuilderType = 'brk';}
+    else if(mealStr.includes('غداء')||mealStr.toLowerCase().includes('lunch')){catKey='lun';catLabelAr='وجبة الغداء 🍲';catLabelEn='Lunch 🍲'; dtBuilderType = 'lun';}
+    else if(mealStr.includes('عشاء')||mealStr.toLowerCase().includes('dinner')){catKey='din';catLabelAr='وجبة العشاء 🌙';catLabelEn='Dinner 🌙'; dtBuilderType = 'din';}
+    else if(mealStr.includes('سناك')||mealStr.toLowerCase().includes('snack')){catKey='snk';catLabelAr='السناك 🍿';catLabelEn='Snack 🍿'; dtBuilderType = 'snk';}
+    
+    // بناء القائمة الذكية للمقايضة
+    const macs = getMacs(currentUser, isAr);
+    const targetCal = Number(macs.c) || 1400;
+    const targetPro = Number(macs.p) || 110;
+    const targetCarb = Number(macs.cr) || 130;
+    const targetFat = Number(macs.f) || 45;
+    
+    let pool = [];
+    if (dtBuilderType === 'brk') {
+        const brkProMult = Math.max(0.7, Math.min(1.6, (targetPro * 0.26) / 20));
+        const brkCarbMult = Math.max(0.6, Math.min(1.8, ((targetCarb * 0.30) - (5 * brkProMult)) / 20));
+        const brkFatMult = Math.max(0.6, Math.min(1.5, (targetFat * 0.28) / 8));
+        
+        EGY_INGREDIENTS.brk_pro.forEach((bp, idx) => {
+            const bc = EGY_INGREDIENTS.brk_carb[idx % EGY_INGREDIENTS.brk_carb.length];
+            const bf = EGY_INGREDIENTS.brk_fat[idx % EGY_INGREDIENTS.brk_fat.length];
+            const brkCal = Math.round((bp.c * brkProMult) + (bc.c * brkCarbMult) + (bf.c * brkFatMult));
+            const brkProG = Math.round((bp.p * brkProMult) + (bc.p * brkCarbMult) + (bf.p * brkFatMult));
+            const brkCarbG = Math.round((bp.cr * brkProMult) + (bc.cr * brkCarbMult) + (bf.cr * brkFatMult));
+            const brkFatG = Math.round((bp.f * brkProMult) + (bc.f * brkCarbMult) + (bf.f * brkFatMult));
+            pool.push(`${bp.fmt(brkProMult)} + ${bc.fmt(brkCarbMult)} + ${bf.fmt(brkFatMult)} [🔥 ${brkCal} Cal | 🥩 ${brkProG}g Pro | 🍞 ${brkCarbG}g Carb | 🧈 ${brkFatG}g Fat]`);
+        });
+    } else if (dtBuilderType === 'lun') {
+        const lunProMult = Math.max(0.75, Math.min(1.75, (targetPro * 0.44) / 40));
+        const lunCarbMult = Math.max(0.6, Math.min(1.9, (targetCarb * 0.42) / 28));
+        
+        EGY_INGREDIENTS.lun_pro.forEach((lp, idx) => {
+            const lc = EGY_INGREDIENTS.lun_carb[idx % EGY_INGREDIENTS.lun_carb.length];
+            const saladCal = 45;
+            const lunCal = Math.round((lp.c * lunProMult) + (lc.c * lunCarbMult) + saladCal);
+            const lunProG = Math.round((lp.p * lunProMult) + (lc.p * lunCarbMult) + 1);
+            const lunCarbG = Math.round((lp.cr * lunProMult) + (lc.cr * lunCarbMult) + 6);
+            const lunFatG = Math.round((lp.f * lunProMult) + (lc.f * lunCarbMult) + 2);
+            pool.push(`${lp.fmt(lunProMult)} + ${lc.fmt(lunCarbMult)} + طبق سلطة خضراء كبير بالليمون والجرجير 🥗 [🔥 ${lunCal} Cal | 🥩 ${lunProG}g Pro | 🍞 ${lunCarbG}g Carb | 🧈 ${lunFatG}g Fat]`);
+        });
+    } else if (dtBuilderType === 'din') {
+        const brkCal = Math.round(targetCal * 0.27);
+        const lunCal = Math.round(targetCal * 0.42);
+        const snkCal = Math.round(targetCal * 0.13);
+        const remCal = Math.max(150, targetCal - (brkCal + lunCal + snkCal));
+        
+        EGY_INGREDIENTS.din_meals.forEach(dm => {
+            const dinMult = Math.max(0.7, Math.min(1.6, remCal / Math.max(140, dm.c)));
+            const dinCal = Math.round(dm.c * dinMult);
+            const dinProG = Math.round(dm.p * dinMult);
+            const dinCarbG = Math.round(dm.cr * dinMult);
+            const dinFatG = Math.round(dm.f * dinMult);
+            pool.push(`${dm.fmt(dinMult)} [🔥 ${dinCal} Cal | 🥩 ${dinProG}g Pro | 🍞 ${dinCarbG}g Carb | 🧈 ${dinFatG}g Fat]`);
+        });
+    } else if (dtBuilderType === 'snk') {
+        EGY_INGREDIENTS.snk_meals.forEach(sn => {
+            const snkMult = Math.max(0.7, Math.min(1.5, (targetCal * 0.12) / Math.max(100, sn.c)));
+            const snkCal = Math.round(sn.c * snkMult);
+            const snkProG = Math.round(sn.p * snkMult);
+            const snkCarbG = Math.round(sn.cr * snkMult);
+            const snkFatG = Math.round(sn.f * snkMult);
+            pool.push(`${sn.fmt(snkMult)} [🔥 ${snkCal} Cal | 🥩 ${snkProG}g Pro | 🍞 ${snkCarbG}g Carb | 🧈 ${snkFatG}g Fat]`);
+        });
+    }
+    
+    if(pool.length === 0) pool = ['وجبة صحية [🔥 100 Cal]'];
+
     const cleanCurrent=mealStr.replace(/^(•\s*(?:إفطار|غداء|عشاء|سناك)\s*:)/,'').replace(/\(\💡.*?\)/g,'').trim();
     const curPoolIdx=pool.findIndex(p=>cleanCurrent.includes(p.slice(0,22))||p.includes(cleanCurrent.slice(0,22)));
     const nextIdx=curPoolIdx>-1?(curPoolIdx+1)%pool.length:((swapModalMeal.step||0)%pool.length);
