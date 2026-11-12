@@ -1883,11 +1883,15 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
             const cleanPh=String(editingClient.ph||'').replace(/\D/g,'');
             const waPh=cleanPh.startsWith('0')?`2${cleanPh}`:cleanPh;
             
-            // الرسالة الشاملة بكل الماكروز كما طلبت
             const msg=`أهلاً يا ${editingClient.n} 💖\nده ملف الـ PDF لنظام الدايت الأسبوعي بتاعك مضبوط على هدفك ومحسوب بدقة:\n🔥 السعرات: ${cData.c} Cal\n🥩 البروتين: ${cData.p}g\n🍞 الكاربوهيدرات: ${cData.cr}g\n🧈 الدهون: ${cData.f}g\n🥗💪`;
             
-            // استخدام رابط الـ API المباشر لواتساب لفتح التطبيق الافتراضي على الهاتف (عادي أو بزنس) بدون أخطاء
-            window.open(`https://api.whatsapp.com/send?phone=${waPh}&text=${encodeURIComponent(msg)}`, '_blank');
+            // إجبار المتصفح على فتح واتساب العادي (com.whatsapp) باستخدام Intent
+            const waIntent = `intent://send?phone=${waPh}&text=${encodeURIComponent(msg)}#Intent;package=com.whatsapp;scheme=whatsapp;end;`;
+            
+            const newWindow = window.open(waIntent, '_blank');
+            if(!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined'){
+               window.open(`https://wa.me/${waPh}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
           }}
           className="bg-[#25D366] text-white py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition cursor-pointer"
         >
