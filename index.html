@@ -862,26 +862,33 @@ const deleteClient=(ph)=>{if(window.confirm(isAr?'هل أنتِ متأكدة م�
 
 const EGY_INGREDIENTS={
   brk_pro:[
-    {id:'eggs_koraish',p:21,cr:3,f:11,c:195,fmt:(m)=>`${Math.max(1,Math.round(2*m))} بيضة مسلوقة + ${Math.round((60*m)/10)*10}g جبنة قريش 🥚🧀`},
-    {id:'foul_egg',p:18,cr:22,f:6,c:214,fmt:(m)=>`${Math.max(3,Math.round(5*m))} ملاعق فول مدمس بالليمون والكمون + ${Math.max(1,Math.round(1*m))} بيضة مسلوقة 🫘🥚`},
-    {id:'omelet_veggie',p:19,cr:4,f:12,c:200,fmt:(m)=>`أومليت (${Math.max(2,Math.round(2*m))} بيضة بالمشروم والسبانخ والفلفل الرومي) + ${Math.round((40*m)/10)*10}g جبنة لايت 🍳`},
+    {id:'eggs_koraish',p:21,cr:3,f:11,c:195,fmt:(m)=>`${Math.max(1,Math.round(2*m))} بيضة مسلوقة + ${Math.round((60*m)/5)*5}g جبنة قريش 🥚🧀`},
+    {id:'foul_egg',p:18,cr:22,f:6,c:214,fmt:(m)=>`${Math.max(3,Math.round(5*m))} ملاعق فول مدمس بالليمون والكمون + ${Math.max(1,Math.round(1.5*m))} بيضة مسلوقة 🫘🥚`},
+    {id:'omelet_veggie',p:19,cr:4,f:12,c:200,fmt:(m)=>`أومليت (${Math.max(2,Math.round(2*m))} بيضة بالمشروم والسبانخ والفلفل الرومي) + ${Math.round((40*m)/5)*5}g جبنة لايت 🍳`},
     {id:'koraish_flax',p:22,cr:5,f:6,c:162,fmt:(m)=>`${Math.round((150*m)/10)*10}g جبنة قريش بالزعتر والطماطم + بياض بيضتين مسلوق 🧀`},
     {id:'turkey_eggs',p:24,cr:2,f:9,c:185,fmt:(m)=>`${Math.round((60*m)/10)*10}g صدور رومي مدخن + ${Math.max(1,Math.round(2*m))} بيضة عيون بطاسة تيفال 🥩🍳`},
     {id:'greek_eggs',p:22,cr:6,f:10,c:202,fmt:(m)=>`علبة زبادي يوناني (${Math.round((140*m)/10)*10}g) + ${Math.max(1,Math.round(2*m))} بيضة مسلوقة 🥛🥚`},
-    {id:'areesh_foul',p:20,cr:18,f:5,c:197,fmt:(m)=>`${Math.round((100*m)/10)*10}g جبنة قريش + ${Math.max(3,Math.round(4*m))} ملاعق فول مدمس بالليمون 🧀🫘`}
+    {id:'areesh_foul',p:20,cr:18,f:5,c:197,fmt:(m)=>`${Math.round((100*m)/10)*10}g جبنة قريش + ${Math.max(3,Math.round(4*m))} ملاعق فول مدمس بالليمون 🧀🫘`},
+    {id:'falafel_baked_egg',p:15,cr:16,f:8,c:196,fmt:(m)=>`${Math.max(2,Math.round(3*m))} أقراص طعمية مشوية بالفرن (بدون زيت) + ${Math.max(1,Math.round(1*m))} بيضة مسلوقة 🧆🥚`},
+    {id:'halloumi_grilled',p:21,cr:2,f:14,c:218,fmt:(m)=>`${Math.round((80*m)/5)*5}g جبنة حلوم مشوية + طماطم وفلفل ألوان 🧀`},
+    {id:'tuna_brk',p:25,cr:1,f:3,c:131,fmt:(m)=>`${Math.round((100*m)/10)*10}g تونة لايت مصفاة بالليمون والكمون + خس 🥫`}
   ],
   brk_carb:[
     {id:'baladi',p:4,cr:28,f:1,c:137,fmt:(m)=>m<=0.6?'ربع رغيف بلدي':m<=1.15?'نصف رغيف بلدي':m<=1.65?'ثلاثة أرباع رغيف بلدي':'رغيف بلدي كامل'},
     {id:'toast',p:3.5,cr:13,f:1,c:75,fmt:(m)=>`${Math.max(1,Math.round(2*m))} شريحة توست أسمر أو شوفان`},
     {id:'oats_milk',p:8,cr:27,f:3,c:167,fmt:(m)=>`${Math.max(3,Math.round(4*m))} ملاعق شوفان بالحليب خالي الدسم بالقرفة`},
     {id:'bran_bread',p:5,cr:24,f:1,c:125,fmt:(m)=>m<=0.85?'نصف رغيف سن (ردة)':'رغيف عيش سن (ردة)'},
-    {id:'sweet_pot_brk',p:2,cr:24,f:0.2,c:105,fmt:(m)=>`${Math.round((120*m)/10)*10}g بطاطا حلوة مشوية بالقرفة`}
+    {id:'sweet_pot_brk',p:2,cr:24,f:0.2,c:105,fmt:(m)=>`${Math.round((120*m)/10)*10}g بطاطا حلوة مشوية بالقرفة`},
+    {id:'fino_brown',p:4.5,cr:22,f:1.5,c:119,fmt:(m)=>m<=0.8?'نصف رغيف فينو أسمر':'رغيف فينو أسمر (قمح كامل)'},
+    {id:'corn_flakes',p:3,cr:30,f:0.5,c:136,fmt:(m)=>`${Math.round((40*m)/5)*5}g كورن فليكس دايت (بدون سكر)`}
   ],
   brk_fat:[
-    {id:'avocado',p:1,cr:3,f:8,c:88,fmt:(m)=>`${Math.round((50*m)/10)*10}g شرائح أفوكادو طازج 🥑`},
+    {id:'avocado',p:1,cr:3,f:8,c:88,fmt:(m)=>`${Math.round((50*m)/5)*5}g شرائح أفوكادو طازج 🥑`},
     {id:'olive_oil',p:0,cr:0,f:7,c:63,fmt:(m)=>`ملعقة صغيرة زيت زيتون بكر على الجبنة أو الفول 🫒`},
     {id:'almonds_brk',p:2,cr:2,f:6,c:70,fmt:(m)=>`${Math.max(5,Math.round(7*m))} حبات لوز ني + خيار وخس وجرجير 🥒`},
-    {id:'peanut_b',p:3.5,cr:3,f:8,c:98,fmt:(m)=>`ملعقة صغيرة زبدة فول سوداني طبيعية + خيار وجرجير 🥜`}
+    {id:'peanut_b',p:3.5,cr:3,f:8,c:98,fmt:(m)=>`ملعقة صغيرة زبدة فول سوداني طبيعية + خيار وجرجير 🥜`},
+    {id:'walnuts_brk',p:2,cr:1.5,f:9,c:93,fmt:(m)=>`${Math.max(3,Math.round(4*m))} حبات عين جمل + شرائح جزر وخيار 🥕`},
+    {id:'black_olives',p:0.5,cr:1,f:5,c:49,fmt:(m)=>`${Math.max(5,Math.round(8*m))} حبات زيتون أسود (قليل الملح) 🫒`}
   ],
   lun_pro:[
     {id:'chicken_breast',p:46,cr:0,f:5.5,c:248,fmt:(m)=>`${Math.round((150*m)/10)*10}g صدور دجاج مشوية متبلة بالأعشاب والليمون 🍗`},
@@ -891,7 +898,11 @@ const EGY_INGREDIENTS={
     {id:'shish_tawook',p:44,cr:3,f:7,c:251,fmt:(m)=>`${Math.round((160*m)/10)*10}g شيش طاووق صدور مشوي مع البصل والفلفل الألوان 🍢`},
     {id:'grilled_beef',p:42,cr:0,f:11,c:267,fmt:(m)=>`${Math.round((150*m)/10)*10}g ستيك لحم بقري مشوي قليل الدهن مع خضار سوتيه 🥩`},
     {id:'salmon_fillet',p:38,cr:0,f:13,c:269,fmt:(m)=>`${Math.round((170*m)/10)*10}g فيليه سمك مشوي أو سلمون بالليمون والشبت 🐟`},
-    {id:'charcoal_liver',p:41,cr:3,f:9,c:257,fmt:(m)=>`${Math.round((160*m)/10)*10}g كبدة بقري مشوية على الجريل بالثوم والكمون والليمون 🥩`}
+    {id:'charcoal_liver',p:41,cr:3,f:9,c:257,fmt:(m)=>`${Math.round((160*m)/10)*10}g كبدة بقري مشوية على الجريل بالثوم والكمون والليمون 🥩`},
+    {id:'chicken_thighs',p:40,cr:0,f:12,c:268,fmt:(m)=>`${Math.round((160*m)/10)*10}g أوراك دجاج مخلية مشوية (بدون جلد) 🍗`},
+    {id:'shrimp_grilled',p:42,cr:1,f:2,c:189,fmt:(m)=>`${Math.round((180*m)/10)*10}g جمبري مشوي أو مسلوق بالثوم والشبت 🦐`},
+    {id:'mackerel_fish',p:35,cr:0,f:18,c:302,fmt:(m)=>`${Math.round((150*m)/10)*10}g سمك ماكريل مشوي غني بالأوميجا 3 🐟`},
+    {id:'lentil_protein',p:18,cr:40,f:2,c:250,fmt:(m)=>`طبق شوربة عدس أصفر غني بالبروتين النباتي (${Math.round((250*m)/10)*10}g) 🥣`}
   ],
   lun_carb:[
     {id:'basmati_rice',p:3.5,cr:28,f:0.5,c:130,fmt:(m)=>`${Math.max(3,Math.round(6*m))} ملاعق أرز بسمتي مسلوق (${Math.round((110*m)/10)*10}g)`},
@@ -899,7 +910,9 @@ const EGY_INGREDIENTS={
     {id:'baked_potato',p:3,cr:30,f:0.2,c:134,fmt:(m)=>`${Math.round((150*m)/10)*10}g بطاطس مسلوقة أو مشوية في الإيرفراير بالأعشاب`},
     {id:'brown_pasta',p:5.5,cr:30,f:1,c:151,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق مكرونة شوفان أو قمح كامل مسلوقة (${Math.round((105*m)/10)*10}g)`},
     {id:'molokhia_rice',p:5,cr:27,f:2,c:146,fmt:(m)=>`طبق ملوخية خضراء دايت + ${Math.max(3,Math.round(5*m))} ملاعق أرز أبيض مسلوق`},
-    {id:'lentil_rice',p:7,cr:29,f:1.5,c:158,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق أرز بالشعرية أو كشري بيتي خفيف قليل الزيت`}
+    {id:'lentil_rice',p:7,cr:29,f:1.5,c:158,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق أرز بالشعرية أو كشري بيتي خفيف قليل الزيت`},
+    {id:'sweet_pot_lun',p:2.5,cr:32,f:0.3,c:140,fmt:(m)=>`${Math.round((160*m)/10)*10}g بطاطا حلوة مشوية (كارب معقد)`},
+    {id:'quinoa',p:6,cr:25,f:2,c:142,fmt:(m)=>`${Math.max(4,Math.round(6*m))} ملاعق كينوا مطبوخة (${Math.round((100*m)/10)*10}g)`}
   ],
   din_meals:[
     {id:'greek_berries',p:18,cr:12,f:4,c:156,fmt:(m)=>`علبة زبادي يوناني (${Math.round((150*m)/10)*10}g) + عصره ليمون ورشة قرفة + ${Math.max(4,Math.round(6*m))} حبات لوز ني وخيارتين 🥛🥒`},
@@ -908,7 +921,9 @@ const EGY_INGREDIENTS={
     {id:'tuna_salad_din',p:26,cr:7,f:4,c:168,fmt:(m)=>`سلطة تونة لايت (${Math.round((90*m)/10)*10}g تونة مصفاة + فلفل ألوان وخيار وجرجير وليمون بدون خبز) 🥗`},
     {id:'eggs_yogurt_din',p:20,cr:9,f:11,c:215,fmt:(m)=>`${Math.max(1,Math.round(2*m))} بيضة مسلوقة + كوب زبادي لايت (${Math.round((120*m)/10)*10}g) + شريحة توست أسمر وخيار 🥚🥛`},
     {id:'cottage_avocado_din',p:19,cr:8,f:8,c:180,fmt:(m)=>`${Math.round((130*m)/10)*10}g جبنة قريش + شرائح أفوكادو أو زيتون أخضر + طماطم وفلفل رومي 🧀🥑`},
-    {id:'lentil_soup_din',p:16,cr:22,f:3,c:179,fmt:(m)=>`بولة شوربة عدس أصفر بيتي بالكمون والليمون (${Math.round((220*m)/10)*10}ml) + ${Math.round((60*m)/10)*10}g جبنة قريش وجرجير 🥣`}
+    {id:'lentil_soup_din',p:16,cr:22,f:3,c:179,fmt:(m)=>`بولة شوربة عدس أصفر بيتي بالكمون والليمون (${Math.round((220*m)/10)*10}ml) + ${Math.round((60*m)/10)*10}g جبنة قريش وجرجير 🥣`},
+    {id:'smoked_turkey_cheese',p:22,cr:15,f:6,c:202,fmt:(m)=>`${Math.round((70*m)/10)*10}g رومي مدخن + ${Math.round((50*m)/10)*10}g جبنة فيتا لايت + شريحة توست أسمر 🥪`},
+    {id:'egg_whites_oats',p:18,cr:20,f:2,c:170,fmt:(m)=>`بياض ${Math.max(3,Math.round(4*m))} بيضات مسلوقة + ${Math.max(2,Math.round(3*m))} ملاعق شوفان بحليب خالي الدسم 🥚🥣`}
   ],
   snk_meals:[
     {id:'apple_almonds',p:4,cr:21,f:7,c:163,fmt:(m)=>`ثمرة تفاح أخضر أو أحمر + ${Math.max(6,Math.round(10*m))} حبات لوز ني + شاي أخضر بالنعناع 🍏🥜`},
@@ -917,7 +932,9 @@ const EGY_INGREDIENTS={
     {id:'banana_pb',p:5,cr:27,f:8,c:200,fmt:(m)=>`ثمرة موز متوسطة + ملعقة زبدة فول سوداني طبيعية (${Math.round((15*m))}g) + رشة قرفة 🍌🥜`},
     {id:'strawberries_yogurt',p:9,cr:16,f:2,c:118,fmt:(m)=>`طبق فراولة أو كنتالوب (${Math.round((150*m)/10)*10}g) + علبة زبادي لايت ببذور الشيا 🍓🥛`},
     {id:'sweet_potato_snk',p:3,cr:26,f:1,c:125,fmt:(m)=>`بطاطا حلوة مشوية متوسطة (${Math.round((130*m)/10)*10}g) بالقرفة والسمسم + مشروب ينسون أو قرفة بالزنجبيل 🍠`},
-    {id:'dates_walnuts',p:4,cr:25,f:7,c:179,fmt:(m)=>`${Math.max(3,Math.round(3*m))} تمرات محشية لوز وعين جمل + فنجان قهوة عربي أو شاي أخضر 🌴🥜`}
+    {id:'dates_walnuts',p:4,cr:25,f:7,c:179,fmt:(m)=>`${Math.max(3,Math.round(3*m))} تمرات محشية لوز وعين جمل + فنجان قهوة عربي أو شاي أخضر 🌴🥜`},
+    {id:'rice_cakes_pb',p:5,cr:22,f:6,c:162,fmt:(m)=>`${Math.max(2,Math.round(2*m))} رايس كيك (Rice Cakes) مدهون بملعقة صغيرة زبدة فول سوداني 🍘`},
+    {id:'protein_smoothie',p:15,cr:18,f:3,c:159,fmt:(m)=>`سموذي: كوب حليب خالي الدسم + نصف موزة + ملعقة صغيرة بذور شيا 🥤`}
   ]
 };
 
@@ -1849,7 +1866,6 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
           onClick={()=>{
             const cleanName=(editingClient.n||'Client').trim().replace(/\s+/g,'_');
             
-            // تنزيل الملف على جهازك الأول عشان تبعتهولها
             if(dietPdfBlob){
               const url=URL.createObjectURL(dietPdfBlob);
               const a=document.createElement('a');
@@ -1864,19 +1880,14 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
               a.click();
             }
 
-            // فتح الواتساب مباشرة على رقم العميلة
             const cleanPh=String(editingClient.ph||'').replace(/\D/g,'');
             const waPh=cleanPh.startsWith('0')?`2${cleanPh}`:cleanPh;
-            const msg=`أهلاً يا ${editingClient.n} 💖\nده ملف الـ PDF لنظام الدايت الأسبوعي بتاعك مضبوط على هدفك (${cData.c} سعرة | ${cData.p}g بروتين) 🥗💪`;
             
-            // استخدام رابط Intent لضمان فتح الواتساب بيزنس أو العادي مباشرة بدون شاشة اختيار
-            const waIntent = `intent://send?phone=${waPh}&text=${encodeURIComponent(msg)}#Intent;package=com.whatsapp.w4b;scheme=whatsapp;end;`;
+            // الرسالة الشاملة بكل الماكروز كما طلبت
+            const msg=`أهلاً يا ${editingClient.n} 💖\nده ملف الـ PDF لنظام الدايت الأسبوعي بتاعك مضبوط على هدفك ومحسوب بدقة:\n🔥 السعرات: ${cData.c} Cal\n🥩 البروتين: ${cData.p}g\n🍞 الكاربوهيدرات: ${cData.cr}g\n🧈 الدهون: ${cData.f}g\n🥗💪`;
             
-            // نحاول فتح واتساب بيزنس، ولو فشل يفتح الرابط العادي اللي بيوجه لشات العميلة فوراً
-            const newWindow = window.open(waIntent, '_blank');
-            if(!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined'){
-               window.open(`https://wa.me/${waPh}?text=${encodeURIComponent(msg)}`, '_blank');
-            }
+            // استخدام رابط الـ API المباشر لواتساب لفتح التطبيق الافتراضي على الهاتف (عادي أو بزنس) بدون أخطاء
+            window.open(`https://api.whatsapp.com/send?phone=${waPh}&text=${encodeURIComponent(msg)}`, '_blank');
           }}
           className="bg-[#25D366] text-white py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition cursor-pointer"
         >
