@@ -1985,9 +1985,10 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5 border-b pb-2.5">
               <div className="flex items-center gap-2">
                 <span className="font-black text-base text-brand flex items-center gap-1.5">📅 {txt.dWs[i]} {d?.freeDay?(isAr?'🍕 (يوم فري مفتوح)':'🍕 (Free Cheat Day)'):''}</span>
-                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+                                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5 gap-0.5">
                   <button onClick={()=>{setCopiedDiet(d?.diet||''); alert(isAr?'تم نسخ الوجبات بنجاح! 📋':'Meals copied! 📋');}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">نسخ 📋</button>
                   <button onClick={()=>{if(!copiedDiet)return alert(isAr?'لا يوجد شيء منسوخ!':'Nothing copied!'); let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], diet:copiedDiet}; setEditingClient(p=>({...p,sch:s}));}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">لصق 📋</button>
+                  <button onClick={()=>{if(window.confirm(isAr?`هل تريد حذف كل وجبات يوم ${txt.dWs[i]}؟`:`Clear all meals for ${txt.dWs[i]}?`)){let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], diet:'', snacks:'', freeDay:false}; setEditingClient(p=>({...p,sch:s}));}}} className="text-[9px] font-black px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded cursor-pointer transition">حذف 🗑️</button>
                 </div>
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
@@ -2275,9 +2276,10 @@ if(view==='admin'){return(<div className={`min-h-screen p-1 sm:p-4 pb-16 ${isAr?
             <div className="flex flex-wrap justify-between items-center gap-2 border-b pb-2.5">
               <div className="flex items-center gap-2">
                 <span className="font-black text-base text-brand">📅 {txt.dWs[i]} {d?.active?(isAr?'💪 (يوم تمرين)':'💪 (Workout Day)'):(isAr?'🌿 (يوم راحة)':'🌿 (Rest Day)')}</span>
-                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5">
+                                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-0.5 gap-0.5">
                   <button onClick={()=>{setCopiedWorkout({w:d?.workout||'', s:d?.split||'', c:d?.customSplit||'', a:d?.active||false}); alert(isAr?'تم نسخ التمارين بنجاح! 📋':'Workout copied! 📋');}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">نسخ 📋</button>
                   <button onClick={()=>{if(!copiedWorkout)return alert(isAr?'لا يوجد شيء منسوخ!':'Nothing copied!'); let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], workout:copiedWorkout.w, split:copiedWorkout.s, customSplit:copiedWorkout.c, active:copiedWorkout.a}; setEditingClient(p=>({...p,sch:s}));}} className="text-[9px] font-black px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-600 rounded cursor-pointer transition">لصق 📋</button>
+                  <button onClick={()=>{if(window.confirm(isAr?`هل تريد حذف كل تمارين يوم ${txt.dWs[i]}؟`:`Clear all workouts for ${txt.dWs[i]}?`)){let s=[...safeSch(editingClient.sch)]; s[i]={...s[i], workout:''}; setEditingClient(p=>({...p,sch:s}));}}} className="text-[9px] font-black px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded cursor-pointer transition">حذف 🗑️</button>
                 </div>
               </div>
               {d?.active&&(d?.customSplit||d?.split)&&<span className="text-xs font-black bg-brand/10 text-brand px-3 py-1 rounded-full">{d?.customSplit||(isAr?spFound?.ar:spFound?.en)}</span>}
